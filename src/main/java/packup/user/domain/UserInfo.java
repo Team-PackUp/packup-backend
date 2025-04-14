@@ -1,16 +1,14 @@
 package packup.user.domain;
 
 import jakarta.persistence.*;
+import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_info")
-public class UserInfo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long seq;
+public class UserInfo extends BaseEntity {
 
     @Column(name = "user_email", nullable = false, unique = true)
     private String email;
@@ -29,9 +27,6 @@ public class UserInfo {
     @Enumerated(EnumType.STRING)
     @Column(name = "withdraw_flag", columnDefinition = "yn_enum", nullable = false)
     private YnType withdrawFlag = YnType.N;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

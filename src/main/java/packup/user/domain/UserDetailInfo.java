@@ -1,16 +1,13 @@
 package packup.user.domain;
 
 import jakarta.persistence.*;
+import packup.common.domain.BaseEntity;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_detail_info")
-public class UserDetailInfo {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long seq;
+public class UserDetailInfo extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq", nullable = false, unique = true)
@@ -31,9 +28,6 @@ public class UserDetailInfo {
 
     @Column(name = "profile_image_path")
     private String profileImagePath;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
