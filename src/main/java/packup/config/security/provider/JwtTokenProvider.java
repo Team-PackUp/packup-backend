@@ -1,4 +1,4 @@
-package packup.security.provider;
+package packup.config.security.provider;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

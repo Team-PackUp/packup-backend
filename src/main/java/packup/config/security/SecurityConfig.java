@@ -1,7 +1,7 @@
 package packup.config.security;
 
-import packup.security.filter.JwtAuthenticationFilter;
-import packup.security.provider.JwtTokenProvider;
+import packup.config.security.filter.JwtAuthenticationFilter;
+import packup.config.security.provider.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
