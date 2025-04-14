@@ -1,4 +1,4 @@
-package packup.security.model;
+package packup.auth.domain;
 
 import lombok.Getter;
 
