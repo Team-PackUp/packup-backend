@@ -1,10 +1,16 @@
 package packup.user.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import packup.common.domain.BaseEntity;
 
 import java.time.LocalDateTime;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "user_detail_info")
 public class UserDetailInfo extends BaseEntity {
@@ -31,4 +37,8 @@ public class UserDetailInfo extends BaseEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void assignUser(UserInfo user) {
+        this.user = user;
+    }
 }

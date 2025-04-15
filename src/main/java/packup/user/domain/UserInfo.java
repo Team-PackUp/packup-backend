@@ -42,4 +42,9 @@ public class UserInfo extends BaseEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private UserPrefer prefer;
+
+    public void addDetailInfo(UserDetailInfo detailInfo) {
+        this.detailInfo = detailInfo;
+        detailInfo.assignUser(this);
+    }
 }

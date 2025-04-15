@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import packup.auth.domain.OAuth2MemberInfo;
 import packup.auth.domain.OAuth2ServerType;
+import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -16,11 +17,19 @@ public record GoogleMemberResponse(
 ) {
 
     public UserInfo toDomain() {
-        return UserInfo.builder()
-                .joinType(String.valueOf(OAuth2ServerType.GOOGLE))
-                .detailInfo()
+
+        UserDetailInfo userDetailInfo = UserDetailInfo.builder()
+                .profileImagePath(picture)
                 .nickname(givenName)
-                .profileImageUrl(picture)
                 .build();
+
+        UserInfo userInfo = UserInfo.builder()
+                .joinType(String.valueOf(OAuth2ServerType.GOOGLE))
+                .detailInfo(userDetailInfo)
+                .build();
+
+        userInfo.addDetailInfo(userDetailInfo);
+
+        return userInfo;
     }
 }
