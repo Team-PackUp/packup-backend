@@ -17,13 +17,13 @@ public class BaseEntity {
     private Long seq;
 
     @CreatedDate
-    private LocalDateTime createdDate;
+    private LocalDateTime createdAt;
 
     public Long seq() {
         return seq;
     }
 
     public LocalDateTime createdDate() {
-        return createdDate;
+        return createdAt;
     }
 }

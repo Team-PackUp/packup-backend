@@ -3,6 +3,7 @@ package packup.auth.infra.oauth.google.dto;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import packup.auth.domain.OAuth2ServerType;
+import packup.common.enums.YnType;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 
@@ -12,7 +13,8 @@ public record GoogleMemberResponse(
         String name,
         String givenName,
         String picture,
-        String locale
+        String locale,
+        String email
 ) {
 
     public UserInfo toDomain() {
@@ -23,8 +25,12 @@ public record GoogleMemberResponse(
                 .build();
 
         UserInfo userInfo = UserInfo.builder()
+                .email(email)
                 .joinType(String.valueOf(OAuth2ServerType.GOOGLE))
                 .detailInfo(userDetailInfo)
+                .banFlag(YnType.N)
+                .adultFlag(YnType.Y)
+                .withdrawFlag(YnType.N)
                 .build();
 
         userInfo.addDetailInfo(userDetailInfo);
