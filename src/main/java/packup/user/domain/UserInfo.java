@@ -1,12 +1,18 @@
 package packup.user.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "user_info")
 public class UserInfo extends BaseEntity {
 
