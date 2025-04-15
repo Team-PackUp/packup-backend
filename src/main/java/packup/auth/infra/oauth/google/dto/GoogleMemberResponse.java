@@ -2,7 +2,6 @@ package packup.auth.infra.oauth.google.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import packup.auth.domain.OAuth2MemberInfo;
 import packup.auth.domain.OAuth2ServerType;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
