@@ -3,6 +3,7 @@ package packup.user.domain;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user_info")
