@@ -18,7 +18,7 @@ public class OAuth2ApiController {
             @PathVariable String provider,
             @RequestBody OAuth2LoginRequest loginRequest
     ) {
-        return oAuth2Service.login(provider, request);
+        return oAuth2Service.login(provider, loginRequest);
     }
 
 }
