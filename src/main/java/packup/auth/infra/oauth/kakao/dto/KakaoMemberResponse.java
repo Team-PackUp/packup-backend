@@ -2,7 +2,6 @@ package packup.auth.infra.oauth.kakao.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.Data;
 import packup.auth.domain.OAuth2ServerType;
 import packup.common.enums.YnType;
 import packup.user.domain.UserDetailInfo;
