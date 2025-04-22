@@ -6,6 +6,7 @@ import packup.auth.domain.OAuth2ServerType;
 import packup.common.enums.YnType;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
+import packup.user.domain.UserPrefer;
 
 import java.time.LocalDateTime;
 
@@ -24,8 +25,11 @@ public record KakaoMemberResponse(
                 .nickname(kakaoAccount.profile.nickname)
                 .build();
 
+        UserPrefer userPrefer = UserPrefer.builder().build();
+
         UserInfo userInfo = UserInfo.builder()
                 .email(kakaoAccount.email)
+                .prefer(userPrefer)
                 .joinType(String.valueOf(OAuth2ServerType.KAKAO))
                 .detailInfo(userDetailInfo)
                 .banFlag(YnType.N)

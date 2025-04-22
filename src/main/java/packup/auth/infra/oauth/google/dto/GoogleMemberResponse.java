@@ -6,6 +6,7 @@ import packup.auth.domain.OAuth2ServerType;
 import packup.common.enums.YnType;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
+import packup.user.domain.UserPrefer;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record GoogleMemberResponse(
@@ -24,8 +25,12 @@ public record GoogleMemberResponse(
                 .nickname(givenName)
                 .build();
 
+        UserPrefer userPrefer = UserPrefer.builder()
+                .build();
+
         UserInfo userInfo = UserInfo.builder()
                 .email(email)
+                .prefer(userPrefer)
                 .joinType(String.valueOf(OAuth2ServerType.GOOGLE))
                 .detailInfo(userDetailInfo)
                 .banFlag(YnType.N)
