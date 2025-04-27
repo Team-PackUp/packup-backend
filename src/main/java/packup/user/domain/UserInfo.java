@@ -51,4 +51,11 @@ public class UserInfo extends BaseEntity {
         this.detailInfo = detailInfo;
         detailInfo.assignUser(this);
     }
+
+    public void addPrefer(UserPrefer prefer) {
+        this.prefer = prefer;
+        prefer.assignUser(this);
+    }
+
+
 }

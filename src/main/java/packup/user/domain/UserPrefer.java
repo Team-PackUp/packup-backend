@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 import packup.common.domain.BaseEntity;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@DynamicInsert
 @Table(name = "user_prefer")
 public class UserPrefer extends BaseEntity {
 
@@ -26,4 +28,9 @@ public class UserPrefer extends BaseEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void assignUser(UserInfo userInfo) {
+        this.user = userInfo;
+    }
+
 }

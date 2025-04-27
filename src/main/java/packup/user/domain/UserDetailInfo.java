@@ -39,7 +39,7 @@ public class UserDetailInfo extends BaseEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public void assignUser(UserInfo user) {
-        this.user = user;
+    public void assignUser(UserInfo userInfo) {
+        this.user = userInfo;
     }
 }

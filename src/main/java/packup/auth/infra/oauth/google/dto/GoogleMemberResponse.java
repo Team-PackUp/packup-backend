@@ -26,6 +26,7 @@ public record GoogleMemberResponse(
                 .build();
 
         UserPrefer userPrefer = UserPrefer.builder()
+                .preferCategorySeqJson(null)
                 .build();
 
         UserInfo userInfo = UserInfo.builder()
@@ -39,6 +40,7 @@ public record GoogleMemberResponse(
                 .build();
 
         userInfo.addDetailInfo(userDetailInfo);
+        userInfo.addPrefer(userPrefer);
 
         return userInfo;
     }
