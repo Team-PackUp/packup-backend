@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * 모집 기간(RecruitmentPeriod) 값 객체
+ * 모집 기간(RecruitmentPeriod) 값 객체dd
  * - 모집 시작일과 종료일을 관리
  * - 기간 무결성을 검증
  */
