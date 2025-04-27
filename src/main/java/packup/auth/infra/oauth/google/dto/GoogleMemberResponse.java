@@ -18,7 +18,7 @@ public record GoogleMemberResponse(
         String email
 ) {
 
-    public UserInfo toDomain() {
+    public UserInfo toDomain(String joinTypeCodeId) {
 
         UserDetailInfo userDetailInfo = UserDetailInfo.builder()
                 .profileImagePath(picture)
@@ -31,7 +31,7 @@ public record GoogleMemberResponse(
         UserInfo userInfo = UserInfo.builder()
                 .email(email)
                 .prefer(userPrefer)
-                .joinType(String.valueOf(OAuth2ServerType.GOOGLE))
+                .joinType(joinTypeCodeId)
                 .detailInfo(userDetailInfo)
                 .banFlag(YnType.N)
                 .adultFlag(YnType.Y)

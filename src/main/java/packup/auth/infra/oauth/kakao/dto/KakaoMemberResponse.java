@@ -19,7 +19,7 @@ public record KakaoMemberResponse(
         KakaoAccount kakaoAccount
 ) {
 
-    public UserInfo toDomain() {
+    public UserInfo toDomain(String joinTypeCodeId) {
         UserDetailInfo userDetailInfo = UserDetailInfo.builder()
                 .profileImagePath(kakaoAccount.profile.profileImageUrl)
                 .nickname(kakaoAccount.profile.nickname)
@@ -30,7 +30,7 @@ public record KakaoMemberResponse(
         UserInfo userInfo = UserInfo.builder()
                 .email(kakaoAccount.email)
                 .prefer(userPrefer)
-                .joinType(String.valueOf(OAuth2ServerType.KAKAO))
+                .joinType(joinTypeCodeId)
                 .detailInfo(userDetailInfo)
                 .banFlag(YnType.N)
                 .adultFlag(YnType.Y)
