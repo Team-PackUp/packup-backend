@@ -2,8 +2,8 @@ package packup.auth.infra.oauth.kakao.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import packup.auth.domain.OAuth2ServerType;
 import packup.common.enums.YnType;
+import packup.common.util.UUIDGenerator;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.UserPrefer;
@@ -22,7 +22,7 @@ public record KakaoMemberResponse(
     public UserInfo toDomain(String joinTypeCodeId) {
         UserDetailInfo userDetailInfo = UserDetailInfo.builder()
                 .profileImagePath(kakaoAccount.profile.profileImageUrl)
-                .nickname(kakaoAccount.profile.nickname)
+                .nickname(UUIDGenerator.generate(kakaoAccount.profile.nickname))
                 .build();
 
         UserPrefer userPrefer = UserPrefer.builder().build();
