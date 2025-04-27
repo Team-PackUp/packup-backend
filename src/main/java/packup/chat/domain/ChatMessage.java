@@ -29,7 +29,7 @@ public class ChatMessage {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "modify_at")
-    private LocalDateTime modifyAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
 }

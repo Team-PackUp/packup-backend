@@ -9,12 +9,12 @@ import jakarta.persistence.Converter;
 import java.util.List;
 
 @Converter
-public class ChatRoomConverter implements AttributeConverter<List<Integer>, String> {
+public class ChatRoomConverter implements AttributeConverter<List<Long>, String> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(List<Integer> attribute) {
+    public String convertToDatabaseColumn(List<Long> attribute) {
         try {
             return attribute == null ? "[]" : objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
@@ -23,13 +23,16 @@ public class ChatRoomConverter implements AttributeConverter<List<Integer>, Stri
     }
 
     @Override
-    public List<Integer> convertToEntityAttribute(String dbData) {
+    public List<Long> convertToEntityAttribute(String dbData) {
         try {
             return dbData == null || dbData.isEmpty()
                     ? List.of()
-                    : objectMapper.readValue(dbData, new TypeReference<>() {});
+                    : objectMapper.readValue(dbData, new TypeReference<>() {
+            });
+
         } catch (Exception e) {
-            throw new IllegalArgumentException("Could not convert JSON to list", e);
+            throw new IllegalArgumentException("타입 변환 실패", e);
         }
     }
 }
+
