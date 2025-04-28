@@ -1,0 +1,130 @@
+package packup.chat.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import packup.chat.domain.ChatMessage;
+import packup.chat.domain.repository.ChatMessageRepository;
+import packup.chat.dto.ChatMessageDTO;
+import packup.chat.dto.ChatRoomDTO;
+import packup.chat.domain.ChatRoom;
+import packup.chat.domain.repository.ChatRoomRepository;
+import packup.chat.exception.ChatException;
+import packup.user.domain.UserInfo;
+import packup.user.domain.repository.UserInfoRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static packup.chat.exception.ChatExceptionType.*;
+
+@Service
+@RequiredArgsConstructor
+public class ChatService {
+
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final UserInfoRepository userInfoRepository;
+
+    public ChatRoomDTO getChatRoom(Long chatRoomSeq) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+
+        UserInfo userInfo = userInfoRepository.findById(chatRoom.getUserSeq().getSeq())
+                .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
+
+        return ChatRoomDTO.builder()
+                .seq(chatRoom.getSeq())
+                .userSeq(userInfo.getSeq())
+                .partUserSeq(chatRoom.getPartUserSeq())
+                .createdAt(chatRoom.getCreatedAt())
+                .updatedAt(chatRoom.getUpdatedAt())
+                .build();
+    }
+
+
+    public List<ChatRoomDTO> getChatRoomList(Long userSeq) {
+        List<ChatRoom> chatRoom = chatRoomRepository.findByPartUserSeqContains(userSeq);
+
+        System.out.println(chatRoom);
+
+        return chatRoom.stream()
+                .map(chatRoomList -> ChatRoomDTO.builder()
+                        .seq(chatRoomList.getSeq())
+                        .partUserSeq(chatRoomList.getPartUserSeq())
+                        .createdAt(chatRoomList.getCreatedAt())
+                        .updatedAt(chatRoomList.getUpdatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public ChatRoomDTO createChatRoom(List<Long> partUserSeq, Long userSeq) {
+
+        UserInfo userInfo = userInfoRepository.findById(userSeq)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
+
+        ChatRoom chatRoom = ChatRoom.builder()
+                .partUserSeq(partUserSeq)
+                .userSeq(userInfo)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        ChatRoom newChatRoom = chatRoomRepository.save(chatRoom);
+
+        return ChatRoomDTO.builder()
+                .seq(newChatRoom.getSeq())
+                .userSeq(newChatRoom.getUserSeq().getSeq())
+                .partUserSeq(newChatRoom.getPartUserSeq())
+                .createdAt(newChatRoom.getCreatedAt())
+                .updatedAt(newChatRoom.getUpdatedAt())
+                .build();
+    }
+
+    @Transactional
+    public ChatRoomDTO inviteChatRoom(Long chatRoomSeq, Long newPartUserSeq) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+
+        if (chatRoom.getPartUserSeq().contains(newPartUserSeq)) {
+            throw new ChatException(ALREADY_PARTICIPATION);
+        }
+
+        chatRoom.getPartUserSeq().add(newPartUserSeq);
+
+        chatRoom = chatRoomRepository.save(
+                ChatRoom.builder()
+                        .partUserSeq(chatRoom.getPartUserSeq())
+                        .updatedAt(LocalDateTime.now())
+                        .build()
+        );
+
+        return ChatRoomDTO.builder()
+                .seq(chatRoom.getSeq())
+                .userSeq(chatRoom.getUserSeq().getSeq())
+                .partUserSeq(chatRoom.getPartUserSeq())
+                .createdAt(chatRoom.getCreatedAt())
+                .updatedAt(chatRoom.getUpdatedAt())
+                .build();
+    }
+
+    public List<ChatMessageDTO> getChatMessageList(Long chatRoomSeq) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+
+        List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomSeq(chatRoom);
+
+        return chatMessages.stream()
+                .map(chatMessageList -> ChatMessageDTO.builder()
+                        .seq(chatMessageList.getSeq())
+                        .chatRoomSeq(chatMessageList.getChatRoomSeq().getSeq())
+                        .createdAt(chatMessageList.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+}
+
