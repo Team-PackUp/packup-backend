@@ -3,6 +3,9 @@ package packup.chat.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import packup.chat.domain.ChatMessage;
+import packup.chat.domain.repository.ChatMessageRepository;
+import packup.chat.dto.ChatMessageDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.domain.ChatRoom;
 import packup.chat.domain.repository.ChatRoomRepository;
@@ -12,6 +15,7 @@ import packup.user.domain.repository.UserInfoRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static packup.chat.exception.ChatExceptionType.*;
@@ -21,6 +25,7 @@ import static packup.chat.exception.ChatExceptionType.*;
 public class ChatService {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
     private final UserInfoRepository userInfoRepository;
 
     public ChatRoomDTO getChatRoom(Long chatRoomSeq) {
@@ -43,6 +48,8 @@ public class ChatService {
 
     public List<ChatRoomDTO> getChatRoomList(Long userSeq) {
         List<ChatRoom> chatRoom = chatRoomRepository.findByPartUserSeqContains(userSeq);
+
+        System.out.println(chatRoom);
 
         return chatRoom.stream()
                 .map(chatRoomList -> ChatRoomDTO.builder()
@@ -102,6 +109,22 @@ public class ChatService {
                 .createdAt(chatRoom.getCreatedAt())
                 .updatedAt(chatRoom.getUpdatedAt())
                 .build();
+    }
+
+    public List<ChatMessageDTO> getChatMessageList(Long chatRoomSeq) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+
+        List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomSeq(chatRoom);
+
+        return chatMessages.stream()
+                .map(chatMessageList -> ChatMessageDTO.builder()
+                        .seq(chatMessageList.getSeq())
+                        .chatRoomSeq(chatMessageList.getChatRoomSeq().getSeq())
+                        .createdAt(chatMessageList.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
 

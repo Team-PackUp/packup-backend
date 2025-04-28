@@ -2,15 +2,12 @@ package packup.chat.presentation;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import packup.chat.dto.ChatInviteRequestDTO;
+import packup.chat.dto.ChatMessageDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.service.ChatService;
 import packup.config.security.provider.JwtTokenProvider;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -28,7 +25,7 @@ public class ChatController {
     public List<ChatRoomDTO> getChatRoomList(HttpServletRequest request) {
         System.out.println("test");
 //        String token = jwtTokenProvider.resolveToken(request);
-        long userSeq = Integer.parseInt("1");
+        long userSeq = Integer.parseInt("2");
 
         return chatService.getChatRoomList(userSeq);
     }
@@ -49,6 +46,13 @@ public class ChatController {
         ChatRoomDTO chatRoomDTO = chatService.inviteChatRoom(inviteRequest.getChatRoomSeq(), inviteRequest.getNewPartUserSeq());
 
         return chatRoomDTO;
+    }
+
+    @GetMapping("/message/list/{chatRoomSeq}")
+    public List<ChatMessageDTO> getChatMessageList(@PathVariable Long chatRoomSeq) {
+        System.out.println("test " + chatRoomSeq);
+
+        return chatService.getChatMessageList(chatRoomSeq);
     }
 
 }

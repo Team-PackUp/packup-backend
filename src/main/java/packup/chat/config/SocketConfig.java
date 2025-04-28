@@ -1,37 +1,21 @@
 package packup.chat.config;
 
-import org.springframework.context.annotation.Bean;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.HandlerMapping;
-import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 @Configuration
-public class SocketConfig {
+@EnableWebSocket
+@RequiredArgsConstructor
+public class SocketConfig implements WebSocketConfigurer {
 
-    private final WebSocketHandler chatWebSocketHandler;
+    private final WebSocketHandler webSocketHandler;
 
-    public SocketConfig(WebSocketHandler chatWebSocketHandler) {
-        this.chatWebSocketHandler = chatWebSocketHandler;
-    }
-
-    @Bean
-    public HandlerMapping webSocketMapping() {
-        Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/ws/chat", chatWebSocketHandler); // 소켓 엔드포인트
-
-        SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
-        mapping.setUrlMap(map);
-        mapping.setOrder(-1); // 먼저 매핑되도록 수행
-        return mapping;
-    }
-
-    @Bean
-    public WebSocketHandlerAdapter handlerAdapter() {
-        return new WebSocketHandlerAdapter();
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(webSocketHandler, "/ws/chat_message").setAllowedOrigins("*");
     }
 }

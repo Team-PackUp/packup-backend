@@ -1,2 +1,4 @@
-package packup.chat.config;public class RedisConfig {
+package packup.chat.config;
+public class RedisConfig {
+
 }

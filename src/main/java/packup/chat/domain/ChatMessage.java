@@ -20,16 +20,12 @@ public class ChatMessage {
     private Long seq;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room", nullable = false, unique = true)
+    @JoinColumn(name = "chat_room_seq", nullable = false, unique = true)
     private ChatRoom chatRoomSeq;
 
     @Column(name = "user_seq", nullable = false)
-    private Long UserSeq;
+    private Long userSeq;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
 }

@@ -1,32 +1,54 @@
 package packup.chat.config;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketMessage;
-import org.springframework.web.reactive.socket.WebSocketSession;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketMessage;
+import org.springframework.web.socket.WebSocketSession;
+
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class SocketHandler implements WebSocketHandler {
+//    private final ChatController chatController;
+    private final Set<WebSocketSession> sessionSet = new HashSet<>();
+    private final Map<Integer,Set<WebSocketSession>> chatRoomSessionMap = new HashMap<>();
 
-    private final RedisPublisher redisPublisher;
-    private final RedisSubscriber redisSubscriber;
-
-    public SocketHandler(RedisPublisher redisPublisher, RedisSubscriber redisSubscriber) {
-        this.redisPublisher = redisPublisher;
-        this.redisSubscriber = redisSubscriber;
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        System.out.println("소켓 연결 성공");
+        this.sessionSet.add(session);
     }
 
     @Override
-    public Mono<Void> handle(WebSocketSession session) {
-        Flux<String> incoming = session.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .doOnNext(message -> redisPublisher.publish("chatroom1", message)); // Redis 발행
+    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+        String payload = message.getPayload().toString();
+        System.out.println("Received message: " + payload);
+    }
 
-        Flux<WebSocketMessage> outgoing = redisSubscriber.getMessages()
-                .map(session::textMessage); // Redis 수신
 
-        return session.send(outgoing).and(incoming);
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+        boolean result = this.sessionSet.remove(session);
+
+        System.out.println("소켓 해제");
+
+        if(!result) {
+            throw new Exception("err test");
+        }
+    }
+
+    @Override
+    public boolean supportsPartialMessages() {
+        return false;
     }
 }
