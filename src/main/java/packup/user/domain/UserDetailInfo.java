@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Getter
 @Table(name = "user_detail_info")
 public class UserDetailInfo extends BaseEntity {
 
