@@ -26,6 +26,9 @@ public class ChatMessage {
     @Column(name = "user_seq", nullable = false)
     private Long userSeq;
 
+    @Column(name = "message", nullable = false)
+    private String message;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

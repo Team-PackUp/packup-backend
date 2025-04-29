@@ -12,7 +12,7 @@ public class RedisPublisher {
         this.redisTemplate = redisTemplate;
     }
 
-    public void publish(String channel, String message) {
+    public void publishMessage(String channel, String message) {
         redisTemplate.convertAndSend(channel, message);
     }
 }

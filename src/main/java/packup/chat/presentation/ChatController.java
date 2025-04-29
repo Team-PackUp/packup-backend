@@ -2,6 +2,10 @@ package packup.chat.presentation;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import packup.chat.dto.ChatInviteRequestDTO;
 import packup.chat.dto.ChatMessageDTO;
@@ -54,5 +58,4 @@ public class ChatController {
 
         return chatService.getChatMessageList(chatRoomSeq);
     }
-
 }
