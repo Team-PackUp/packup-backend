@@ -11,6 +11,7 @@ public enum UserExceptionType implements BaseExceptionType {
 
 
     NOT_FOUND_MEMBER(NOT_FOUND, "회원을 찾을 수 없습니다"),
+    NOT_FOUND_USER_PREFER(NOT_FOUND, "선호도 정보가 없습니다")
     ;
 
     private final HttpStatus httpStatus;
