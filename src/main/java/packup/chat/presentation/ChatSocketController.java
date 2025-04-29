@@ -1,18 +1,16 @@
 package packup.chat.presentation;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import packup.chat.dto.ChatMessageDTO;
 
 @Controller
+@RequiredArgsConstructor
 public class ChatSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
-
-    public ChatSocketController(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
-    }
 
     @MessageMapping("/sendMessage")
     public void sendMessage(ChatMessageDTO chatMessage) {
