@@ -17,7 +17,7 @@ public class ChatSocketController {
     @MessageMapping("/sendMessage")
     public void sendMessage(ChatMessageDTO chatMessage) {
         System.out.println("STOMP 연결");
-        // 예시로 메시지 내부에 chatRoomSeq 포함
+        
         Long chatRoomSeq = chatMessage.getChatRoomSeq();
         String content = chatMessage.getMessage();
 

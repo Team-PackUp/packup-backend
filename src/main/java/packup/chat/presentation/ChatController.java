@@ -54,7 +54,6 @@ public class ChatController {
 
     @GetMapping("/message/list/{chatRoomSeq}")
     public List<ChatMessageDTO> getChatMessageList(@PathVariable Long chatRoomSeq) {
-        System.out.println("test " + chatRoomSeq);
 
         return chatService.getChatMessageList(chatRoomSeq);
     }

@@ -23,7 +23,7 @@ public class RedisConfig {
 
     @Bean
     MessageListenerAdapter messageListener(SimpMessagingTemplate messagingTemplate) {
-        // RedisTemplate이 아닌 SimpMessagingTemplate을 사용
+
         return new MessageListenerAdapter(new RedisSubscriber(messagingTemplate), "onMessage");
     }
 }
