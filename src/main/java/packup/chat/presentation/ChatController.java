@@ -11,6 +11,7 @@ import packup.chat.dto.ChatInviteRequestDTO;
 import packup.chat.dto.ChatMessageDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.service.ChatService;
+import packup.common.dto.ResultModel;
 import packup.config.security.provider.JwtTokenProvider;
 
 import java.util.List;
@@ -26,35 +27,34 @@ public class ChatController {
 
 
     @GetMapping("/room/list")
-    public List<ChatRoomDTO> getChatRoomList(HttpServletRequest request) {
-        System.out.println("test");
+    public ResultModel<List<ChatRoomDTO>> getChatRoomList(HttpServletRequest request) {
 //        String token = jwtTokenProvider.resolveToken(request);
         long userSeq = Integer.parseInt("2");
 
-        return chatService.getChatRoomList(userSeq);
+        return ResultModel.success(chatService.getChatRoomList(userSeq));
     }
 
     @PostMapping("/room/create")
-    public ChatRoomDTO createChatRoom(HttpServletRequest request, @RequestBody List<Long> partUserSeq) {
+    public ResultModel<ChatRoomDTO> createChatRoom(HttpServletRequest request, @RequestBody List<Long> partUserSeq) {
 
         String token = jwtTokenProvider.resolveToken(request);
         long userSeq = Integer.parseInt(jwtTokenProvider.getUsername(token));
 
 
-        return chatService.createChatRoom(partUserSeq, userSeq);
+        return ResultModel.success(chatService.createChatRoom(partUserSeq, userSeq));
     }
 
     @PostMapping("/room/invite")
-    public ChatRoomDTO inviteChatRoom(@RequestBody ChatInviteRequestDTO inviteRequest) {
+    public ResultModel<ChatRoomDTO> inviteChatRoom(@RequestBody ChatInviteRequestDTO inviteRequest) {
 
         ChatRoomDTO chatRoomDTO = chatService.inviteChatRoom(inviteRequest.getChatRoomSeq(), inviteRequest.getNewPartUserSeq());
 
-        return chatRoomDTO;
+        return ResultModel.success(chatRoomDTO);
     }
 
     @GetMapping("/message/list/{chatRoomSeq}")
-    public List<ChatMessageDTO> getChatMessageList(@PathVariable Long chatRoomSeq) {
+    public ResultModel<List<ChatMessageDTO>> getChatMessageList(@PathVariable Long chatRoomSeq) {
 
-        return chatService.getChatMessageList(chatRoomSeq);
+        return ResultModel.success(chatService.getChatMessageList(chatRoomSeq));
     }
 }

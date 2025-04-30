@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+
 @Component
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener {
@@ -18,7 +20,13 @@ public class RedisSubscriber implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
+        try {
+            String body = new String(message.getBody(), StandardCharsets.UTF_8);
+            System.out.println("Redis 메시지 수신: " + body);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 

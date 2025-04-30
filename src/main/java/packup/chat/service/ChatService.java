@@ -121,6 +121,7 @@ public class ChatService {
         return chatMessages.stream()
                 .map(chatMessageList -> ChatMessageDTO.builder()
                         .seq(chatMessageList.getSeq())
+                        .message(chatMessageList.getMessage())
                         .chatRoomSeq(chatMessageList.getChatRoomSeq().getSeq())
                         .createdAt(chatMessageList.getCreatedAt())
                         .build())
