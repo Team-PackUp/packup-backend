@@ -34,7 +34,7 @@ public class UserPrefer extends BaseEntity {
     }
 
     // DDD 에서는 엔티티에 비즈니스 로직 추가
-    protected void updatePreferCategory(String preferCategorySeqJson) {
+    public void updatePreferCategory(String preferCategorySeqJson) {
         this.preferCategorySeqJson = preferCategorySeqJson;
         this.updatedAt = LocalDateTime.now();
     }
