@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import packup.common.domain.BaseEntity;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,7 @@ public class UserPrefer extends BaseEntity {
     private UserInfo user;
 
     @Column(name = "prefer_category_seq", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String preferCategorySeqJson;
 
     @Column(name = "updated_at")
