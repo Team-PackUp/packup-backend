@@ -1,4 +1,4 @@
-package packup.chat.config;
+package packup.chat.infra;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

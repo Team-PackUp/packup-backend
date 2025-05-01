@@ -7,6 +7,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import packup.auth.annotation.Auth;
 import packup.chat.dto.ChatInviteRequestDTO;
 import packup.chat.dto.ChatMessageDTO;
 import packup.chat.dto.ChatRoomDTO;
@@ -23,25 +24,16 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    private final JwtTokenProvider jwtTokenProvider;
-
-
     @GetMapping("/room/list")
-    public ResultModel<List<ChatRoomDTO>> getChatRoomList(HttpServletRequest request) {
-//        String token = jwtTokenProvider.resolveToken(request);
-        long userSeq = Integer.parseInt("2");
+    public ResultModel<List<ChatRoomDTO>> getChatRoomList(@Auth Long memberId) {
 
-        return ResultModel.success(chatService.getChatRoomList(userSeq));
+        return ResultModel.success(chatService.getChatRoomList(memberId));
     }
 
     @PostMapping("/room/create")
-    public ResultModel<ChatRoomDTO> createChatRoom(HttpServletRequest request, @RequestBody List<Long> partUserSeq) {
+    public ResultModel<ChatRoomDTO> createChatRoom(@Auth Long memberId, @RequestBody List<Long> partUserSeq) {
 
-        String token = jwtTokenProvider.resolveToken(request);
-        long userSeq = Integer.parseInt(jwtTokenProvider.getUsername(token));
-
-
-        return ResultModel.success(chatService.createChatRoom(partUserSeq, userSeq));
+        return ResultModel.success(chatService.createChatRoom(partUserSeq, memberId));
     }
 
     @PostMapping("/room/invite")

@@ -10,6 +10,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class SocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    SocketInterceptor socketInterceptor;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic"); // 구독 채널
@@ -18,7 +20,9 @@ public class SocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/api/chat").setAllowedOrigins("*");  // WebSocket 연결을 위한 엔드포인트
+        registry.addEndpoint("/api/chat")
+                .setAllowedOriginPatterns("*");
+//                .addInterceptors(new SocketInterceptor());
     }
 }
 

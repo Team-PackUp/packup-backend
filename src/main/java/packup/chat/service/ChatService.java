@@ -127,5 +127,28 @@ public class ChatService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public boolean saveChatMessage(ChatMessageDTO chatMessageDTO) {
+
+        if(chatMessageDTO.getMessage().isEmpty()) {
+            throw new ChatException(ABNORMAL_ACCESS);
+        }
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDTO.getChatRoomSeq())
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+
+        ChatMessage newChatMessage = new ChatMessage();
+        newChatMessage.setChatRoomSeq(chatRoom);
+        newChatMessage.setMessage(chatMessageDTO.getMessage());
+        newChatMessage.setUserSeq(chatMessageDTO.getUserSeq());
+
+        ChatMessage chatMessage = chatMessageRepository.save(newChatMessage);
+        if(chatMessage != null) {
+            throw new ChatException(FAIL_TO_SAVE_MESSAGE);
+        }
+
+        return true;
+    }
 }
 

@@ -1,4 +1,4 @@
-package packup.chat.config;
+package packup.chat.infra;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

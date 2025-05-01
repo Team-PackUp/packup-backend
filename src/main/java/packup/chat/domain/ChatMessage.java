@@ -1,23 +1,19 @@
 package packup.chat.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import packup.common.domain.BaseEntity;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "chat_message")
-public class ChatMessage {
-
-    @Id
-    private Long seq;
+public class ChatMessage extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_seq", nullable = false, unique = true)

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import packup.chat.presentation.ChatRoomConverter;
+import packup.common.domain.BaseEntity;
 import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
@@ -19,10 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @DynamicUpdate
 @Table(name = "chat_room")
-public class ChatRoom {
-
-    @Id
-    private Long seq;
+public class ChatRoom extends BaseEntity {
 
     @Convert(converter = ChatRoomConverter.class)
     @Column(name = "part_user_seq", columnDefinition = "jsonb", nullable = false)
