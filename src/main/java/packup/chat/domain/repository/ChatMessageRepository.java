@@ -7,5 +7,5 @@ import packup.chat.domain.ChatRoom;
 import java.util.List;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-    List<ChatMessage> findByChatRoomSeq(ChatRoom chatRoom);
+    List<ChatMessage> findByChatRoomSeqOrderByCreatedAtDesc(ChatRoom chatRoom);
 }

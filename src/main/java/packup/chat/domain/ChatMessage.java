@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class ChatMessage extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_seq", nullable = false, unique = true)
+    @JoinColumn(name = "chat_room_seq", nullable = false)
     private ChatRoom chatRoomSeq;
 
     @Column(name = "user_seq", nullable = false)
@@ -25,6 +25,4 @@ public class ChatMessage extends BaseEntity {
     @Column(name = "message", nullable = false)
     private String message;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 }

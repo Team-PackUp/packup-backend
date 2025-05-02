@@ -4,18 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import packup.chat.domain.ChatMessage;
+import packup.chat.domain.ChatRoom;
 import packup.chat.domain.repository.ChatMessageRepository;
+import packup.chat.domain.repository.ChatRoomRepository;
 import packup.chat.dto.ChatMessageDTO;
 import packup.chat.dto.ChatRoomDTO;
-import packup.chat.domain.ChatRoom;
-import packup.chat.domain.repository.ChatRoomRepository;
 import packup.chat.exception.ChatException;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static packup.chat.exception.ChatExceptionType.*;
@@ -49,8 +48,6 @@ public class ChatService {
     public List<ChatRoomDTO> getChatRoomList(Long userSeq) {
         List<ChatRoom> chatRoom = chatRoomRepository.findByPartUserSeqContains(userSeq);
 
-        System.out.println(chatRoom);
-
         return chatRoom.stream()
                 .map(chatRoomList -> ChatRoomDTO.builder()
                         .seq(chatRoomList.getSeq())
@@ -69,7 +66,6 @@ public class ChatService {
         ChatRoom chatRoom = ChatRoom.builder()
                 .partUserSeq(partUserSeq)
                 .userSeq(userInfo)
-                .createdAt(LocalDateTime.now())
                 .build();
 
         ChatRoom newChatRoom = chatRoomRepository.save(chatRoom);
@@ -116,7 +112,7 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
 
-        List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomSeq(chatRoom);
+        List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomSeqOrderByCreatedAtDesc(chatRoom);
 
         return chatMessages.stream()
                 .map(chatMessageList -> ChatMessageDTO.builder()
@@ -129,7 +125,7 @@ public class ChatService {
     }
 
     @Transactional
-    public boolean saveChatMessage(ChatMessageDTO chatMessageDTO) {
+    public ChatMessageDTO saveChatMessage(ChatMessageDTO chatMessageDTO) {
 
         if(chatMessageDTO.getMessage().isEmpty()) {
             throw new ChatException(ABNORMAL_ACCESS);
@@ -144,11 +140,16 @@ public class ChatService {
         newChatMessage.setUserSeq(chatMessageDTO.getUserSeq());
 
         ChatMessage chatMessage = chatMessageRepository.save(newChatMessage);
-        if(chatMessage != null) {
+        if(chatMessage.getSeq() == null) {
             throw new ChatException(FAIL_TO_SAVE_MESSAGE);
         }
 
-        return true;
+        return ChatMessageDTO.builder()
+                .seq(chatMessage.getSeq())
+                .userSeq(chatMessage.getUserSeq())
+                .message(chatMessage.getMessage())
+                .createdAt(chatMessage.getCreatedAt())
+                .build();
     }
 }
 

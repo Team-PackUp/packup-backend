@@ -10,19 +10,17 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class SocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    SocketInterceptor socketInterceptor;
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic"); // 구독 채널
+        config.enableSimpleBroker("/topic"); // 구독
         config.setApplicationDestinationPrefixes("/pub");       // 발행
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/api/chat")
-                .setAllowedOriginPatterns("*");
-//                .addInterceptors(new SocketInterceptor());
+                .setAllowedOriginPatterns("*")
+                .addInterceptors(new SocketInterceptor());
     }
 }
 

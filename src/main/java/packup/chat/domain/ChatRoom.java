@@ -30,9 +30,6 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(name = "user_seq", nullable = false)
     private UserInfo userSeq;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }

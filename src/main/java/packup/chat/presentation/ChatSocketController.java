@@ -2,10 +2,15 @@ package packup.chat.presentation;
 
 import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.rsocket.annotation.ConnectMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import packup.auth.annotation.Auth;
 import packup.chat.infra.RedisPublisher;
 import packup.chat.dto.ChatMessageDTO;
@@ -22,27 +27,29 @@ public class ChatSocketController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @MessageMapping("/send.message")
-    public void sendMessage(@Auth Long memberId, ChatMessageDTO chatMessage) {
-//        String token = authHeader.replace("Bearer ", "");
-//        System.out.println("Token: " + token);
-//        System.out.println("STOMP 연결 " + chatMessage.getMessage());
-        System.out.println("채팅 발송 회원 " + memberId);
+    public void sendMessage(@Payload ChatMessageDTO chatMessage, Message<?> stompMessage) {
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(stompMessage);
+        String token = (String) accessor.getSessionAttributes().get("Authorization");
+        Long userSeq = Long.valueOf(jwtTokenProvider.getUsername(token));
 
-//        Long userSeq = Long.valueOf(jwtTokenProvider.getUsername(token));
         Long chatRoomSeq = chatMessage.getChatRoomSeq();
         String content = chatMessage.getMessage();
 
         ChatMessageDTO chatMessageDTO = ChatMessageDTO.builder()
                 .message(content)
                 .chatRoomSeq(chatRoomSeq)
-//                .userSeq(userSeq)
+                .userSeq(userSeq)
                 .build();
-        boolean saveResult = chatService.saveChatMessage(chatMessageDTO);
-        if (saveResult) {
-            messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomSeq, content);
-            redisPublisher.publishMessage("chatRoom:" + chatRoomSeq, content);
+
+        ChatMessageDTO saveResult = chatService.saveChatMessage(chatMessageDTO);
+
+        if (saveResult.getSeq() > 0) {
+//            redisPublisher.publishMessage("chatRoom:" + chatRoomSeq, String.valueOf(saveResult));
+
+            messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, saveResult);
         }
     }
+
 
     @MessageMapping("/send.connection")
     public void sendCheckSocket(String connection) {
