@@ -1,10 +1,7 @@
 package packup.chat.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import packup.chat.presentation.ChatConverter;
 import packup.common.domain.BaseEntity;
@@ -16,6 +13,7 @@ import java.util.List;
 @Entity
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamicUpdate

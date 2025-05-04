@@ -22,4 +22,12 @@ public class RedisPublisher {
         String json = objectMapper.writeValueAsString(chatMessageDTO);
         redisTemplate.convertAndSend(sendMessageTopic.getTopic(), json);
     }
+
+    // 새로운 채팅방 메시지 발행
+    public void publishChatRoomList() {
+        System.out.println("채팅방 최신화");
+        String updateMessage = "{\"update\": \"chatRoomList\"}";
+
+        redisTemplate.convertAndSend("chat_rooms", updateMessage);
+    }
 }

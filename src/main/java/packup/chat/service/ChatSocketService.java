@@ -21,6 +21,9 @@ public class ChatSocketService {
             // pub
             redisPublisher.publishMessage(chatMessageDto);
 
+            // 채팅방 최신화
+            redisPublisher.publishChatRoomList();
+
             // stream
             redisService.appendToStream(chatMessageDto);
 

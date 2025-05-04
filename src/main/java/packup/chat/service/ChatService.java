@@ -79,7 +79,6 @@ public class ChatService {
                 .build();
     }
 
-    @Transactional
     public ChatRoomDTO inviteChatRoom(Long chatRoomSeq, Long newPartUserSeq) {
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
@@ -140,6 +139,16 @@ public class ChatService {
         newChatMessage.setUserSeq(chatMessageDTO.getUserSeq());
 
         chatMessageRepository.save(newChatMessage);
+    }
+
+    public void updateChatRoom(Long chatRoomSeq) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+
+        chatRoom.setUpdatedAt(LocalDateTime.now());
+
+        chatRoomRepository.save(chatRoom);
     }
 }
 

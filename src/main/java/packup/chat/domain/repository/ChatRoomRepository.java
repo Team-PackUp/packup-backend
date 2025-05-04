@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-    @Query(value = "SELECT * FROM chat_room WHERE part_user_seq @> to_jsonb(array[:seq]::int[])", nativeQuery = true)
+    @Query(value = "SELECT * FROM chat_room WHERE part_user_seq @> to_jsonb(array[:seq]::int[]) ORDER BY updated_at, seq DESC", nativeQuery = true)
     List<ChatRoom> findByPartUserSeqContains(@Param("seq") long seq);
 
     ChatRoom findFirstBySeq(long seq);
