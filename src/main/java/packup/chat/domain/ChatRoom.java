@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-import packup.chat.presentation.ChatRoomConverter;
+import packup.chat.presentation.ChatConverter;
 import packup.common.domain.BaseEntity;
 import packup.user.domain.UserInfo;
 
@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "chat_room")
 public class ChatRoom extends BaseEntity {
 
-    @Convert(converter = ChatRoomConverter.class)
+    @Convert(converter = ChatConverter.class)
     @Column(name = "part_user_seq", columnDefinition = "jsonb", nullable = false)
     private List<Long> partUserSeq;
 

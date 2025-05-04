@@ -1,32 +1,39 @@
 package packup.chat.infra;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
+import packup.chat.constant.ChatConstant;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final ObjectMapper objectMapper;
-    private final RedisTemplate redisTemplate;
+    private final SimpMessageSendingOperations messagingTemplate;
 
+    // Redis에서 pub 했을 때 Sub로 메시지를 수신했을 때 > 즉각 리턴하여 UX 경험 굿
     @Override
     public void onMessage(Message message, byte[] pattern) {
+        String json = new String(message.getBody());
         try {
-            String body = new String(message.getBody(), StandardCharsets.UTF_8);
-            System.out.println("Redis 메시지 수신: " + body);
+            Map<String, Object> map = objectMapper.readValue(json, new TypeReference<>() {});
 
-        } catch (Exception e) {
+            String chatRoomSeq = map.get("chatRoomSeq").toString();
+
+            messagingTemplate.convertAndSend(ChatConstant.CHAT_ENDPOINT_PREFIX + chatRoomSeq, map);
+
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
     }
 }
+
 

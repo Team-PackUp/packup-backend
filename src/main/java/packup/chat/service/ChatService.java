@@ -117,6 +117,7 @@ public class ChatService {
         return chatMessages.stream()
                 .map(chatMessageList -> ChatMessageDTO.builder()
                         .seq(chatMessageList.getSeq())
+                        .userSeq(chatMessageList.getUserSeq())
                         .message(chatMessageList.getMessage())
                         .chatRoomSeq(chatMessageList.getChatRoomSeq().getSeq())
                         .createdAt(chatMessageList.getCreatedAt())
@@ -124,8 +125,7 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public ChatMessageDTO saveChatMessage(ChatMessageDTO chatMessageDTO) {
+    public void saveChatMessage(ChatMessageDTO chatMessageDTO) {
 
         if(chatMessageDTO.getMessage().isEmpty()) {
             throw new ChatException(ABNORMAL_ACCESS);
@@ -139,17 +139,7 @@ public class ChatService {
         newChatMessage.setMessage(chatMessageDTO.getMessage());
         newChatMessage.setUserSeq(chatMessageDTO.getUserSeq());
 
-        ChatMessage chatMessage = chatMessageRepository.save(newChatMessage);
-        if(chatMessage.getSeq() == null) {
-            throw new ChatException(FAIL_TO_SAVE_MESSAGE);
-        }
-
-        return ChatMessageDTO.builder()
-                .seq(chatMessage.getSeq())
-                .userSeq(chatMessage.getUserSeq())
-                .message(chatMessage.getMessage())
-                .createdAt(chatMessage.getCreatedAt())
-                .build();
+        chatMessageRepository.save(newChatMessage);
     }
 }
 

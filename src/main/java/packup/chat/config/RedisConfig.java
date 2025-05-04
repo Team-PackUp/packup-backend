@@ -6,12 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import packup.chat.infra.RedisSubscriber;
 
 @Configuration
 public class RedisConfig {
@@ -22,41 +17,26 @@ public class RedisConfig {
     @Value("${data.redis.port}")
     private int port;
 
-    // 발행된 메시지 처리를 위한 컨테이너
+    // Redis 연결 팩토리만 정의
     @Bean
-    RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory,
-                                            MessageListenerAdapter messageListener,
-                                            ChannelTopic channelTopic
-    ) {
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(messageListener, channelTopic);
-        return container;
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory(host, port);
     }
 
+    // RedisTemplate 설정 (Redis에서 직접 값 주고받을 때 사용)
     @Bean
-    MessageListenerAdapter messageListenerAdapter(RedisSubscriber subscriber) {
-
-        return new MessageListenerAdapter(subscriber, "onMessage");
-    }
-
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate
-            (RedisConnectionFactory connectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(connectionFactory);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+
+        // 문자열 기반 직렬화 설정
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(stringSerializer);
+        redisTemplate.setValueSerializer(stringSerializer);
+        redisTemplate.setHashKeySerializer(stringSerializer);
+        redisTemplate.setHashValueSerializer(stringSerializer);
+
         return redisTemplate;
     }
 
-    @Bean
-    public ChannelTopic channelTopic() {
-        return new ChannelTopic("chatRoom");
-    }
-
-    @Bean
-    public RedisConnectionFactory redisConnectionFactory(){
-        return new LettuceConnectionFactory(host, port);
-    }
 }
