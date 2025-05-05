@@ -150,5 +150,10 @@ public class ChatService {
 
         chatRoomRepository.save(chatRoom);
     }
+
+    public List<Long> getPartUserInRoom(Long chatRoomSeq) {
+        ChatRoom chatRoomPartUser = chatRoomRepository.findById(chatRoomSeq).orElseThrow();
+        return chatRoomPartUser.getPartUserSeq();
+    }
 }
 

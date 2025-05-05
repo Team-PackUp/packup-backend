@@ -22,7 +22,7 @@ public class ChatSocketService {
             redisPublisher.publishMessage(chatMessageDto);
 
             // 채팅방 최신화
-            redisPublisher.publishChatRoomList();
+            redisPublisher.publishChatRoomList(chatMessageDto);
 
             // stream
             redisService.appendToStream(chatMessageDto);
