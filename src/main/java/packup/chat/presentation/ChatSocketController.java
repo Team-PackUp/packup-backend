@@ -4,17 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import packup.chat.dto.ChatMessageDTO;
-import packup.chat.service.ChatSocketService;
+import packup.chat.service.ChatService;
 import packup.config.security.provider.JwtTokenProvider;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 public class ChatSocketController {
 
-    private final ChatSocketService chatSocketService;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatService chatService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @MessageMapping("/send.message")
@@ -37,8 +41,18 @@ public class ChatSocketController {
                 .userSeq(userSeq)
                 .build();
 
-        // 서비스로 메시지 전송
-        chatSocketService.sendChatMessage(chatMessageDTO);
+        // 채팅 저장
+        ChatMessageDTO newChatMessageDTO = chatService.saveChatMessage(chatMessageDTO);
+
+        // 구독 알림
+        if (newChatMessageDTO.getSeq() > 0) {
+            messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
+
+            List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
+            for (Long username : chatRoomPartUser) {
+                messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", "REFRESH");
+            }
+        }
     }
 
 

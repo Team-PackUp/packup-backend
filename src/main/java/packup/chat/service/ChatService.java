@@ -124,7 +124,8 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    public void saveChatMessage(ChatMessageDTO chatMessageDTO) {
+    @Transactional
+    public ChatMessageDTO saveChatMessage(ChatMessageDTO chatMessageDTO) {
 
         if(chatMessageDTO.getMessage().isEmpty()) {
             throw new ChatException(ABNORMAL_ACCESS);
@@ -139,6 +140,16 @@ public class ChatService {
         newChatMessage.setUserSeq(chatMessageDTO.getUserSeq());
 
         chatMessageRepository.save(newChatMessage);
+        updateChatRoom(chatRoom.seq());
+
+        return ChatMessageDTO
+                .builder()
+                .seq(newChatMessage.seq())
+                .userSeq(newChatMessage.getUserSeq())
+                .message(newChatMessage.getMessage())
+                .chatRoomSeq(chatRoom.seq())
+                .createdAt(newChatMessage.getCreatedAt())
+                .build();
     }
 
     public void updateChatRoom(Long chatRoomSeq) {
