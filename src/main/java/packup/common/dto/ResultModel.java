@@ -28,4 +28,14 @@ public class ResultModel<T> {
                 .response(null)
                 .build();
     }
+
+    public static ResultModel<Void> success() {
+        return ResultModel.<Void>builder()
+                .message(ResponseMessage.SUCCESS.message())
+                .resultFlag(true)
+                .statusCode(ResponseMessage.SUCCESS.httpStatus().value())
+                .response(null)
+                .build();
+    }
+
 }

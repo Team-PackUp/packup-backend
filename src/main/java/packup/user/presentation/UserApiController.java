@@ -1,13 +1,12 @@
 package packup.user.presentation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import packup.auth.annotation.Auth;
 import packup.common.dto.ResultModel;
 import packup.user.domain.UserInfo;
 import packup.user.dto.UserInfoResponse;
+import packup.user.dto.UserPreferRequest;
 import packup.user.service.UserService;
 
 @RestController
@@ -22,5 +21,17 @@ public class UserApiController {
         UserInfoResponse userInfoResponse = userService.getUserInfo(memberId);
         return ResultModel.success(userInfoResponse);
     }
+
+    @PutMapping("/prefer")
+    public ResultModel<Void> updateUserPrefer(
+            @Auth Long memberId,
+            @RequestBody UserPreferRequest request) {
+
+        userService.updateUserPrefer(memberId, request);
+        return ResultModel.success();
+    }
+
+
+
 
 }
