@@ -9,7 +9,7 @@ import packup.auth.infra.oauth.google.client.GoogleApiClient;
 import packup.auth.infra.oauth.kakao.client.KakaoApiClient;
 
 @Configuration
-public class HttpInterfaceConfig {
+public class OAuth2HttpInterfaceConfig {
 
     @Bean
     public KakaoApiClient kakaoApiClient() {
