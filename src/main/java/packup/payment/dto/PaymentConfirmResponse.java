@@ -8,5 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PaymentConfirmResponse {
-
+    private String paymentKey;
+    private String orderId;
+    private int amount;
 }
