@@ -2,13 +2,18 @@ package packup.chat.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import packup.auth.annotation.Auth;
 import packup.chat.dto.ChatInviteRequestDTO;
 import packup.chat.dto.ChatMessageDTO;
+import packup.chat.dto.ChatMessageFileDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.service.ChatService;
+import packup.common.dto.ImageDTO;
 import packup.common.dto.ResultModel;
+import packup.common.util.FileUtil;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -39,8 +44,14 @@ public class ChatController {
     }
 
     @GetMapping("/message/list/{chatRoomSeq}")
-    public ResultModel<List<ChatMessageDTO>> getChatMessageList(@PathVariable Long chatRoomSeq) {
+    public ResultModel<List<ChatMessageDTO>> getChatMessageList(@Auth Long memberId, @PathVariable Long chatRoomSeq) {
 
-        return ResultModel.success(chatService.getChatMessageList(chatRoomSeq));
+        return ResultModel.success(chatService.getChatMessageList(memberId, chatRoomSeq));
+    }
+
+    @PostMapping("message/save/file")
+    public ResultModel<ChatMessageFileDTO> saveImage(@Auth Long memberId, @RequestParam("file") MultipartFile file) throws IOException {
+
+        return ResultModel.success(chatService.saveImage(memberId, "chat", file));
     }
 }

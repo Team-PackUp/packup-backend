@@ -5,26 +5,25 @@ import lombok.*;
 import packup.common.domain.BaseEntity;
 import packup.user.domain.UserInfo;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "chat_message")
-public class ChatMessage extends BaseEntity {
+@Table(name = "chat_message_file")
+public class ChatMessageFile extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_seq", nullable = false)
-    private ChatRoom chatRoomSeq;
+    @Column(name = "chat_file_path", nullable = false)
+    private String chatFilePath;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq", nullable = false)
     private UserInfo userSeq;
 
-    @Column(name = "message", nullable = false)
-    private String message;
+    @Column(name = "encoded_name", nullable = false)
+    private String encodedName;
 
+    @Column(name = "real_name", nullable = false)
+    private String realName;
 }

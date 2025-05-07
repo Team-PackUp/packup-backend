@@ -15,7 +15,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-public class ChatSocketController {
+public class ChatSocketMapping {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
@@ -42,10 +42,11 @@ public class ChatSocketController {
                 .build();
 
         // 채팅 저장
-        ChatMessageDTO newChatMessageDTO = chatService.saveChatMessage(chatMessageDTO);
+        ChatMessageDTO newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
 
         // 구독 알림
         if (newChatMessageDTO.getSeq() > 0) {
+            System.out.println("소켓 결과 전송!!");
             messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
 
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
