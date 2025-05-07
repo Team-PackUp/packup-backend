@@ -13,7 +13,7 @@ import packup.common.domain.BaseEntity;
 public class PaymentReceipt extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id", nullable = false)
+    @JoinColumn(name = "payment_seq", nullable = false)
     private PaymentHistory payment;
 
     @Lob
