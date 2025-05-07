@@ -8,6 +8,7 @@ import packup.payment.dto.PaymentConfirmResponse;
 import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -62,6 +63,6 @@ public class PaymentMapper {
     }
 
     private LocalDateTime parse(String iso) {
-        return iso != null ? LocalDateTime.parse(iso) : null;
+        return iso != null ? OffsetDateTime.parse(iso).toLocalDateTime() : null;
     }
 }
