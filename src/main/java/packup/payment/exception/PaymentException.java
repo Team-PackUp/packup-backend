@@ -8,7 +8,7 @@ import packup.common.exception.BaseExceptionType;
 @RequiredArgsConstructor
 public class PaymentException extends BaseException {
 
-    private final AuthExceptionType exceptionType;
+    private final PaymentExceptionType exceptionType;
 
     @Override
     public BaseExceptionType exceptionType() {
