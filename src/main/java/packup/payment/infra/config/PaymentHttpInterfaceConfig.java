@@ -16,7 +16,10 @@ public class PaymentHttpInterfaceConfig {
     }
 
     private <T> T createHttpInterface(Class<T> clazz) {
-        WebClient webClient = WebClient.builder().build();  // baseUrl 없이 구성
+        WebClient webClient = WebClient.builder().
+                baseUrl("https://api.tosspayments.com")
+                .build();
+
         WebClientAdapter adapter = WebClientAdapter.create(webClient);
         HttpServiceProxyFactory factory = HttpServiceProxyFactory
                 .builderFor(adapter)

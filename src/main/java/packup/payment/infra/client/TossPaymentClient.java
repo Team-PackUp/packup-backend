@@ -8,7 +8,8 @@ import packup.payment.dto.PaymentConfirmResponse;
 
 public interface TossPaymentClient {
 
-    @PostExchange(url = "https://api.tosspayments.com/v1/payments/confirm")
+//    @PostExchange(url = "https://api.tosspayments.com/v1/payments/confirm")
+    @PostExchange("/v1/payments/confirm")
     PaymentConfirmResponse confirmPayment(
             @RequestBody PaymentConfirmRequest request,
             @RequestHeader("Authorization") String authorization
