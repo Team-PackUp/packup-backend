@@ -6,12 +6,10 @@ import org.springframework.web.multipart.MultipartFile;
 import packup.auth.annotation.Auth;
 import packup.chat.dto.ChatInviteRequestDTO;
 import packup.chat.dto.ChatMessageDTO;
-import packup.chat.dto.ChatMessageFileDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.service.ChatService;
-import packup.common.dto.ImageDTO;
+import packup.common.dto.FileDTO;
 import packup.common.dto.ResultModel;
-import packup.common.util.FileUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -49,9 +47,9 @@ public class ChatController {
         return ResultModel.success(chatService.getChatMessageList(memberId, chatRoomSeq));
     }
 
-    @PostMapping("message/save/file")
-    public ResultModel<ChatMessageFileDTO> saveImage(@Auth Long memberId, @RequestParam("file") MultipartFile file) throws IOException {
+    @PostMapping("/message/save/file")
+    public ResultModel<FileDTO> saveFile(@Auth Long memberId, @RequestParam("file") MultipartFile file) throws IOException {
 
-        return ResultModel.success(chatService.saveImage(memberId, "chat", file));
+        return ResultModel.success(chatService.saveFile(memberId, "chat", file));
     }
 }

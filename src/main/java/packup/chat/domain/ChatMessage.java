@@ -2,6 +2,7 @@ package packup.chat.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import packup.chat.presentation.BooleanToCharConverter;
 import packup.common.domain.BaseEntity;
 import packup.user.domain.UserInfo;
 
@@ -27,4 +28,14 @@ public class ChatMessage extends BaseEntity {
     @Column(name = "message", nullable = false)
     private String message;
 
+    @Column(name = "file_flag", columnDefinition = "CHAR(1)")
+    @Convert(converter = BooleanToCharConverter.class)
+    private Boolean fileFlag;
+
+    @PrePersist
+    private void prePersist() {
+        if (fileFlag == null) {
+            fileFlag = false; // 기본 값 'false'
+        }
+    }
 }

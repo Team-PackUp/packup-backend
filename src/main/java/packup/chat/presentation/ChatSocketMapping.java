@@ -39,6 +39,7 @@ public class ChatSocketMapping {
                 .message(content)
                 .chatRoomSeq(chatRoomSeq)
                 .userSeq(userSeq)
+                .fileFlag(chatMessage.isFileFlag())
                 .build();
 
         // 채팅 저장

@@ -14,4 +14,5 @@ public class ChatMessageDTO {
     private Long userSeq;
     private String message;
     private LocalDateTime createdAt;
+    private boolean fileFlag;
 }

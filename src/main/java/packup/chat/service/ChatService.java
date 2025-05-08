@@ -11,10 +11,9 @@ import packup.chat.domain.repository.ChatMessageFileRepository;
 import packup.chat.domain.repository.ChatMessageRepository;
 import packup.chat.domain.repository.ChatRoomRepository;
 import packup.chat.dto.ChatMessageDTO;
-import packup.chat.dto.ChatMessageFileDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.exception.ChatException;
-import packup.common.dto.ImageDTO;
+import packup.common.dto.FileDTO;
 import packup.common.util.FileUtil;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
@@ -131,6 +130,7 @@ public class ChatService {
                         .message(chatMessageList.getMessage())
                         .chatRoomSeq(chatMessageList.getChatRoomSeq().getSeq())
                         .createdAt(chatMessageList.getCreatedAt())
+                        .fileFlag(chatMessageList.getFileFlag())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -153,6 +153,10 @@ public class ChatService {
         newChatMessage.setMessage(chatMessageDTO.getMessage());
         newChatMessage.setUserSeq(userInfo);
 
+        if(chatMessageDTO.isFileFlag()) {
+            newChatMessage.setFileFlag(true);
+        }
+
         chatMessageRepository.save(newChatMessage);
         updateChatRoom(chatRoom.seq());
 
@@ -163,6 +167,7 @@ public class ChatService {
                 .message(newChatMessage.getMessage())
                 .chatRoomSeq(chatRoom.seq())
                 .createdAt(newChatMessage.getCreatedAt())
+                .fileFlag(newChatMessage.getFileFlag())
                 .build();
     }
 
@@ -181,12 +186,12 @@ public class ChatService {
         return chatRoomPartUser.getPartUserSeq();
     }
 
-    public ChatMessageFileDTO saveImage(Long memberId, String type, MultipartFile file) throws IOException {
+    public FileDTO saveFile(Long memberId, String type, MultipartFile file) throws IOException {
 
         UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
-        ImageDTO imageDTO = FileUtil.saveImage(type, file);
+        FileDTO imageDTO = FileUtil.saveImage(type, file);
 
         ChatMessageFile chatMessageFile = new ChatMessageFile();
         chatMessageFile.setChatFilePath(imageDTO.getPath());
@@ -197,13 +202,14 @@ public class ChatService {
 
         chatMessageFileRepository.save(chatMessageFile);
 
-        return ChatMessageFileDTO
+        return FileDTO
                 .builder()
                 .seq(chatMessageFile.seq())
-                .chatFilePath(chatMessageFile.getChatFilePath())
-                .userSeq(chatMessageFile.getUserSeq())
+                .path(chatMessageFile.getChatFilePath())
+                .userSeq(userInfo.getSeq())
                 .realName(chatMessageFile.getRealName())
                 .encodedName(chatMessageFile.getEncodedName())
+                .type("chat")
                 .createdAt(chatMessageFile.getCreatedAt())
                 .build();
     }

@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
-import packup.common.dto.ImageDTO;
+import packup.common.dto.FileDTO;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +26,7 @@ public class FileUtil {
         return dayFormat.format(new Date());
     }
 
-    public static ImageDTO saveImage(String type, MultipartFile image) throws IOException {
+    public static FileDTO saveImage(String type, MultipartFile image) throws IOException {
         String today = nowDate("dd");
         String month = nowDate("M");
         String year = nowDate("Y");
@@ -57,10 +57,11 @@ public class FileUtil {
         // 이미지 저장
         Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        return ImageDTO.builder()
+        return FileDTO.builder()
                 .path(uploadDir2)
                 .encodedName(uniqueFileName)
                 .realName(image.getOriginalFilename())
+                .type("chat")
                 .build();
     }
 }
