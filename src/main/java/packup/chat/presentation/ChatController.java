@@ -9,6 +9,7 @@ import packup.chat.dto.ChatMessageDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.service.ChatService;
 import packup.common.dto.FileDTO;
+import packup.common.dto.PageDTO;
 import packup.common.dto.ResultModel;
 
 import java.io.IOException;
@@ -22,9 +23,9 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("/room/list")
-    public ResultModel<List<ChatRoomDTO>> getChatRoomList(@Auth Long memberId) {
+    public ResultModel<PageDTO<ChatRoomDTO>> getChatRoomList(@Auth Long memberId, @RequestParam int page) {
 
-        return ResultModel.success(chatService.getChatRoomList(memberId));
+        return ResultModel.success(chatService.getChatRoomList(memberId, page));
     }
 
     @PostMapping("/room/create")
@@ -42,9 +43,9 @@ public class ChatController {
     }
 
     @GetMapping("/message/list/{chatRoomSeq}")
-    public ResultModel<List<ChatMessageDTO>> getChatMessageList(@Auth Long memberId, @PathVariable Long chatRoomSeq) {
+    public ResultModel<PageDTO<ChatMessageDTO>> getChatMessageList(@Auth Long memberId, @PathVariable Long chatRoomSeq, @RequestParam int page) {
 
-        return ResultModel.success(chatService.getChatMessageList(memberId, chatRoomSeq));
+        return ResultModel.success(chatService.getChatMessageList(memberId, chatRoomSeq, page));
     }
 
     @PostMapping("/message/save/file")

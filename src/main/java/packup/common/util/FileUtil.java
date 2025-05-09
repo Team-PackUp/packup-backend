@@ -19,6 +19,7 @@ import java.util.Objects;
 @Builder
 public class FileUtil {
 
+    // 예시 경로
     public static final String UPLOAD_DIR =  "D:/projects/packup/images/";
 
     private static String nowDate(String format) {
@@ -61,7 +62,7 @@ public class FileUtil {
                 .path(uploadDir2)
                 .encodedName(uniqueFileName)
                 .realName(image.getOriginalFilename())
-                .type("chat")
+                .type(type)
                 .build();
     }
 }

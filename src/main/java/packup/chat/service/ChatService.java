@@ -1,6 +1,8 @@
 package packup.chat.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,15 +16,20 @@ import packup.chat.dto.ChatMessageDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.exception.ChatException;
 import packup.common.dto.FileDTO;
+import packup.common.dto.PageDTO;
 import packup.common.util.FileUtil;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 
+import org.springframework.data.domain.Pageable;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static packup.chat.constant.ChatConstant.PAGE_SIZE;
 import static packup.chat.exception.ChatExceptionType.*;
 
 @Service
@@ -52,18 +59,26 @@ public class ChatService {
     }
 
 
-    public List<ChatRoomDTO> getChatRoomList(Long userSeq) {
-        List<ChatRoom> chatRoom = chatRoomRepository.findByPartUserSeqContains(userSeq);
+    public PageDTO<ChatRoomDTO> getChatRoomList(Long memberId, int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Page<ChatRoom> chatRoomListPage = chatRoomRepository.findByPartUserSeqContains(memberId, pageable);
 
-        return chatRoom.stream()
-                .map(chatRoomList -> ChatRoomDTO.builder()
-                        .seq(chatRoomList.getSeq())
-                        .partUserSeq(chatRoomList.getPartUserSeq())
-                        .createdAt(chatRoomList.getCreatedAt())
-                        .updatedAt(chatRoomList.getUpdatedAt())
+        List<ChatRoomDTO> chatRooms = chatRoomListPage.getContent().stream()
+                .map(chatRoom -> ChatRoomDTO.builder()
+                        .seq(chatRoom.getSeq())
+                        .partUserSeq(chatRoom.getPartUserSeq())
+                        .createdAt(chatRoom.getCreatedAt())
+                        .updatedAt(chatRoom.getUpdatedAt())
                         .build())
                 .collect(Collectors.toList());
+
+        return PageDTO.<ChatRoomDTO>builder()
+                .objectList(chatRooms)
+                .totalPage(chatRoomListPage.getTotalPages())
+                .build();
     }
+
+
 
     public ChatRoomDTO createChatRoom(List<Long> partUserSeq, Long userSeq) {
 
@@ -113,7 +128,7 @@ public class ChatService {
                 .build();
     }
 
-    public List<ChatMessageDTO> getChatMessageList(Long memberId, Long chatRoomSeq) {
+    public PageDTO<ChatMessageDTO> getChatMessageList(Long memberId, Long chatRoomSeq, int page) {
 
         UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
@@ -121,9 +136,10 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
 
-        List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomSeqOrderByCreatedAtDesc(chatRoom);
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Page<ChatMessage> chatMessageListPage = chatMessageRepository.findByChatRoomSeqOrderByCreatedAtDesc(chatRoom, pageable);
 
-        return chatMessages.stream()
+        List<ChatMessageDTO> chatMessages = chatMessageListPage.getContent().stream()
                 .map(chatMessageList -> ChatMessageDTO.builder()
                         .seq(chatMessageList.getSeq())
                         .userSeq(userInfo.getSeq())
@@ -133,6 +149,11 @@ public class ChatService {
                         .fileFlag(chatMessageList.getFileFlag())
                         .build())
                 .collect(Collectors.toList());
+
+        return PageDTO.<ChatMessageDTO>builder()
+                .objectList(chatMessages)
+                .totalPage(chatMessageListPage.getTotalPages())
+                .build();
     }
 
     @Transactional
