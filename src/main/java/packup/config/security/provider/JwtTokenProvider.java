@@ -28,11 +28,12 @@ public class JwtTokenProvider {
         this.refreshIntervalInMilliseconds = refreshIntervalInMilliseconds;
     }
 
-    public String createRefreshToken() {
+    public String createRefreshToken(String username) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshIntervalInMilliseconds);
         return Jwts.builder()
-                .setSubject("refresh")
+                .setSubject(username)
+                .claim("type", "refresh")
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -80,5 +81,14 @@ public class JwtTokenProvider {
     public LocalDateTime getRefreshTokenExpiryDate() {
         return LocalDateTime.now().plusSeconds(refreshIntervalInMilliseconds / 1000);
     }
+
+    public Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
 
 }
