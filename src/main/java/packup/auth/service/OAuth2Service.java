@@ -82,4 +82,8 @@ public class OAuth2Service {
         return jwtTokenProvider.createToken(String.valueOf(savedToken.getUserId()));
     }
 
+    public void logout(Long userId) {
+        refreshTokenRepository.deleteByUserId(userId);
+    }
+
 }

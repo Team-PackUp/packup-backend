@@ -2,6 +2,7 @@ package packup.auth.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import packup.auth.annotation.Auth;
 import packup.auth.dto.OAuth2LoginRequest;
 import packup.auth.dto.OAuth2LoginResponse;
 import packup.auth.dto.RefreshTokenRequest;
@@ -31,6 +32,11 @@ public class OAuth2ApiController {
         return ResultModel.success(new RefreshTokenResponse(accessToken));
     }
 
+    @DeleteMapping("/logout")
+    public ResultModel<Void> logout(@Auth Long userId) {
+        oAuth2Service.logout(userId);
+        return ResultModel.success();
+    }
 
 
 }
