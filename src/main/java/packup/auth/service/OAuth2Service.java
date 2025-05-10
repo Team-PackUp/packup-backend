@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import packup.auth.domain.OAuth2MemberClientComposite;
 import packup.auth.domain.OAuth2ServerType;
 import packup.auth.domain.RefreshToken;
@@ -29,6 +30,7 @@ public class OAuth2Service {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Transactional
     public OAuth2LoginResponse login(String providerName, OAuth2LoginRequest loginRequest) {
         OAuth2ServerType provider = OAuth2ServerType.fromName(providerName);
 
