@@ -20,7 +20,7 @@ import java.util.Objects;
 public class FileUtil {
 
     // 예시 경로
-    public static final String UPLOAD_DIR =  "D:/projects/packup/images/";
+    public static final String UPLOAD_DIR =  "D:/projects/packup/files/";
 
     private static String nowDate(String format) {
         SimpleDateFormat dayFormat = new SimpleDateFormat(format);
@@ -36,7 +36,7 @@ public class FileUtil {
         // 실제 저장 경로
         String uploadDir = UPLOAD_DIR + type + "/" + year + "/" + month + "/" + today;
         // db 저장 url
-        String uploadDir2 = "/images/" + type + "/" + year + "/" + month + "/" + today;
+        String uploadDir2 = "/files/" + type + "/" + year + "/" + month + "/" + today;
 
         // 디렉토리가 없으면 생성
         Path uploadPath = Path.of(uploadDir);

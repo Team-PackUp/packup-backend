@@ -37,7 +37,10 @@ public class ChatController {
     @PostMapping("/room/invite")
     public ResultModel<ChatRoomDTO> inviteChatRoom(@RequestBody ChatInviteRequestDTO inviteRequest) {
 
-        ChatRoomDTO chatRoomDTO = chatService.inviteChatRoom(inviteRequest.getChatRoomSeq(), inviteRequest.getNewPartUserSeq());
+        ChatRoomDTO chatRoomDTO = chatService.inviteChatRoom(
+                inviteRequest.getChatRoomSeq(),
+                inviteRequest.getNewPartUserSeq()
+        );
 
         return ResultModel.success(chatRoomDTO);
     }

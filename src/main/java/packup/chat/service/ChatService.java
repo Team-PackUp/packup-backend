@@ -142,7 +142,7 @@ public class ChatService {
         List<ChatMessageDTO> chatMessages = chatMessageListPage.getContent().stream()
                 .map(chatMessageList -> ChatMessageDTO.builder()
                         .seq(chatMessageList.getSeq())
-                        .userSeq(userInfo.getSeq())
+                        .userSeq(chatMessageList.getUserSeq().getSeq())
                         .message(chatMessageList.getMessage())
                         .chatRoomSeq(chatMessageList.getChatRoomSeq().getSeq())
                         .createdAt(chatMessageList.getCreatedAt())

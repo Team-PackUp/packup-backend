@@ -21,7 +21,7 @@ public class AuthConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/api/images/**")
-                .addResourceLocations("file:///D:/projects/packup/images/");
+        registry.addResourceHandler("/api/files/**")
+                .addResourceLocations("file:///D:/projects/packup/files/");
     }
 }
