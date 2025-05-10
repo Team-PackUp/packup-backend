@@ -9,16 +9,34 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
     private final Key key;
     private final long validityInMilliseconds;
+    private final long refreshIntervalInMilliseconds;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, @Value("${jwt.expiration}") long validityInMilliseconds) {
+    public JwtTokenProvider(
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration}") long validityInMilliseconds,
+            @Value("${jwt.refresh-expiration}") long refreshIntervalInMilliseconds
+    ) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.validityInMilliseconds = validityInMilliseconds;
+        this.refreshIntervalInMilliseconds = refreshIntervalInMilliseconds;
+    }
+
+    public String createRefreshToken() {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshIntervalInMilliseconds);
+        return Jwts.builder()
+                .setSubject("refresh")
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String createToken(String username) {
@@ -57,6 +75,10 @@ public class JwtTokenProvider {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    public LocalDateTime getRefreshTokenExpiryDate() {
+        return LocalDateTime.now().plusSeconds(refreshIntervalInMilliseconds / 1000);
     }
 
 }
