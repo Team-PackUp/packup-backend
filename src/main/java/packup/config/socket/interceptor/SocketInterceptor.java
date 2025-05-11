@@ -1,4 +1,4 @@
-package packup.chat.config;
+package packup.config.socket.interceptor;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpRequest;

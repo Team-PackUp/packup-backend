@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import packup.chat.dto.ChatMessageDTO;
+import packup.chat.dto.ChatRoomDTO;
 import packup.chat.service.ChatService;
 import packup.config.security.provider.JwtTokenProvider;
 
@@ -44,15 +45,15 @@ public class ChatSocketMapping {
 
         // 채팅 저장
         ChatMessageDTO newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
+        ChatRoomDTO firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
 
         // 구독 알림
         if (newChatMessageDTO.getSeq() > 0) {
-            System.out.println("소켓 결과 전송!!");
             messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
 
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
             for (Long username : chatRoomPartUser) {
-                messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", "REFRESH");
+                messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", firstChatRoomDTO);
             }
         }
     }
@@ -60,7 +61,7 @@ public class ChatSocketMapping {
 
 
     @MessageMapping("/send.connection")
-    public void sendCheckSocket(String connection) {
+    public void sendKeepSocket(String connection) {
         System.out.println("STOMP 연결 유지 " + connection);
     }
 }

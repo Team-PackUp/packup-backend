@@ -18,6 +18,7 @@ import packup.chat.exception.ChatException;
 import packup.common.dto.FileDTO;
 import packup.common.dto.PageDTO;
 import packup.common.util.FileUtil;
+import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 
@@ -62,6 +63,8 @@ public class ChatService {
     public PageDTO<ChatRoomDTO> getChatRoomList(Long memberId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Page<ChatRoom> chatRoomListPage = chatRoomRepository.findByPartUserSeqContains(memberId, pageable);
+
+//        UserDetailInfo userDetailInfo = UserDetailInfo.findAllById();
 
         List<ChatRoomDTO> chatRooms = chatRoomListPage.getContent().stream()
                 .map(chatRoom -> ChatRoomDTO.builder()
