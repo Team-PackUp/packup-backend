@@ -1,31 +1,41 @@
 package packup.chat.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import packup.chat.presentation.BooleanToCharConverter;
+import packup.common.domain.BaseEntity;
+import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "chat_message")
-public class ChatMessage {
-
-    @Id
-    private Long seq;
+public class ChatMessage extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_seq", nullable = false, unique = true)
+    @JoinColumn(name = "chat_room_seq", nullable = false)
     private ChatRoom chatRoomSeq;
 
-    @Column(name = "user_seq", nullable = false)
-    private Long userSeq;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_seq", nullable = false)
+    private UserInfo userSeq;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "message", nullable = false)
+    private String message;
+
+    @Column(name = "file_flag", columnDefinition = "CHAR(1)")
+    @Convert(converter = BooleanToCharConverter.class)
+    private Boolean fileFlag;
+
+    @PrePersist
+    private void prePersist() {
+        if (fileFlag == null) {
+            fileFlag = false; // 기본 값 'false'
+        }
+    }
 }

@@ -12,6 +12,7 @@ public class ChatMessageDTO {
     private Long seq;
     private Long chatRoomSeq;
     private Long userSeq;
+    private String message;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private boolean fileFlag;
 }

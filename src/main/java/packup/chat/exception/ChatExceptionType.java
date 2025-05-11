@@ -14,6 +14,8 @@ public enum ChatExceptionType implements BaseExceptionType {
     UNAUTHORIZED_REQUEST(UNAUTHORIZED, "인증되지 않았습니다"),
     ALREADY_PARTICIPATION(UNAUTHORIZED, "이미 참여한 회원 입니다"),
     REQUEST_EMPTY(BAD_REQUEST, "요청 값으로 NULL 을 사용할 수 없습니다."),
+    FAIL_TO_SAVE_MESSAGE(BAD_REQUEST, "채팅 발송에 실패 하였습니다"),
+    ABNORMAL_ACCESS(BAD_REQUEST, "비정상적인 접근입니다"),
     ;
 
     private final HttpStatus httpStatus;

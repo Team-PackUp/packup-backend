@@ -1,14 +1,18 @@
 package packup.chat.presentation;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import packup.auth.annotation.Auth;
 import packup.chat.dto.ChatInviteRequestDTO;
 import packup.chat.dto.ChatMessageDTO;
 import packup.chat.dto.ChatRoomDTO;
 import packup.chat.service.ChatService;
-import packup.config.security.provider.JwtTokenProvider;
+import packup.common.dto.FileDTO;
+import packup.common.dto.PageDTO;
+import packup.common.dto.ResultModel;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -18,41 +22,38 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    private final JwtTokenProvider jwtTokenProvider;
-
-
     @GetMapping("/room/list")
-    public List<ChatRoomDTO> getChatRoomList(HttpServletRequest request) {
-        System.out.println("test");
-//        String token = jwtTokenProvider.resolveToken(request);
-        long userSeq = Integer.parseInt("2");
+    public ResultModel<PageDTO<ChatRoomDTO>> getChatRoomList(@Auth Long memberId, @RequestParam int page) {
 
-        return chatService.getChatRoomList(userSeq);
+        return ResultModel.success(chatService.getChatRoomList(memberId, page));
     }
 
     @PostMapping("/room/create")
-    public ChatRoomDTO createChatRoom(HttpServletRequest request, @RequestBody List<Long> partUserSeq) {
+    public ResultModel<ChatRoomDTO> createChatRoom(@Auth Long memberId, @RequestBody List<Long> partUserSeq) {
 
-        String token = jwtTokenProvider.resolveToken(request);
-        long userSeq = Integer.parseInt(jwtTokenProvider.getUsername(token));
-
-
-        return chatService.createChatRoom(partUserSeq, userSeq);
+        return ResultModel.success(chatService.createChatRoom(partUserSeq, memberId));
     }
 
     @PostMapping("/room/invite")
-    public ChatRoomDTO inviteChatRoom(@RequestBody ChatInviteRequestDTO inviteRequest) {
+    public ResultModel<ChatRoomDTO> inviteChatRoom(@RequestBody ChatInviteRequestDTO inviteRequest) {
 
-        ChatRoomDTO chatRoomDTO = chatService.inviteChatRoom(inviteRequest.getChatRoomSeq(), inviteRequest.getNewPartUserSeq());
+        ChatRoomDTO chatRoomDTO = chatService.inviteChatRoom(
+                inviteRequest.getChatRoomSeq(),
+                inviteRequest.getNewPartUserSeq()
+        );
 
-        return chatRoomDTO;
+        return ResultModel.success(chatRoomDTO);
     }
 
     @GetMapping("/message/list/{chatRoomSeq}")
-    public List<ChatMessageDTO> getChatMessageList(@PathVariable Long chatRoomSeq) {
-        System.out.println("test " + chatRoomSeq);
+    public ResultModel<PageDTO<ChatMessageDTO>> getChatMessageList(@Auth Long memberId, @PathVariable Long chatRoomSeq, @RequestParam int page) {
 
-        return chatService.getChatMessageList(chatRoomSeq);
+        return ResultModel.success(chatService.getChatMessageList(memberId, chatRoomSeq, page));
     }
 
+    @PostMapping("/message/save/file")
+    public ResultModel<FileDTO> saveFile(@Auth Long memberId, @RequestParam("file") MultipartFile file) throws IOException {
+
+        return ResultModel.success(chatService.saveFile(memberId, "chat", file));
+    }
 }
