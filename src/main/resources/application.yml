@@ -5,9 +5,6 @@ spring:
 server:
   port: 8080
 
-# Redis 접속 정보
-data:
-  redis:
-    host: 172.24.66.240
-    port: 6379
+files:
+  path: D:/projects/packup/files/
 

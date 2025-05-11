@@ -3,6 +3,7 @@ package packup.common.util;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 import packup.common.dto.FileDTO;
 
@@ -19,10 +20,10 @@ import java.util.Objects;
 @Builder
 public class FileUtil {
 
-    // 예시 경로
-    public static final String UPLOAD_DIR =  "D:/projects/packup/files/";
+    @Value("${files.path}")
+    private static String UPLOAD_DIR;
 
-    private static String nowDate(String format) {
+        private static String nowDate(String format) {
         SimpleDateFormat dayFormat = new SimpleDateFormat(format);
         return dayFormat.format(new Date());
     }
