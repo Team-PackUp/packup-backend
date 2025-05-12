@@ -2,10 +2,11 @@ package packup.auth.infra.oauth.kakao.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import packup.auth.domain.OAuth2ServerType;
 import packup.common.enums.YnType;
+import packup.common.util.UUIDGenerator;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
+import packup.user.domain.UserPrefer;
 
 import java.time.LocalDateTime;
 
@@ -18,15 +19,18 @@ public record KakaoMemberResponse(
         KakaoAccount kakaoAccount
 ) {
 
-    public UserInfo toDomain() {
+    public UserInfo toDomain(String joinTypeCodeId) {
         UserDetailInfo userDetailInfo = UserDetailInfo.builder()
                 .profileImagePath(kakaoAccount.profile.profileImageUrl)
-                .nickname(kakaoAccount.profile.nickname)
+                .nickname(UUIDGenerator.generate(kakaoAccount.profile.nickname))
                 .build();
+
+        UserPrefer userPrefer = UserPrefer.builder().build();
 
         UserInfo userInfo = UserInfo.builder()
                 .email(kakaoAccount.email)
-                .joinType(String.valueOf(OAuth2ServerType.KAKAO))
+                .prefer(userPrefer)
+                .joinType(joinTypeCodeId)
                 .detailInfo(userDetailInfo)
                 .banFlag(YnType.N)
                 .adultFlag(YnType.Y)

@@ -1,10 +1,7 @@
 package packup.user.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import packup.common.domain.BaseEntity;
@@ -16,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_info")
 public class UserInfo extends BaseEntity {
 
@@ -54,4 +51,11 @@ public class UserInfo extends BaseEntity {
         this.detailInfo = detailInfo;
         detailInfo.assignUser(this);
     }
+
+    public void addPrefer(UserPrefer prefer) {
+        this.prefer = prefer;
+        prefer.assignUser(this);
+    }
+
+
 }

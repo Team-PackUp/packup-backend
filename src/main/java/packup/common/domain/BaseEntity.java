@@ -17,6 +17,7 @@ public class BaseEntity {
     private Long seq;
 
     @CreatedDate
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     public Long seq() {
