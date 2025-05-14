@@ -7,8 +7,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
-import packup.chat.dto.ChatMessageDTO;
-import packup.chat.dto.ChatRoomDTO;
+import packup.chat.dto.ChatMessageResponse;
+import packup.chat.dto.ChatRoomResponse;
 import packup.chat.service.ChatService;
 import packup.config.security.provider.JwtTokenProvider;
 
@@ -23,7 +23,7 @@ public class ChatSocketMapping {
     private final JwtTokenProvider jwtTokenProvider;
 
     @MessageMapping("/send.message")
-    public void sendMessage(@Payload ChatMessageDTO chatMessage, Message<?> stompMessage) {
+    public void sendMessage(@Payload ChatMessageResponse chatMessage, Message<?> stompMessage) {
 
         // 헤더에서 Authorization 추출
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(stompMessage);
@@ -36,7 +36,7 @@ public class ChatSocketMapping {
         String content = chatMessage.getMessage();
 
         // 새로운 채팅 메시지 DTO 생성
-        ChatMessageDTO chatMessageDTO = ChatMessageDTO.builder()
+        ChatMessageResponse chatMessageDTO = ChatMessageResponse.builder()
                 .message(content)
                 .chatRoomSeq(chatRoomSeq)
                 .userSeq(userSeq)
@@ -44,8 +44,8 @@ public class ChatSocketMapping {
                 .build();
 
         // 채팅 저장
-        ChatMessageDTO newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
-        ChatRoomDTO firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
+        ChatMessageResponse newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
+        ChatRoomResponse firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
 
         // 구독 알림
         if (newChatMessageDTO.getSeq() > 0) {

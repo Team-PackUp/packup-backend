@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import packup.common.dto.FileDTO;
 
@@ -15,20 +16,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
-@Getter
-@Setter
-@Builder
+@Component
 public class FileUtil {
 
     @Value("${files.path}")
-    private static String UPLOAD_DIR;
+    private String UPLOAD_DIR;
 
         private static String nowDate(String format) {
         SimpleDateFormat dayFormat = new SimpleDateFormat(format);
         return dayFormat.format(new Date());
     }
 
-    public static FileDTO saveImage(String type, MultipartFile image) throws IOException {
+    public FileDTO saveImage(String type, MultipartFile image) throws IOException {
         String today = nowDate("dd");
         String month = nowDate("M");
         String year = nowDate("Y");

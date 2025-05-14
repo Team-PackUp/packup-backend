@@ -1,18 +1,20 @@
 package packup.chat.dto;
 
 import lombok.*;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessageDTO {
+public class ChatRoomResponse {
     private Long seq;
-    private Long chatRoomSeq;
+    private List<Long> partUserSeq;
     private Long userSeq;
-    private String message;
+    private String nickNames;
     private LocalDateTime createdAt;
-    private boolean fileFlag;
+    private LocalDateTime updatedAt;
 }

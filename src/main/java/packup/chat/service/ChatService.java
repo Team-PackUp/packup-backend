@@ -12,13 +12,12 @@ import packup.chat.domain.ChatRoom;
 import packup.chat.domain.repository.ChatMessageFileRepository;
 import packup.chat.domain.repository.ChatMessageRepository;
 import packup.chat.domain.repository.ChatRoomRepository;
-import packup.chat.dto.ChatMessageDTO;
-import packup.chat.dto.ChatRoomDTO;
+import packup.chat.dto.ChatMessageResponse;
+import packup.chat.dto.ChatRoomResponse;
 import packup.chat.exception.ChatException;
 import packup.common.dto.FileDTO;
 import packup.common.dto.PageDTO;
 import packup.common.util.FileUtil;
-import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 
@@ -26,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +40,9 @@ public class ChatService {
     private final UserInfoRepository userInfoRepository;
     private final ChatMessageFileRepository chatMessageFileRepository;
 
-    public ChatRoomDTO getChatRoom(Long chatRoomSeq) {
+    private final FileUtil fileUtil;
+
+    public ChatRoomResponse getChatRoom(Long chatRoomSeq) {
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
@@ -50,7 +50,7 @@ public class ChatService {
         UserInfo userInfo = userInfoRepository.findById(chatRoom.getUserSeq().getSeq())
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
-        return ChatRoomDTO.builder()
+        return ChatRoomResponse.builder()
                 .seq(chatRoom.getSeq())
                 .userSeq(userInfo.getSeq())
                 .partUserSeq(chatRoom.getPartUserSeq())
@@ -60,14 +60,14 @@ public class ChatService {
     }
 
 
-    public PageDTO<ChatRoomDTO> getChatRoomList(Long memberId, int page) {
+    public PageDTO<ChatRoomResponse> getChatRoomList(Long memberId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Page<ChatRoom> chatRoomListPage = chatRoomRepository.findByPartUserSeqContains(memberId, pageable);
 
 //        UserDetailInfo userDetailInfo = UserDetailInfo.findAllById();
 
-        List<ChatRoomDTO> chatRooms = chatRoomListPage.getContent().stream()
-                .map(chatRoom -> ChatRoomDTO.builder()
+        List<ChatRoomResponse> chatRooms = chatRoomListPage.getContent().stream()
+                .map(chatRoom -> ChatRoomResponse.builder()
                         .seq(chatRoom.getSeq())
                         .partUserSeq(chatRoom.getPartUserSeq())
                         .createdAt(chatRoom.getCreatedAt())
@@ -75,7 +75,7 @@ public class ChatService {
                         .build())
                 .collect(Collectors.toList());
 
-        return PageDTO.<ChatRoomDTO>builder()
+        return PageDTO.<ChatRoomResponse>builder()
                 .objectList(chatRooms)
                 .totalPage(chatRoomListPage.getTotalPages())
                 .build();
@@ -83,7 +83,7 @@ public class ChatService {
 
 
 
-    public ChatRoomDTO createChatRoom(List<Long> partUserSeq, Long userSeq) {
+    public ChatRoomResponse createChatRoom(List<Long> partUserSeq, Long userSeq) {
 
         UserInfo userInfo = userInfoRepository.findById(userSeq)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
@@ -95,7 +95,7 @@ public class ChatService {
 
         ChatRoom newChatRoom = chatRoomRepository.save(chatRoom);
 
-        return ChatRoomDTO.builder()
+        return ChatRoomResponse.builder()
                 .seq(newChatRoom.getSeq())
                 .userSeq(newChatRoom.getUserSeq().getSeq())
                 .partUserSeq(newChatRoom.getPartUserSeq())
@@ -104,7 +104,7 @@ public class ChatService {
                 .build();
     }
 
-    public ChatRoomDTO inviteChatRoom(Long chatRoomSeq, Long newPartUserSeq) {
+    public ChatRoomResponse inviteChatRoom(Long chatRoomSeq, Long newPartUserSeq) {
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
@@ -122,7 +122,7 @@ public class ChatService {
                         .build()
         );
 
-        return ChatRoomDTO.builder()
+        return ChatRoomResponse.builder()
                 .seq(chatRoom.getSeq())
                 .userSeq(chatRoom.getUserSeq().getSeq())
                 .partUserSeq(chatRoom.getPartUserSeq())
@@ -131,7 +131,7 @@ public class ChatService {
                 .build();
     }
 
-    public PageDTO<ChatMessageDTO> getChatMessageList(Long memberId, Long chatRoomSeq, int page) {
+    public PageDTO<ChatMessageResponse> getChatMessageList(Long memberId, Long chatRoomSeq, int page) {
 
         UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
@@ -142,8 +142,8 @@ public class ChatService {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Page<ChatMessage> chatMessageListPage = chatMessageRepository.findByChatRoomSeqOrderByCreatedAtDesc(chatRoom, pageable);
 
-        List<ChatMessageDTO> chatMessages = chatMessageListPage.getContent().stream()
-                .map(chatMessageList -> ChatMessageDTO.builder()
+        List<ChatMessageResponse> chatMessages = chatMessageListPage.getContent().stream()
+                .map(chatMessageList -> ChatMessageResponse.builder()
                         .seq(chatMessageList.getSeq())
                         .userSeq(chatMessageList.getUserSeq().getSeq())
                         .message(chatMessageList.getMessage())
@@ -153,14 +153,14 @@ public class ChatService {
                         .build())
                 .collect(Collectors.toList());
 
-        return PageDTO.<ChatMessageDTO>builder()
+        return PageDTO.<ChatMessageResponse>builder()
                 .objectList(chatMessages)
                 .totalPage(chatMessageListPage.getTotalPages())
                 .build();
     }
 
     @Transactional
-    public ChatMessageDTO saveChatMessage(Long memberId, ChatMessageDTO chatMessageDTO) {
+    public ChatMessageResponse saveChatMessage(Long memberId, ChatMessageResponse chatMessageDTO) {
 
         if(chatMessageDTO.getMessage().isEmpty()) {
             throw new ChatException(ABNORMAL_ACCESS);
@@ -184,7 +184,7 @@ public class ChatService {
         chatMessageRepository.save(newChatMessage);
         updateChatRoom(chatRoom.seq());
 
-        return ChatMessageDTO
+        return ChatMessageResponse
                 .builder()
                 .seq(newChatMessage.seq())
                 .userSeq(userInfo.getSeq())
@@ -215,7 +215,7 @@ public class ChatService {
         UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
-        FileDTO imageDTO = FileUtil.saveImage(type, file);
+        FileDTO imageDTO = fileUtil.saveImage("chat", file);
 
         ChatMessageFile chatMessageFile = new ChatMessageFile();
         chatMessageFile.setChatFilePath(imageDTO.getPath());
