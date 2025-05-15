@@ -55,12 +55,12 @@ public class ChatSocketMapping {
 
         // 채팅 저장
         ChatMessageResponse newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
-        ChatRoomResponse firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
 
         // STOMP 구독 알림
         if (newChatMessageDTO.getSeq() > 0) {
             messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
 
+            ChatRoomResponse firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
             for (Long username : chatRoomPartUser) {
                 targetFcmUserSeq.add(username);
