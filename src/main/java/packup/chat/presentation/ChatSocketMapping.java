@@ -1,5 +1,6 @@
 package packup.chat.presentation;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,7 +12,12 @@ import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
 import packup.chat.service.ChatService;
 import packup.config.security.provider.JwtTokenProvider;
+import packup.firebase.dto.FirebaseRequest;
+import packup.firebase.service.FirebaseService;
+import packup.user.domain.UserInfo;
+import packup.user.domain.repository.UserInfoRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -21,9 +27,13 @@ public class ChatSocketMapping {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserInfoRepository userInfoRepository;
+    private final FirebaseService firebaseService;
+
+    private final List<Long> targetFcmUserSeq = new ArrayList<>();
 
     @MessageMapping("/send.message")
-    public void sendMessage(@Payload ChatMessageResponse chatMessage, Message<?> stompMessage) {
+    public void sendMessage(@Payload ChatMessageResponse chatMessage, Message<?> stompMessage) throws FirebaseMessagingException {
 
         // 헤더에서 Authorization 추출
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(stompMessage);
@@ -47,14 +57,28 @@ public class ChatSocketMapping {
         ChatMessageResponse newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
         ChatRoomResponse firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
 
-        // 구독 알림
+        // STOMP 구독 알림
         if (newChatMessageDTO.getSeq() > 0) {
             messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
 
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
             for (Long username : chatRoomPartUser) {
+                targetFcmUserSeq.add(username);
                 messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", firstChatRoomDTO);
             }
+        }
+
+        // FCM 알림
+        List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
+        if(targetFcmUserList.size() > 0) {
+            FirebaseRequest firebaseRequest = FirebaseRequest
+                    .builder()
+                    .userList(targetFcmUserList)
+                    .title("메시지가 도착했습니다.")
+                    .body(newChatMessageDTO.getMessage())
+                    .build();
+
+            firebaseService.sendBackground(firebaseRequest);
         }
     }
 

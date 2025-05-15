@@ -6,5 +6,6 @@ server:
   port: 8080
 
 files:
-  path: D:/projects/packup/files/
+  attach_path: D:/projects/packup/files/
+  firebase_admin_sdk_path: classpath:packup-90eda-firebase-adminsdk-fbsvc-1a7064aeda.json
 

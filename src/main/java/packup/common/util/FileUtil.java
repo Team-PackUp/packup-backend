@@ -19,7 +19,7 @@ import java.util.Objects;
 @Component
 public class FileUtil {
 
-    @Value("${files.path}")
+    @Value("${files.attach_path}")
     private String UPLOAD_DIR;
 
         private static String nowDate(String format) {

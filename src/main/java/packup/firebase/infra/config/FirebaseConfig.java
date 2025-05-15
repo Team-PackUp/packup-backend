@@ -20,10 +20,9 @@ public class FirebaseConfig {
     private Resource resource;
     private static final String FIREBASE_APP_NAME = "packup";
 
-    private static FirebaseApp firebaseApp;
-
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
+        FirebaseApp firebaseApp;
         if (FirebaseApp.getApps().stream().noneMatch(app -> app.getName().equals(FIREBASE_APP_NAME))) {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
