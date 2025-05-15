@@ -22,10 +22,10 @@ public class FirebaseService {
 
     public void sendBackground(FirebaseRequest firebaseRequest) throws FirebaseMessagingException {
 
-        List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqIn(firebaseRequest.getUserList());
+        List<UserFcmToken> userFcmTokens = userFcmTokenRepository.findAllByUserSeqIn(firebaseRequest.getUserList());
 
 
-        for (UserFcmToken userList : userFcmTokenList) {
+        for (UserFcmToken userFcmToken : userFcmTokens) {
 
             Notification notification = Notification.builder()
                     .setTitle(firebaseRequest.getTitle())
@@ -35,6 +35,7 @@ public class FirebaseService {
             Message message = Message.builder()
                     .setNotification(notification) // notification > 백그라운드/앱종료 상태 알림 전송
                     .setToken("cYKDNc5uSqKvBoiXr9QSLB:APA91bFd4LgAMu-pPKF7C1fDB9kboEAouzJTE_SEZuMRxDCX5g-GBh7SMXqPhJ65vCdIB-aVgnQZkPnuvvEIA7kRwoo6xbkMoEa54dBGDXRb2tZTG0qZ-9Y")
+//                    .setToken(userFcmToken.getFcmToken())
                     .build();
 
             firebaseMessaging.send(message);
