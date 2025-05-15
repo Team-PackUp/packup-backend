@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FileDTO {
+public class FileResponse {
     private Long seq;
     private String path;
     private Long userSeq;

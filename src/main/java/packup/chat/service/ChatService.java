@@ -15,7 +15,7 @@ import packup.chat.domain.repository.ChatRoomRepository;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
 import packup.chat.exception.ChatException;
-import packup.common.dto.FileDTO;
+import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
 import packup.common.util.FileUtil;
 import packup.user.domain.UserInfo;
@@ -63,8 +63,6 @@ public class ChatService {
     public PageDTO<ChatRoomResponse> getChatRoomList(Long memberId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Page<ChatRoom> chatRoomListPage = chatRoomRepository.findByPartUserSeqContains(memberId, pageable);
-
-//        UserDetailInfo userDetailInfo = UserDetailInfo.findAllById();
 
         List<ChatRoomResponse> chatRooms = chatRoomListPage.getContent().stream()
                 .map(chatRoom -> ChatRoomResponse.builder()
@@ -133,7 +131,7 @@ public class ChatService {
 
     public PageDTO<ChatMessageResponse> getChatMessageList(Long memberId, Long chatRoomSeq, int page) {
 
-        UserInfo userInfo = userInfoRepository.findById(memberId)
+        userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
@@ -210,12 +208,12 @@ public class ChatService {
         return chatRoomPartUser.getPartUserSeq();
     }
 
-    public FileDTO saveFile(Long memberId, String type, MultipartFile file) throws IOException {
+    public FileResponse saveFile(Long memberId, String type, MultipartFile file) throws IOException {
 
         UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
-        FileDTO imageDTO = fileUtil.saveImage("chat", file);
+        FileResponse imageDTO = fileUtil.saveImage("chat", file);
 
         ChatMessageFile chatMessageFile = new ChatMessageFile();
         chatMessageFile.setChatFilePath(imageDTO.getPath());
@@ -226,7 +224,7 @@ public class ChatService {
 
         chatMessageFileRepository.save(chatMessageFile);
 
-        return FileDTO
+        return FileResponse
                 .builder()
                 .seq(chatMessageFile.seq())
                 .path(chatMessageFile.getChatFilePath())

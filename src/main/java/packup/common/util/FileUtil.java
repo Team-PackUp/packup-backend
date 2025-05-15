@@ -1,12 +1,9 @@
 package packup.common.util;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import packup.common.dto.FileDTO;
+import packup.common.dto.FileResponse;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,19 +24,27 @@ public class FileUtil {
         return dayFormat.format(new Date());
     }
 
-    public FileDTO saveImage(String type, MultipartFile image) throws IOException {
+    private String getPathSuffix(String type) {
         String today = nowDate("dd");
         String month = nowDate("M");
         String year = nowDate("Y");
 
+        return type + "/" + year + "/" + month + "/" + today;
+    }
+
+    public FileResponse saveImage(String type, MultipartFile image) throws IOException {
+
+
         // 이미지를 저장할 디렉토리 경로 설정
         // 실제 저장 경로
-        String uploadDir = UPLOAD_DIR + type + "/" + year + "/" + month + "/" + today;
+        String suffixPath = getPathSuffix(type);
+
+        String pathForFile = UPLOAD_DIR + suffixPath;
         // db 저장 url
-        String uploadDir2 = "/files/" + type + "/" + year + "/" + month + "/" + today;
+        String pathForData = "/files/" + suffixPath;
 
         // 디렉토리가 없으면 생성
-        Path uploadPath = Path.of(uploadDir);
+        Path uploadPath = Path.of(pathForFile);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -58,8 +63,8 @@ public class FileUtil {
         // 이미지 저장
         Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        return FileDTO.builder()
-                .path(uploadDir2)
+        return FileResponse.builder()
+                .path(pathForData)
                 .encodedName(uniqueFileName)
                 .realName(image.getOriginalFilename())
                 .type(type)

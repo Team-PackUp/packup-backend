@@ -8,7 +8,7 @@ import packup.chat.dto.InviteRequest;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
 import packup.chat.service.ChatService;
-import packup.common.dto.FileDTO;
+import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
 import packup.common.dto.ResultModel;
 
@@ -52,7 +52,7 @@ public class ChatController {
     }
 
     @PostMapping("/message/save/file")
-    public ResultModel<FileDTO> saveFile(@Auth Long memberId, @RequestParam("file") MultipartFile file) throws IOException {
+    public ResultModel<FileResponse> saveFile(@Auth Long memberId, @RequestParam("file") MultipartFile file) throws IOException {
 
         return ResultModel.success(chatService.saveFile(memberId, "chat", file));
     }
