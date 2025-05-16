@@ -60,10 +60,16 @@ public class FcmPushService {
         userFcmTokenRepository.findByFcmToken(token).ifPresentOrElse(existing -> {
             boolean isOwner = existing.getUserSeq().getSeq().equals(memberId);
 
-            if (!isOwner) throw new FcmPushException(INVALID_TOKEN_OWNER);
+            if (!isOwner) {
+                if (existing.getActiveFlag() == YnType.Y) {
+                    throw new FcmPushException(INVALID_TOKEN_OWNER);
+                }
+                existing.setUserSeq(user);
+            }
 
             existing.setActiveFlag(YnType.Y);
             existing.setUpdatedAt(LocalDateTime.now());
+            existing.setOsType(osType);
         }, () -> {
             UserFcmToken newToken = UserFcmToken.builder()
                     .userSeq(user)
