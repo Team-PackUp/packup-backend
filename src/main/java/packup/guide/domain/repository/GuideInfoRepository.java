@@ -1,4 +1,4 @@
-package packup.tour.repositoroy;
+package packup.guide.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import packup.tour.domain.TourInfo;
@@ -12,9 +12,9 @@ import java.util.List;
  * </pre>
  *
  * @author SBLEE
- * @since 2025.05.12
+ * @since 2025.05.16
  */
-public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
+public interface GuideInfoRepository extends JpaRepository<TourInfo, Long> {
 
     /**
      * 특정 가이드가 등록한 모든 투어를 조회.

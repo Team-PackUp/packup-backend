@@ -1,5 +1,8 @@
 package packup.tour.domain.value;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +13,7 @@ import java.time.LocalDate;
 
 /**
  * <pre>
- * RecruitmentPeriod (모집 기간 값 객체)
+ * ApplyPeriod (모집 기간 값 객체)
  *
  * 투어 모집 기간(startDate ~ endDate)을 하나의 값 객체로 묶어 관리.
  * 도메인 내에서 기간 무결성(시작일 ≤ 종료일)을 생성자 수준에서 강제하며,
@@ -22,7 +25,7 @@ import java.time.LocalDate;
  *
  * <p><b>예시:</b>
  * <pre>{@code
- * RecruitmentPeriod period = RecruitmentPeriod.builder()
+ * ApplyPeriod period = ApplyPeriod.builder()
  *     .startDate(LocalDate.of(2025, 5, 1))
  *     .endDate(LocalDate.of(2025, 5, 10))
  *     .build();
@@ -34,7 +37,11 @@ import java.time.LocalDate;
 @Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecruitmentPeriod {
+@AttributeOverrides({
+        @AttributeOverride(name = "startDate", column = @Column(name = "apply_start_date")),
+        @AttributeOverride(name = "endDate", column = @Column(name = "apply_end_date"))
+})
+public class ApplyPeriod {
 
     /**
      * 모집 시작일
@@ -54,10 +61,21 @@ public class RecruitmentPeriod {
      * @throws IllegalArgumentException 시작일이 종료일보다 늦을 경우 발생
      */
     @Builder
-    public RecruitmentPeriod(LocalDate startDate, LocalDate endDate) {
-        validatePeriod(startDate, endDate);
+    public ApplyPeriod(LocalDate startDate, LocalDate endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    /**
+     * 정적 팩토리 메서드 (외부 클래스에서 객체 생성시)
+     *
+     * @param startDate 모집 시작일
+     * @param endDate 모집 종료일
+     * @return 생성된 ApplyPeriod 인스턴스
+     * @throws IllegalArgumentException 시작일이 종료일보다 이후일 경우 발생
+     */
+    public static ApplyPeriod of(LocalDate startDate, LocalDate endDate) {
+        return new ApplyPeriod(startDate, endDate);
     }
 
     /**

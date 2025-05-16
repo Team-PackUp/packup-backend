@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import packup.common.domain.BaseEntity;
 import packup.tour.enums.TourStatusCode;
-import packup.tour.domain.value.RecruitmentPeriod;
+import packup.tour.domain.value.ApplyPeriod;
 import packup.tour.domain.value.TourPeriod;
 
 /**
@@ -41,7 +41,7 @@ public class TourInfo extends BaseEntity {
     /**
      * 가이드 사용자 일련번호 (user_info 테이블 참조, UK)
      */
-    @Column(name = "guide_seq", nullable = false, unique = true)
+    @Column(name = "guide_seq", nullable = false)
     private Long guideSeq;
 
     /**
@@ -60,10 +60,10 @@ public class TourInfo extends BaseEntity {
      * 모집 기간 (시작일 ~ 종료일)
      */
     @Embedded
-    private RecruitmentPeriod recruitmentPeriod;
+    private ApplyPeriod applyPeriod;
 
     /**
-     * 관광 기간 (시작일시 ~ 종료일시)
+     * 투어 기간 (시작 일시 ~ 종료 일시)
      */
     @Embedded
     private TourPeriod tourPeriod;
@@ -88,10 +88,10 @@ public class TourInfo extends BaseEntity {
     private TourStatusCode tourStatusCode;
 
     /**
-     * 관광 지역 (지역명 또는 장소명)
+     * 투어 지역 (지역명 또는 장소명)
      */
-    @Column(name = "location", length = 255)
-    private String location;
+    @Column(name = "tour_location", length = 255)
+    private String tourLocation;
 
     /**
      * 대표 이미지 경로 (파일 시스템 또는 URL)
