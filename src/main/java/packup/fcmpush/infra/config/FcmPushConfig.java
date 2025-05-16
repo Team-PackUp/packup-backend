@@ -1,4 +1,4 @@
-package packup.notification.infra.config;
+package packup.fcmpush.infra.config;
 
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 
 @Configuration
-public class NotificationConfig {
+public class FcmPushConfig {
 
     @Value("${files.firebase_admin_sdk_path}")
     private Resource resource;

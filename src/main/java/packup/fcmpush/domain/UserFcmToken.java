@@ -1,4 +1,4 @@
-package packup.notification.domain;
+package packup.fcmpush.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

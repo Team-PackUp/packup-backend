@@ -1,4 +1,4 @@
-package packup.notification.dto;
+package packup.fcmpush.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,9 +12,8 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class NotificationRequest {
+public class FcmPushRequest {
     private List<UserInfo> userList;
     private String title;
     private String body;
-
 }

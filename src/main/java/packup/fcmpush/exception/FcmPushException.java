@@ -1,12 +1,12 @@
-package packup.notification.exception;
+package packup.fcmpush.exception;
 
 import packup.common.exception.BaseException;
 import packup.common.exception.BaseExceptionType;
 
-public class NotificationException extends BaseException {
-    private final NotificationExceptionType exceptionType;
+public class FcmPushException extends BaseException {
+    private final FcmPushExceptionType exceptionType;
 
-    public NotificationException(NotificationExceptionType exceptionType) {
+    public FcmPushException(FcmPushExceptionType exceptionType) {
         super(exceptionType);
         this.exceptionType = exceptionType;
     }
