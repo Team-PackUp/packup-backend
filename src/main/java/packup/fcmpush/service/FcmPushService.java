@@ -7,12 +7,21 @@ import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import packup.common.enums.YnType;
 import packup.fcmpush.domain.UserFcmToken;
 import packup.fcmpush.domain.repository.UserFcmTokenRepository;
 import packup.fcmpush.dto.FcmPushRequest;
+import packup.fcmpush.exception.FcmPushException;
+import packup.user.domain.UserInfo;
+import packup.user.domain.repository.UserInfoRepository;
+import packup.user.exception.UserException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_TOKEN_OWNER;
+import static packup.user.exception.UserExceptionType.NOT_FOUND_MEMBER;
 
 
 @Service
@@ -21,6 +30,7 @@ public class FcmPushService {
 
     private final FirebaseMessaging firebaseMessaging;
     private final UserFcmTokenRepository userFcmTokenRepository;
+    private final UserInfoRepository userInfoRepository;
 
     public void sendBackground(FcmPushRequest firebaseRequest) throws FirebaseMessagingException {
 
@@ -41,37 +51,33 @@ public class FcmPushService {
             firebaseMessaging.send(message);
         }
     }
-//
-//    @Transactional
-//    public void registerOrUpdateFcmToken(Long memberId, String token) {
-//        Optional<UserFcmToken> existing = userFcmTokenRepository.findByFcmToken(token);
-//
-//        if (existing.isPresent()) {
-//            UserFcmToken tokenEntity = existing.get();
-//
-//            if (!tokenEntity.getUserSeq().getSeq().equals(user.getSeq())) {
-//                throw new IllegalStateException("다른 유저의 FCM 토큰입니다.");
-//            }
-//
-//            // 같은 유저면 활성화 갱신
-//            tokenEntity.setActiveFlag(YnType.Y);
-//            tokenEntity.setUpdatedAt(LocalDateTime.now());
-//        } else {
-//            // 새 토큰 저장
-//            UserFcmToken newToken = UserFcmToken.builder()
-//                    .userSeq(user)
-//                    .fcmToken(token)
-//                    .activeFlag(YnType.Y)
-//                    .updatedAt(LocalDateTime.now())
-//                    .build();
-//
-//            fcmTokenRepository.save(newToken);
-//        }
-//    }
-//
-//    @Transactional
-//    public void deactivateFcmToken(String token) {
-//        userFcmTokenRepository.findByFcmToken(token)
-//                .ifPresent(t -> t.setActiveFlag(YnType.N));
-//    }
+
+    @Transactional
+    public void registerOrUpdateFcmToken(Long memberId, String token) {
+        UserInfo user = userInfoRepository.findById(memberId)
+                .orElseThrow(() -> new UserException(NOT_FOUND_MEMBER));
+
+        userFcmTokenRepository.findByFcmToken(token).ifPresentOrElse(existing -> {
+            boolean isOwner = existing.getUserSeq().getSeq().equals(memberId);
+
+            if (!isOwner) throw new FcmPushException(INVALID_TOKEN_OWNER);
+
+            existing.setActiveFlag(YnType.Y);
+            existing.setUpdatedAt(LocalDateTime.now());
+        }, () -> {
+            UserFcmToken newToken = UserFcmToken.builder()
+                    .userSeq(user)
+                    .fcmToken(token)
+                    .activeFlag(YnType.Y)
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+            userFcmTokenRepository.save(newToken);
+        });
+    }
+
+    @Transactional
+    public void deactivateFcmToken(String token) {
+        userFcmTokenRepository.findByFcmToken(token)
+                .ifPresent(t -> t.setActiveFlag(YnType.N));
+    }
 }
