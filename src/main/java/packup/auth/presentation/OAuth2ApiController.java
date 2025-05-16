@@ -9,6 +9,8 @@ import packup.auth.dto.RefreshTokenRequest;
 import packup.auth.dto.RefreshTokenResponse;
 import packup.auth.service.OAuth2Service;
 import packup.common.dto.ResultModel;
+import packup.fcmpush.dto.FcmTokenRequest;
+import packup.fcmpush.service.FcmPushService;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,6 +18,7 @@ import packup.common.dto.ResultModel;
 public class OAuth2ApiController {
 
     private final OAuth2Service oAuth2Service;
+    private final FcmPushService fcmPushService;
 
     @PostMapping("/login/{provider}")
     public ResultModel<OAuth2LoginResponse> login(
@@ -33,11 +36,19 @@ public class OAuth2ApiController {
     }
 
     @DeleteMapping("/logout")
-    public ResultModel<Void> logout(@Auth Long userId) {
+    public ResultModel<Void> logout(@Auth Long userId, @RequestBody(required = false) FcmTokenRequest request) {
         oAuth2Service.logout(userId);
+
+        if (hasValidFcmToken(request)) {
+            fcmPushService.deactivateFcmToken(request.getFcmToken());
+        }
+
         return ResultModel.success();
     }
 
+    private boolean hasValidFcmToken(FcmTokenRequest request) {
+        return request != null && request.getFcmToken() != null && !request.getFcmToken().isBlank();
+    }
 
 }
 

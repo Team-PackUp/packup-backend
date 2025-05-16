@@ -1,12 +1,12 @@
-package packup.firebase.exception;
+package packup.fcmpush.exception;
 
 import packup.common.exception.BaseException;
 import packup.common.exception.BaseExceptionType;
 
-public class FireBaseException extends BaseException {
-    private final FireBaseExceptionType exceptionType;
+public class FcmPushException extends BaseException {
+    private final FcmPushExceptionType exceptionType;
 
-    public FireBaseException(FireBaseExceptionType exceptionType) {
+    public FcmPushException(FcmPushExceptionType exceptionType) {
         super(exceptionType);
         this.exceptionType = exceptionType;
     }

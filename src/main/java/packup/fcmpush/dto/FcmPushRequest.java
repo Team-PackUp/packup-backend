@@ -1,4 +1,4 @@
-package packup.firebase.dto;
+package packup.fcmpush.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,9 +12,8 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FirebaseRequest {
+public class FcmPushRequest {
     private List<UserInfo> userList;
     private String title;
     private String body;
-
 }

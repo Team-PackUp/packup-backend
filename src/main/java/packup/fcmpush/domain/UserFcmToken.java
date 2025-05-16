@@ -1,4 +1,4 @@
-package packup.firebase.domain;
+package packup.fcmpush.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +25,9 @@ public class UserFcmToken extends BaseEntity {
 
     @Column(name = "fcm_token", nullable = false)
     private String fcmToken;
+
+    @Column(name = "os_type")
+    private String osType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "active_flag", columnDefinition = "yn_enum", nullable = false)
