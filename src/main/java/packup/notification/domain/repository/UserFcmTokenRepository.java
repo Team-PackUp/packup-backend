@@ -1,7 +1,7 @@
-package packup.firebase.domain.repository;
+package packup.notification.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import packup.firebase.domain.UserFcmToken;
+import packup.notification.domain.UserFcmToken;
 import packup.user.domain.UserInfo;
 
 import java.util.List;

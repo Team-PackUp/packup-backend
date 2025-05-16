@@ -1,4 +1,4 @@
-package packup.firebase.dto;
+package packup.notification.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FirebaseRequest {
+public class NotificationRequest {
     private List<UserInfo> userList;
     private String title;
     private String body;

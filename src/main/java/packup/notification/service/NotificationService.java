@@ -1,4 +1,4 @@
-package packup.firebase.service;
+package packup.notification.service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -6,21 +6,21 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import packup.firebase.domain.UserFcmToken;
-import packup.firebase.domain.repository.UserFcmTokenRepository;
-import packup.firebase.dto.FirebaseRequest;
+import packup.notification.domain.UserFcmToken;
+import packup.notification.domain.repository.UserFcmTokenRepository;
+import packup.notification.dto.NotificationRequest;
 
 import java.util.List;
 
 
 @Service
 @RequiredArgsConstructor
-public class FirebaseService {
+public class NotificationService {
 
     private final FirebaseMessaging firebaseMessaging;
     private final UserFcmTokenRepository userFcmTokenRepository;
 
-    public void sendBackground(FirebaseRequest firebaseRequest) throws FirebaseMessagingException {
+    public void sendBackground(NotificationRequest firebaseRequest) throws FirebaseMessagingException {
 
         List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqIn(firebaseRequest.getUserList());
 

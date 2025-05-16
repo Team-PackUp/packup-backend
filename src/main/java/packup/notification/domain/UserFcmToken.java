@@ -1,4 +1,4 @@
-package packup.firebase.domain;
+package packup.notification.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

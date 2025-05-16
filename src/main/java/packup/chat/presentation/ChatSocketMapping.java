@@ -12,8 +12,8 @@ import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
 import packup.chat.service.ChatService;
 import packup.config.security.provider.JwtTokenProvider;
-import packup.firebase.dto.FirebaseRequest;
-import packup.firebase.service.FirebaseService;
+import packup.notification.dto.NotificationRequest;
+import packup.notification.service.NotificationService;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 
@@ -28,7 +28,7 @@ public class ChatSocketMapping {
     private final ChatService chatService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserInfoRepository userInfoRepository;
-    private final FirebaseService firebaseService;
+    private final NotificationService firebaseService;
 
     private final List<Long> targetFcmUserSeq = new ArrayList<>();
 
@@ -71,7 +71,7 @@ public class ChatSocketMapping {
         // FCM 알림
         List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
         if(targetFcmUserList.size() > 0) {
-            FirebaseRequest firebaseRequest = FirebaseRequest
+            NotificationRequest firebaseRequest = NotificationRequest
                     .builder()
                     .userList(targetFcmUserList)
                     .title("메시지가 도착했습니다.")

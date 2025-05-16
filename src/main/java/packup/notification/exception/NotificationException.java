@@ -1,12 +1,12 @@
-package packup.firebase.exception;
+package packup.notification.exception;
 
 import packup.common.exception.BaseException;
 import packup.common.exception.BaseExceptionType;
 
-public class FireBaseException extends BaseException {
-    private final FireBaseExceptionType exceptionType;
+public class NotificationException extends BaseException {
+    private final NotificationExceptionType exceptionType;
 
-    public FireBaseException(FireBaseExceptionType exceptionType) {
+    public NotificationException(NotificationExceptionType exceptionType) {
         super(exceptionType);
         this.exceptionType = exceptionType;
     }
