@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FcmTokenRequest {
     private String fcmToken;
+    private String osType;
 }

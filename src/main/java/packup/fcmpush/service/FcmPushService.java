@@ -53,7 +53,7 @@ public class FcmPushService {
     }
 
     @Transactional
-    public void registerOrUpdateFcmToken(Long memberId, String token) {
+    public void registerOrUpdateFcmToken(Long memberId, String token, String osType) {
         UserInfo user = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new UserException(NOT_FOUND_MEMBER));
 
@@ -70,6 +70,7 @@ public class FcmPushService {
                     .fcmToken(token)
                     .activeFlag(YnType.Y)
                     .updatedAt(LocalDateTime.now())
+                    .osType(osType)
                     .build();
             userFcmTokenRepository.save(newToken);
         });

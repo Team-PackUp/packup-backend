@@ -22,7 +22,7 @@ public class FcmPushController {
             @Auth Long memberId,
             @RequestBody FcmTokenRequest request
     ) {
-        notificationService.registerOrUpdateFcmToken(memberId, request.getFcmToken());
+        notificationService.registerOrUpdateFcmToken(memberId, request.getFcmToken(), request.getOsType());
         return ResultModel.success();
     }
 
