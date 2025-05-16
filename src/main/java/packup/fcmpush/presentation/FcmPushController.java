@@ -12,7 +12,7 @@ import packup.fcmpush.service.FcmPushService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/notification")
+@RequestMapping("/api/fcm")
 public class FcmPushController {
 
     private final FcmPushService notificationService;
