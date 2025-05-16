@@ -3,7 +3,7 @@ package packup.tour.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import packup.common.domain.BaseEntity;
-import packup.common.enums.TourStatus;
+import packup.tour.enums.TourStatusCode;
 import packup.tour.domain.value.RecruitmentPeriod;
 import packup.tour.domain.value.TourPeriod;
 
@@ -28,7 +28,7 @@ import packup.tour.domain.value.TourPeriod;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "tour")
+@Table(name = "tour_info")
 public class TourInfo extends BaseEntity {
 
     /**
@@ -85,7 +85,7 @@ public class TourInfo extends BaseEntity {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "tour_status_code", length = 50)
-    private TourStatus tourStatusCode;
+    private TourStatusCode tourStatusCode;
 
     /**
      * 관광 지역 (지역명 또는 장소명)

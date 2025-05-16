@@ -1,4 +1,4 @@
-package packup.common.enums;
+package packup.tour.enums;
 
 import lombok.Getter;
 
@@ -23,7 +23,7 @@ import lombok.Getter;
  * @since 2025.05.12
  */
 @Getter
-public enum TourStatus {
+public enum TourStatusCode {
 
     /**
      * 임시저장 상태 (작성 중이지만 공개되지 않음)
@@ -57,7 +57,7 @@ public enum TourStatus {
 
     private final String label;
 
-    TourStatus(String label) {
+    TourStatusCode(String label) {
         this.label = label;
     }
 }
