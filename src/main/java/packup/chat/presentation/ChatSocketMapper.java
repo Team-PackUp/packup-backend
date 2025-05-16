@@ -22,7 +22,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-public class ChatSocketMapping {
+public class ChatSocketMapper {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
@@ -63,22 +63,27 @@ public class ChatSocketMapping {
             ChatRoomResponse firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
             for (Long username : chatRoomPartUser) {
-                targetFcmUserSeq.add(username);
+                
+                // 발송자를 제외한 회원에게 FCM 발송
+                if(!userSeq.equals(username)) {
+                    targetFcmUserSeq.add(username);    
+                }
+                
                 messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", firstChatRoomDTO);
             }
-        }
 
-        // FCM 알림
-        List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
-        if(targetFcmUserList.size() > 0) {
-            FcmPushRequest firebaseRequest = FcmPushRequest
-                    .builder()
-                    .userList(targetFcmUserList)
-                    .title("메시지가 도착했습니다.")
-                    .body(newChatMessageDTO.getMessage())
-                    .build();
+            // FCM 알림
+            List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
+            if(targetFcmUserList.size() > 0) {
+                FcmPushRequest firebaseRequest = FcmPushRequest
+                        .builder()
+                        .userList(targetFcmUserList)
+                        .title("메시지가 도착했습니다.")
+                        .body(newChatMessageDTO.getMessage())
+                        .build();
 
-            firebaseService.sendBackground(firebaseRequest);
+                firebaseService.sendBackground(firebaseRequest);
+            }
         }
     }
 

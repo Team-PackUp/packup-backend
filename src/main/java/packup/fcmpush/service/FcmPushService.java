@@ -1,9 +1,6 @@
 package packup.fcmpush.service;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +31,7 @@ public class FcmPushService {
 
     public void sendBackground(FcmPushRequest firebaseRequest) throws FirebaseMessagingException {
 
-        List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqIn(firebaseRequest.getUserList());
+        List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqInAndActiveFlag(firebaseRequest.getUserList(), YnType.Y);
 
         for (UserFcmToken userList : userFcmTokenList) {
 
@@ -44,11 +41,20 @@ public class FcmPushService {
                     .build();
 
             Message message = Message.builder()
-                    .setNotification(notification) // notification > 백그라운드/앱종료 상태 알림 전송
-                    .setToken("cYKDNc5uSqKvBoiXr9QSLB:APA91bFd4LgAMu-pPKF7C1fDB9kboEAouzJTE_SEZuMRxDCX5g-GBh7SMXqPhJ65vCdIB-aVgnQZkPnuvvEIA7kRwoo6xbkMoEa54dBGDXRb2tZTG0qZ-9Y")
+                    .setNotification(notification) // notification > 백그라운드/앱종료 상태 알림 전송... 인 줄 알았는데 별도 설정이 필요한듯
+                    .setToken(userList.getFcmToken())
                     .build();
 
-            firebaseMessaging.send(message);
+            try {
+                firebaseMessaging.send(message);
+                System.out.println("Success token: " + userList.getFcmToken());
+            } catch (FirebaseMessagingException e) {
+                if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
+                    // 이때는 토큰에 문제가 있는거라 삭제? 처리를 해야하나 확인 필요
+                    System.err.println("Fail token: " + userList.getFcmToken());
+                }
+            }
+
         }
     }
 
