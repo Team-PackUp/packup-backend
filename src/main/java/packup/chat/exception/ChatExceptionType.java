@@ -16,6 +16,7 @@ public enum ChatExceptionType implements BaseExceptionType {
     REQUEST_EMPTY(BAD_REQUEST, "요청 값으로 NULL 을 사용할 수 없습니다."),
     FAIL_TO_SAVE_MESSAGE(BAD_REQUEST, "채팅 발송에 실패 하였습니다"),
     ABNORMAL_ACCESS(BAD_REQUEST, "비정상적인 접근입니다"),
+    FAIL_TO_PUSH_FCM(BAD_REQUEST, "FCM 발송 실패"),
     ;
 
     private final HttpStatus httpStatus;

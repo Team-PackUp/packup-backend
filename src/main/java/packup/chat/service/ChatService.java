@@ -12,13 +12,18 @@ import packup.chat.domain.ChatRoom;
 import packup.chat.domain.repository.ChatMessageFileRepository;
 import packup.chat.domain.repository.ChatMessageRepository;
 import packup.chat.domain.repository.ChatRoomRepository;
+import packup.chat.dto.ChatMessageRequest;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
 import packup.chat.exception.ChatException;
 import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
 import packup.common.util.FileUtil;
+import packup.fcmpush.dto.FcmPushRequest;
+import packup.fcmpush.service.FcmPushService;
+import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
+import packup.user.domain.repository.UserDetailInfoRepository;
 import packup.user.domain.repository.UserInfoRepository;
 
 import org.springframework.data.domain.Pageable;
@@ -29,6 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static packup.chat.constant.ChatConstant.PAGE_SIZE;
+import static packup.chat.constant.ChatConstant.REPLACE_IMAGE_TEXT;
 import static packup.chat.exception.ChatExceptionType.*;
 
 @Service
@@ -41,6 +47,9 @@ public class ChatService {
     private final ChatMessageFileRepository chatMessageFileRepository;
 
     private final FileUtil fileUtil;
+
+    private final UserDetailInfoRepository userDetailInfoRepository;
+    private final FcmPushService firebaseService;
 
     public ChatRoomResponse getChatRoom(Long chatRoomSeq) {
 
@@ -158,7 +167,7 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatMessageResponse saveChatMessage(Long memberId, ChatMessageResponse chatMessageDTO) {
+    public ChatMessageResponse saveChatMessage(Long memberId, ChatMessageRequest chatMessageDTO) {
 
         if(chatMessageDTO.getMessage().isEmpty()) {
             throw new ChatException(ABNORMAL_ACCESS);
@@ -213,7 +222,7 @@ public class ChatService {
         UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
-        FileResponse imageDTO = fileUtil.saveImage("chat", file);
+        FileResponse imageDTO = fileUtil.saveImage(type, file);
 
         ChatMessageFile chatMessageFile = new ChatMessageFile();
         chatMessageFile.setChatFilePath(imageDTO.getPath());
@@ -234,6 +243,34 @@ public class ChatService {
                 .type("chat")
                 .createdAt(chatMessageFile.getCreatedAt())
                 .build();
+    }
+
+    // FCM 알림
+    public void chatSendFcmPush(ChatMessageResponse chatMessageResponse, List<Long> targetFcmUserSeq) {
+
+        // 닉네임
+        UserDetailInfo userDetailInfo = userInfoRepository.findById(chatMessageResponse.getUserSeq())
+                .flatMap(userDetailInfoRepository::findByUser)
+                .orElseThrow(() -> new ChatException(FAIL_TO_PUSH_FCM));
+
+        List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
+        if(targetFcmUserList.size() > 0) {
+
+            String message = chatMessageResponse.getMessage();
+
+            if(chatMessageResponse.isFileFlag()) {
+                message = REPLACE_IMAGE_TEXT;
+            }
+
+            FcmPushRequest fcmPushRequest = FcmPushRequest
+                    .builder()
+                    .userList(targetFcmUserList)
+                    .title(userDetailInfo.getNickname())
+                    .body(message)
+                    .build();
+
+            firebaseService.sendBackground(fcmPushRequest);
+        }
     }
 }
 

@@ -29,7 +29,8 @@ public class FcmPushService {
     private final UserFcmTokenRepository userFcmTokenRepository;
     private final UserInfoRepository userInfoRepository;
 
-    public void sendBackground(FcmPushRequest firebaseRequest) throws FirebaseMessagingException {
+    @Transactional
+    public void sendBackground(FcmPushRequest firebaseRequest) {
 
         List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqInAndActiveFlag(firebaseRequest.getUserList(), YnType.Y);
 
@@ -46,8 +47,8 @@ public class FcmPushService {
                     .build();
 
             try {
+                System.out.println(userList.getUserSeq());
                 firebaseMessaging.send(message);
-                System.out.println("Success token: " + userList.getFcmToken());
             } catch (FirebaseMessagingException e) {
                 if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
                     // 이때는 토큰에 문제가 있는거라 삭제? 처리를 해야하나 확인 필요

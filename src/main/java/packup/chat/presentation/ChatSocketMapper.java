@@ -8,14 +8,11 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
+import packup.chat.dto.ChatMessageRequest;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
 import packup.chat.service.ChatService;
 import packup.config.security.provider.JwtTokenProvider;
-import packup.fcmpush.dto.FcmPushRequest;
-import packup.fcmpush.service.FcmPushService;
-import packup.user.domain.UserInfo;
-import packup.user.domain.repository.UserInfoRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +24,11 @@ public class ChatSocketMapper {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserInfoRepository userInfoRepository;
-    private final FcmPushService firebaseService;
 
     private final List<Long> targetFcmUserSeq = new ArrayList<>();
 
     @MessageMapping("/send.message")
-    public void sendMessage(@Payload ChatMessageResponse chatMessage, Message<?> stompMessage) throws FirebaseMessagingException {
+    public void sendMessage(@Payload ChatMessageRequest chatMessage, Message<?> stompMessage) {
 
         // 헤더에서 Authorization 추출
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(stompMessage);
@@ -46,7 +41,7 @@ public class ChatSocketMapper {
         String content = chatMessage.getMessage();
 
         // 새로운 채팅 메시지 DTO 생성
-        ChatMessageResponse chatMessageDTO = ChatMessageResponse.builder()
+        ChatMessageRequest chatMessageDTO = ChatMessageRequest.builder()
                 .message(content)
                 .chatRoomSeq(chatRoomSeq)
                 .userSeq(userSeq)
@@ -72,18 +67,8 @@ public class ChatSocketMapper {
                 messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", firstChatRoomDTO);
             }
 
-            // FCM 알림
-            List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
-            if(targetFcmUserList.size() > 0) {
-                FcmPushRequest firebaseRequest = FcmPushRequest
-                        .builder()
-                        .userList(targetFcmUserList)
-                        .title("메시지가 도착했습니다.")
-                        .body(newChatMessageDTO.getMessage())
-                        .build();
-
-                firebaseService.sendBackground(firebaseRequest);
-            }
+            // FCM
+            chatService.chatSendFcmPush(newChatMessageDTO, targetFcmUserSeq);
         }
     }
 
