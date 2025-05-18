@@ -25,8 +25,6 @@ public class ChatSocketMapper {
     private final ChatService chatService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final List<Long> targetFcmUserSeq = new ArrayList<>();
-
     @MessageMapping("/send.message")
     public void sendMessage(@Payload ChatMessageRequest chatMessage, Message<?> stompMessage) {
 
@@ -53,6 +51,9 @@ public class ChatSocketMapper {
 
         // STOMP 구독 알림
         if (newChatMessageDTO.getSeq() > 0) {
+
+            List<Long> targetFcmUserSeq = new ArrayList<>();
+
             messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
 
             ChatRoomResponse firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
@@ -61,11 +62,16 @@ public class ChatSocketMapper {
                 
                 // 발송자를 제외한 회원에게 FCM 발송
                 if(!userSeq.equals(username)) {
-                    targetFcmUserSeq.add(username);    
+                    System.out.println("userSeq " + userSeq); // 14번 계정으로 발송하면... 이게 포함 되네?
+                    System.out.println("username " + username);
+
+                    targetFcmUserSeq.add(username);
                 }
                 
                 messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", firstChatRoomDTO);
             }
+
+            System.out.println("FCM 타깃 수 " + targetFcmUserSeq.size());
 
             // FCM
             chatService.chatSendFcmPush(newChatMessageDTO, targetFcmUserSeq);

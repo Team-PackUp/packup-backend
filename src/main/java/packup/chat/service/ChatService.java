@@ -254,6 +254,7 @@ public class ChatService {
                 .orElseThrow(() -> new ChatException(FAIL_TO_PUSH_FCM));
 
         List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
+        System.out.println("발송 시작 인원 수 " + targetFcmUserList.size());
         if(targetFcmUserList.size() > 0) {
 
             String message = chatMessageResponse.getMessage();

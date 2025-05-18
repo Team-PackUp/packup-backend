@@ -14,7 +14,9 @@ import packup.user.domain.repository.UserInfoRepository;
 import packup.user.exception.UserException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_TOKEN_OWNER;
@@ -36,27 +38,24 @@ public class FcmPushService {
 
         for (UserFcmToken userList : userFcmTokenList) {
 
-            Notification notification = Notification.builder()
-                    .setTitle(firebaseRequest.getTitle())
-                    .setBody(firebaseRequest.getBody())
-                    .build();
+            Map<String, String> data = new HashMap<>();
+            data.put("title", firebaseRequest.getTitle());
+            data.put("body", firebaseRequest.getBody());
 
             Message message = Message.builder()
-                    .setNotification(notification) // notification > 백그라운드/앱종료 상태 알림 전송... 인 줄 알았는데 별도 설정이 필요한듯
+                    .putAllData(data)
                     .setToken(userList.getFcmToken())
                     .build();
 
             try {
-                System.out.println(userList.getUserSeq());
                 firebaseMessaging.send(message);
             } catch (FirebaseMessagingException e) {
                 if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
-                    // 이때는 토큰에 문제가 있는거라 삭제? 처리를 해야하나 확인 필요
                     System.err.println("Fail token: " + userList.getFcmToken());
                 }
             }
-
         }
+
     }
 
     @Transactional
