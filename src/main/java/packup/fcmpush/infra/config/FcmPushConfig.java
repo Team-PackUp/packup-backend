@@ -8,8 +8,11 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import packup.fcmpush.exception.FcmPushException;
 
 import java.io.IOException;
+
+import static packup.fcmpush.exception.FcmPushExceptionType.FAIL_TO_LOAD_CONFIG;
 
 @Configuration
 public class FcmPushConfig {
@@ -22,6 +25,11 @@ public class FcmPushConfig {
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
+
+        if(!resource.exists()) {
+            throw new FcmPushException(FAIL_TO_LOAD_CONFIG);
+        }
+
         FirebaseApp firebaseApp;
         if (FirebaseApp.getApps().stream().noneMatch(app -> app.getName().equals(firebaseAppName))) {
             FirebaseOptions options = FirebaseOptions.builder()
