@@ -32,7 +32,7 @@ public class FcmPushService {
     private final UserInfoRepository userInfoRepository;
 
     @Transactional
-    public void sendBackground(FcmPushRequest firebaseRequest) {
+    public void requestFcmPush(FcmPushRequest firebaseRequest) {
 
         List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqInAndActiveFlag(firebaseRequest.getUserList(), YnType.Y);
 

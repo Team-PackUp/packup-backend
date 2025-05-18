@@ -270,7 +270,7 @@ public class ChatService {
                     .body(message)
                     .build();
 
-            firebaseService.sendBackground(fcmPushRequest);
+            firebaseService.requestFcmPush(fcmPushRequest);
         }
     }
 }
