@@ -4,6 +4,7 @@ import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import packup.common.domain.repository.CommonCodeRepository;
 import packup.common.enums.YnType;
 import packup.fcmpush.domain.UserFcmToken;
 import packup.fcmpush.domain.repository.UserFcmTokenRepository;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_OS_TYPE;
 import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_TOKEN_OWNER;
 import static packup.user.exception.UserExceptionType.NOT_FOUND_MEMBER;
 
@@ -29,6 +31,7 @@ public class FcmPushService {
 
     private final FirebaseMessaging firebaseMessaging;
     private final UserFcmTokenRepository userFcmTokenRepository;
+    private final CommonCodeRepository commonCodeRepository;
     private final UserInfoRepository userInfoRepository;
 
     @Transactional
@@ -63,6 +66,10 @@ public class FcmPushService {
         UserInfo user = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new UserException(NOT_FOUND_MEMBER));
 
+        String osTypeCode = commonCodeRepository.findByCodeName(osType.toUpperCase())
+                        .orElseThrow(() -> new FcmPushException(INVALID_OS_TYPE))
+                        .getCodeId();
+
         userFcmTokenRepository.findByFcmToken(token).ifPresentOrElse(existing -> {
             boolean isOwner = existing.getUserSeq().getSeq().equals(memberId);
 
@@ -75,14 +82,14 @@ public class FcmPushService {
 
             existing.setActiveFlag(YnType.Y);
             existing.setUpdatedAt(LocalDateTime.now());
-            existing.setOsType(osType);
+            existing.setOsType(osTypeCode);
         }, () -> {
             UserFcmToken newToken = UserFcmToken.builder()
                     .userSeq(user)
                     .fcmToken(token)
                     .activeFlag(YnType.Y)
                     .updatedAt(LocalDateTime.now())
-                    .osType(osType)
+                    .osType(osTypeCode)
                     .build();
             userFcmTokenRepository.save(newToken);
         });
