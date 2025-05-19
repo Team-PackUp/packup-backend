@@ -25,9 +25,15 @@ public class Notice extends BaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_seq", nullable = false)
-    private UserInfo adminSeq; // 임시로 회원 테이블 사용
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_seq", nullable = false)
+//    private UserInfo admin; // 임시로 회원 테이블 사용
+
+    @Column(name = "admin_seq", nullable = false)
+    private Long admin; // 임시로 회원 테이블 사용
+
+    @Column(name = "notice_type", nullable = false)
+    private String noticeType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "fcm_flag", columnDefinition = "yn_enum", nullable = false)
