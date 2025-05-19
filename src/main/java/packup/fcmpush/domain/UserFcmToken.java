@@ -21,7 +21,7 @@ public class UserFcmToken extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq", nullable = false)
-    private UserInfo userSeq;
+    private UserInfo user;
 
     @Column(name = "fcm_token", nullable = false)
     private String fcmToken;

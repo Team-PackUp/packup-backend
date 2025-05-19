@@ -26,7 +26,7 @@ public class ChatRoom extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq", nullable = false)
-    private UserInfo userSeq;
+    private UserInfo user;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
