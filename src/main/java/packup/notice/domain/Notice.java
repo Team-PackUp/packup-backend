@@ -6,9 +6,11 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
+import packup.common.util.DeltaConverter;
 import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
 @Builder
@@ -22,7 +24,8 @@ public class Notice extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "content", columnDefinition = "jsonb")
     private String content;
 
 //    @ManyToOne(fetch = FetchType.LAZY)

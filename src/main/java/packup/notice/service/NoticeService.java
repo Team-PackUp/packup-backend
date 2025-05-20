@@ -52,6 +52,9 @@ public class NoticeService {
         Notice responseNotice = noticeRepository.findById(noticeSeq)
                 .orElseThrow(() -> new NoticeException(NOT_FOUND_NOTICE));
 
+        System.out.println("공지 내용");
+        System.out.println(responseNotice.getContent());
+
         return NoticeResponse.builder()
                 .seq(responseNotice.getSeq())
                 .title(responseNotice.getTitle())
