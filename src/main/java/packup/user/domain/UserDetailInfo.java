@@ -5,7 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import packup.common.domain.BaseEntity;
+import packup.common.enums.YnType;
 
 import java.time.LocalDateTime;
 
@@ -36,6 +39,11 @@ public class UserDetailInfo extends BaseEntity {
 
     @Column(name = "profile_image_path")
     private String profileImagePath;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "marketing_flag", columnDefinition = "yn_enum", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private YnType marketingFlag = YnType.N;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
