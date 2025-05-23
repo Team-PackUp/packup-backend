@@ -41,8 +41,6 @@ public class FcmPushService {
 
         for (UserFcmToken userList : userFcmTokenList) {
 
-            System.out.println(userList.getFcmToken());
-
             Map<String, String> data = new HashMap<>();
             data.put("title", firebaseRequest.getTitle());
             data.put("body", firebaseRequest.getBody());
