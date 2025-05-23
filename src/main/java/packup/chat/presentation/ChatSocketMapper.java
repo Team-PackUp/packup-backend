@@ -62,16 +62,11 @@ public class ChatSocketMapper {
                 
                 // 발송자를 제외한 회원에게 FCM 발송
                 if(!userSeq.equals(username)) {
-                    System.out.println("userSeq " + userSeq); // 14번 계정으로 발송하면... 이게 포함 되네?
-                    System.out.println("username " + username);
-
                     targetFcmUserSeq.add(username);
                 }
                 
                 messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", firstChatRoomDTO);
             }
-
-            System.out.println("FCM 타깃 수 " + targetFcmUserSeq.size());
 
             // FCM
             chatService.chatSendFcmPush(newChatMessageDTO, targetFcmUserSeq);

@@ -23,7 +23,7 @@ public class ChatMessage extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq", nullable = false)
-    private UserInfo userSeq;
+    private UserInfo user;
 
     @Column(name = "message", nullable = false)
     private String message;

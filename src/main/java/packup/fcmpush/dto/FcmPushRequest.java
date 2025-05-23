@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class FcmPushRequest {
-    private List<UserInfo> userList;
+    private List<Long> userSeqList;
     private String title;
     private String body;
 }

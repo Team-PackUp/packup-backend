@@ -37,9 +37,11 @@ public class FcmPushService {
     @Transactional
     public void requestFcmPush(FcmPushRequest firebaseRequest) {
 
-        List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqInAndActiveFlag(firebaseRequest.getUserList(), YnType.Y);
+        List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqInAndActiveFlag(firebaseRequest.getUserSeqList(), YnType.Y);
 
         for (UserFcmToken userList : userFcmTokenList) {
+
+            System.out.println(userList.getFcmToken());
 
             Map<String, String> data = new HashMap<>();
             data.put("title", firebaseRequest.getTitle());
@@ -71,13 +73,13 @@ public class FcmPushService {
                         .getCodeId();
 
         userFcmTokenRepository.findByFcmToken(token).ifPresentOrElse(existing -> {
-            boolean isOwner = existing.getUserSeq().getSeq().equals(memberId);
+            boolean isOwner = existing.getUser().getSeq().equals(memberId);
 
             if (!isOwner) {
                 if (existing.getActiveFlag() == YnType.Y) {
                     throw new FcmPushException(INVALID_TOKEN_OWNER);
                 }
-                existing.setUserSeq(user);
+                existing.setUser(user);
             }
 
             existing.setActiveFlag(YnType.Y);
@@ -85,7 +87,7 @@ public class FcmPushService {
             existing.setOsType(osTypeCode);
         }, () -> {
             UserFcmToken newToken = UserFcmToken.builder()
-                    .userSeq(user)
+                    .user(user)
                     .fcmToken(token)
                     .activeFlag(YnType.Y)
                     .updatedAt(LocalDateTime.now())

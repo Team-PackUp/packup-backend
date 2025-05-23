@@ -56,7 +56,7 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
 
-        UserInfo userInfo = userInfoRepository.findById(chatRoom.getUserSeq().getSeq())
+        UserInfo userInfo = userInfoRepository.findById(chatRoom.getUser().getSeq())
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
         return ChatRoomResponse.builder()
@@ -97,14 +97,14 @@ public class ChatService {
 
         ChatRoom chatRoom = ChatRoom.builder()
                 .partUserSeq(partUserSeq)
-                .userSeq(userInfo)
+                .user(userInfo)
                 .build();
 
         ChatRoom newChatRoom = chatRoomRepository.save(chatRoom);
 
         return ChatRoomResponse.builder()
                 .seq(newChatRoom.getSeq())
-                .userSeq(newChatRoom.getUserSeq().getSeq())
+                .userSeq(newChatRoom.getUser().getSeq())
                 .partUserSeq(newChatRoom.getPartUserSeq())
                 .createdAt(newChatRoom.getCreatedAt())
                 .updatedAt(newChatRoom.getUpdatedAt())
@@ -131,7 +131,7 @@ public class ChatService {
 
         return ChatRoomResponse.builder()
                 .seq(chatRoom.getSeq())
-                .userSeq(chatRoom.getUserSeq().getSeq())
+                .userSeq(chatRoom.getUser().getSeq())
                 .partUserSeq(chatRoom.getPartUserSeq())
                 .createdAt(chatRoom.getCreatedAt())
                 .updatedAt(chatRoom.getUpdatedAt())
@@ -152,7 +152,7 @@ public class ChatService {
         List<ChatMessageResponse> chatMessages = chatMessageListPage.getContent().stream()
                 .map(chatMessageList -> ChatMessageResponse.builder()
                         .seq(chatMessageList.getSeq())
-                        .userSeq(chatMessageList.getUserSeq().getSeq())
+                        .userSeq(chatMessageList.getUser().getSeq())
                         .message(chatMessageList.getMessage())
                         .chatRoomSeq(chatMessageList.getChatRoomSeq().getSeq())
                         .createdAt(chatMessageList.getCreatedAt())
@@ -182,7 +182,7 @@ public class ChatService {
         ChatMessage newChatMessage = new ChatMessage();
         newChatMessage.setChatRoomSeq(chatRoom);
         newChatMessage.setMessage(chatMessageDTO.getMessage());
-        newChatMessage.setUserSeq(userInfo);
+        newChatMessage.setUser(userInfo);
 
         if(chatMessageDTO.isFileFlag()) {
             newChatMessage.setFileFlag(true);
@@ -226,7 +226,7 @@ public class ChatService {
 
         ChatMessageFile chatMessageFile = new ChatMessageFile();
         chatMessageFile.setChatFilePath(imageDTO.getPath());
-        chatMessageFile.setUserSeq(userInfo);
+        chatMessageFile.setUser(userInfo);
         chatMessageFile.setEncodedName(imageDTO.getEncodedName());
         chatMessageFile.setRealName(imageDTO.getRealName());
 
@@ -254,7 +254,7 @@ public class ChatService {
                 .orElseThrow(() -> new ChatException(FAIL_TO_PUSH_FCM));
 
         List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
-        System.out.println("발송 시작 인원 수 " + targetFcmUserList.size());
+
         if(targetFcmUserList.size() > 0) {
 
             String message = chatMessageResponse.getMessage();
@@ -263,9 +263,13 @@ public class ChatService {
                 message = REPLACE_IMAGE_TEXT;
             }
 
+            List<Long> targetUserSeqList =  targetFcmUserList.stream()
+                    .map(UserInfo::seq)
+                    .collect(Collectors.toList());
+
             FcmPushRequest fcmPushRequest = FcmPushRequest
                     .builder()
-                    .userList(targetFcmUserList)
+                    .userSeqList(targetUserSeqList)
                     .title(userDetailInfo.getNickname())
                     .body(message)
                     .build();
