@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import packup.tour.domain.TourInfo;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <pre>
@@ -23,4 +24,6 @@ public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
      * @return 해당 가이드의 투어 리스트
      */
     List<TourInfo> findByGuideSeq(Long guideSeq);
+
+    Optional<Object> findByIdAndGuideSeq(Long tourId, Long guideSeq);
 }

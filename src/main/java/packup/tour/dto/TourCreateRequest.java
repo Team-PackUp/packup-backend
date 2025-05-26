@@ -1,9 +1,12 @@
 package packup.tour.dto;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import packup.tour.enums.TourStatusCode;
 
 import java.time.LocalDate;
@@ -84,4 +87,8 @@ public class TourCreateRequest {
      */
     @NotBlank
     private String titleImagePath;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 }

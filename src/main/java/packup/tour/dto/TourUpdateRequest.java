@@ -1,7 +1,9 @@
 package packup.tour.dto;
 
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
 import packup.tour.enums.TourStatusCode;
 
 import java.time.LocalDate;
@@ -77,4 +79,11 @@ public class TourUpdateRequest {
      * 대표 이미지 경로
      */
     private String titleImagePath;
+
+    /**
+     * 수정시각
+     */
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

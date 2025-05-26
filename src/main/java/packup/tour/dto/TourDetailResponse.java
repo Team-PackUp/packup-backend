@@ -1,7 +1,11 @@
 package packup.tour.dto;
 
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import packup.tour.domain.TourInfo;
 import packup.tour.enums.TourStatusCode;
 
 import java.time.LocalDate;
@@ -81,4 +85,35 @@ public class TourDetailResponse {
      * 대표 이미지 경로 (파일 경로 또는 URL)
      */
     private String titleImagePath;
+
+    /**
+     * 등록시각
+     */
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    /**
+     * 수정시각
+     */
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    public static TourDetailResponse from(TourInfo tour) {
+        return TourDetailResponse.builder()
+                .seq(tour.getSeq())
+                .guideSeq(tour.getGuideSeq())
+                .minPeople(tour.getMinPeople())
+                .maxPeople(tour.getMaxPeople())
+                .applyStartDate(tour.getApplyPeriod().getStartDate())
+                .applyEndDate(tour.getApplyPeriod().getEndDate())
+                .tourStartDate(tour.getTourPeriod().getStartDateTime())
+                .tourEndDate(tour.getTourPeriod().getEndDateTime())
+                .tourIntroduce(tour.getTourIntroduce())
+                .tourStatusCode(tour.getTourStatusCode())
+                .tourLocation(tour.getTourLocation())
+                .titleImagePath(tour.getTitleImagePath())
+                .build();
+    }
 }
