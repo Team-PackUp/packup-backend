@@ -47,8 +47,8 @@ public class TourInfo extends BaseEntity {
     /**
      * 최소 모집 인원
      */
-    @Column(name = "minimum_people", nullable = false)
-    private Integer minimumPeople;
+    @Column(name = "min_people", nullable = false)
+    private Integer minPeople;
 
     /**
      * 최대 모집 인원

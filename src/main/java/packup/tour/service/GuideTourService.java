@@ -20,7 +20,7 @@ public class GuideTourService {
     public Long createTour(String guideSeq, TourCreateRequest request) {
         TourInfo tour = TourInfo.builder()
                 .guideSeq(Long.parseLong(guideSeq))
-                .minimumPeople(request.getMinimumPeople())
+                .minPeople(request.getMinPeople())
                 .maxPeople(request.getMaxPeople())
                 .applyPeriod(ApplyPeriod.of(request.getApplyStartDate(), request.getApplyEndDate()))
                 .tourPeriod(TourPeriod.of(request.getTourStartDate(), request.getTourEndDate()))

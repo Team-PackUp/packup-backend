@@ -23,7 +23,7 @@ public class TourCreateRequest {
      * 최소 모집 인원
      */
     @NotNull
-    private Integer minimumPeople;
+    private Integer minPeople;
 
     /**
      * 최대 모집 인원

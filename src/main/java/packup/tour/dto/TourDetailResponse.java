@@ -30,7 +30,7 @@ public class TourDetailResponse {
     /**
      * 최소 모집 인원
      */
-    private Integer minimumPeople;
+    private Integer minPeople;
 
     /**
      * 최대 모집 인원
