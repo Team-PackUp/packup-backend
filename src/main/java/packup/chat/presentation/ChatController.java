@@ -7,6 +7,7 @@ import packup.auth.annotation.Auth;
 import packup.chat.dto.InviteRequest;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
+import packup.chat.exception.ChatException;
 import packup.chat.service.ChatService;
 import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
@@ -14,6 +15,8 @@ import packup.common.dto.ResultModel;
 
 import java.io.IOException;
 import java.util.List;
+
+import static packup.chat.exception.ChatExceptionType.ABNORMAL_ACCESS;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,13 +26,22 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("/room/list")
-    public ResultModel<PageDTO<ChatRoomResponse>> getChatRoomList(@Auth Long memberId, @RequestParam int page) {
+    public ResultModel<PageDTO<ChatRoomResponse>> getChatRoomList(@Auth Long memberId, @RequestParam Integer page) {
+
+        if(page == null) {
+            throw new ChatException(ABNORMAL_ACCESS);
+        }
 
         return ResultModel.success(chatService.getChatRoomList(memberId, page));
     }
 
     @PostMapping("/room/create")
     public ResultModel<ChatRoomResponse> createChatRoom(@Auth Long memberId, @RequestBody List<Long> partUserSeq) {
+
+        if(partUserSeq == null || partUserSeq.size() < 1) {
+            throw new ChatException(ABNORMAL_ACCESS);
+        }
+
 
         return ResultModel.success(chatService.createChatRoom(partUserSeq, memberId));
     }
@@ -46,13 +58,21 @@ public class ChatController {
     }
 
     @GetMapping("/message/list/{chatRoomSeq}")
-    public ResultModel<PageDTO<ChatMessageResponse>> getChatMessageList(@Auth Long memberId, @PathVariable Long chatRoomSeq, @RequestParam int page) {
+    public ResultModel<PageDTO<ChatMessageResponse>> getChatMessageList(@Auth Long memberId, @PathVariable Long chatRoomSeq, @RequestParam Integer page) {
+
+        if(chatRoomSeq == null || page == null) {
+            throw new ChatException(ABNORMAL_ACCESS);
+        }
 
         return ResultModel.success(chatService.getChatMessageList(memberId, chatRoomSeq, page));
     }
 
     @PostMapping("/message/save/file")
     public ResultModel<FileResponse> saveFile(@Auth Long memberId, @RequestParam("file") MultipartFile file) throws IOException {
+
+        if(file == null || file.isEmpty()) {
+            throw new ChatException(ABNORMAL_ACCESS);
+        }
 
         return ResultModel.success(chatService.saveFile(memberId, "chat", file));
     }

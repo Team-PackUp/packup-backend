@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.*;
 import packup.common.dto.PageDTO;
 import packup.common.dto.ResultModel;
 import packup.notice.dto.NoticeResponse;
+import packup.notice.exception.NoticeException;
 import packup.notice.service.NoticeService;
+
+import static packup.notice.exception.NoticeExceptionType.ABNORMAL_ACCESS;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,13 +19,21 @@ public class NoticeController {
 
 
     @GetMapping("/list")
-    public ResultModel<PageDTO<NoticeResponse>> getNoticeList(@RequestParam int page) {
+    public ResultModel<PageDTO<NoticeResponse>> getNoticeList(@RequestParam Integer page) {
+
+        if(page == null) {
+            throw new NoticeException(ABNORMAL_ACCESS);
+        }
 
         return ResultModel.success(noticeService.getNoticeList(page));
     }
 
     @GetMapping("/view/{noticeSeq}")
     public ResultModel<NoticeResponse> getNoticeView(@PathVariable Long noticeSeq) {
+
+        if(noticeSeq == null) {
+            throw new NoticeException(ABNORMAL_ACCESS);
+        }
 
         return ResultModel.success(noticeService.getNoticeView(noticeSeq));
     }

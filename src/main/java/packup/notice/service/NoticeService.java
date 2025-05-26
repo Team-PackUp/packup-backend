@@ -25,7 +25,6 @@ import static packup.notice.exception.NoticeExceptionType.NOT_FOUND_NOTICE;
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
-    private final CommonCodeRepository commonCodeRepository;
 
     public PageDTO<NoticeResponse> getNoticeList(int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);

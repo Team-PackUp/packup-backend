@@ -1,4 +1,4 @@
-package packup.notice.exception;
+package packup.recommendation.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,11 +7,9 @@ import packup.common.exception.BaseExceptionType;
 import static org.springframework.http.HttpStatus.*;
 
 @RequiredArgsConstructor
-public enum NoticeExceptionType implements BaseExceptionType {
+public enum RecommendExceptionType implements BaseExceptionType {
 
-    NOT_FOUND_NOTICE(BAD_REQUEST, "해당 공지사항을 찾을 수 없습니다"),
-    ABNORMAL_ACCESS(BAD_REQUEST, "비 정상적인 접근입니다"),
-
+    ABNORMAL_ACCESS(BAD_REQUEST, "비정상적인 접근 입니다."),
     ;
 
     private final HttpStatus httpStatus;

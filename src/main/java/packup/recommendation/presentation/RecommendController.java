@@ -8,10 +8,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import packup.auth.annotation.Auth;
+import packup.common.dto.ResultModel;
+import packup.recommendation.dto.RecommendResponse;
+import packup.recommendation.exception.RecommendException;
 import packup.recommendation.service.RecommendService;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static packup.recommendation.exception.RecommendExceptionType.ABNORMAL_ACCESS;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,18 +26,21 @@ public class RecommendController {
     private final RecommendService recommendationService;
 
     @GetMapping("/user")
-    public List<String> recommendForUser(@Auth Long memberId, @RequestParam int count) throws TasteException {
-        System.out.println("추천 요청한 사용자 ID: " + memberId);
+    public ResultModel<List<RecommendResponse>> recommendForUser(@Auth Long memberId, @RequestParam Integer count) throws TasteException {
 
-        List<RecommendedItem> items = recommendationService.recommendForUser(memberId, count);
-
-        for (RecommendedItem item : items) {
-            System.out.println("상품 ID: " + item.getItemID() + ", 유사도 포인트: " + item.getValue());
+        if(count == null || count < 1) {
+            throw new RecommendException(ABNORMAL_ACCESS);
         }
 
-        return items.stream()
-                .map(i -> "상품 ID: " + i.getItemID() + ", 유사도 점수: " + i.getValue())
-                .collect(Collectors.toList());
+        List<RecommendResponse> recommendResponseList = recommendationService.recommendForUser(memberId, count);
+
+        // 추천 결과가 요청 개수보다 적을 경우, DB에서 랜덤 상품 추가
+        if(recommendResponseList.size() < count) {
+            int needToAdd = count - recommendResponseList.size();
+            recommendResponseList = recommendationService.ensureMinimumRecommendation(recommendResponseList, needToAdd);
+        }
+
+        return ResultModel.success(recommendResponseList);
     }
 
 }
