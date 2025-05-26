@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.CreatedDate;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
 
@@ -15,7 +16,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_info")
-public class UserInfo extends BaseEntity {
+public class UserInfo  {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_admin_seq_gen")
+    @SequenceGenerator(
+            name = "user_admin_seq_gen",
+            sequenceName = "user_admin_seq",
+            allocationSize = 1
+    )
+    private Long seq;
 
     @Column(name = "user_email", nullable = false, unique = true)
     private String email;
@@ -46,6 +56,10 @@ public class UserInfo extends BaseEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private UserPrefer prefer;
+
+    @CreatedDate
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     public void addDetailInfo(UserDetailInfo detailInfo) {
         this.detailInfo = detailInfo;
