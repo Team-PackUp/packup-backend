@@ -209,7 +209,7 @@ public class ChatService {
 
         chatRoom.setUpdatedAt(LocalDateTime.now());
 
-        chatRoomRepository.save(chatRoom);
+//        chatRoomRepository.save(chatRoom);
     }
 
     public List<Long> getPartUserInRoom(Long chatRoomSeq) {

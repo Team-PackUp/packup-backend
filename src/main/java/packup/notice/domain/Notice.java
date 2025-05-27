@@ -2,8 +2,10 @@ package packup.notice.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.LastModifiedDate;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
 import packup.common.util.DeltaConverter;
@@ -16,6 +18,7 @@ import java.util.Map;
 @Builder
 @Getter
 @Setter
+@DynamicUpdate
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notice")
@@ -48,6 +51,7 @@ public class Notice extends BaseEntity {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType deleteFlag;
 
+    @LastModifiedDate
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

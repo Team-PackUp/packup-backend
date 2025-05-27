@@ -81,14 +81,14 @@ public class FcmPushService {
             }
 
             existing.setActiveFlag(YnType.Y);
-            existing.setUpdatedAt(LocalDateTime.now());
+//            existing.setUpdatedAt(LocalDateTime.now());
             existing.setOsType(osTypeCode);
         }, () -> {
             UserFcmToken newToken = UserFcmToken.builder()
                     .user(user)
                     .fcmToken(token)
                     .activeFlag(YnType.Y)
-                    .updatedAt(LocalDateTime.now())
+//                    .updatedAt(LocalDateTime.now())
                     .osType(osTypeCode)
                     .build();
             userFcmTokenRepository.save(newToken);

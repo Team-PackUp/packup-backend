@@ -2,8 +2,10 @@ package packup.fcmpush.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.LastModifiedDate;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
 import packup.user.domain.UserInfo;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicUpdate
 @Table(name = "user_fcm_token")
 public class UserFcmToken extends BaseEntity {
 
@@ -34,6 +37,7 @@ public class UserFcmToken extends BaseEntity {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType activeFlag;
 
+    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
