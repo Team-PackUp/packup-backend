@@ -53,7 +53,7 @@ public class TourPeriod {
     private LocalDateTime endDateTime;
 
     /**
-     * 생성자 (Builder 사용)
+     * 생성자 (Builder 사용)-
      *
      * @param startDateTime 투어 시작 일시
      * @param endDateTime 투어 종료 일시

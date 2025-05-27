@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import packup.tour.dto.TourCreateRequest;
-import packup.tour.dto.TourDetailResponse;
-import packup.tour.dto.TourUpdateRequest;
+import packup.auth.annotation.Auth;
+import packup.common.dto.ResultModel;
+import packup.tour.dto.TourInfoCreateRequest;
+import packup.tour.dto.TourInfoResponse;
+import packup.tour.dto.TourInfoUpdateRequest;
 import packup.tour.service.GuideTourService;
 
 import java.util.List;
@@ -21,34 +23,34 @@ public class GuideTourApiController {
     /**
      * 등록한 투어 목록 조회
      */
-    @GetMapping
-    public ResponseEntity<List<TourDetailResponse>> getMyTours(@AuthenticationPrincipal(expression = "username") String guideId) {
-        List<TourDetailResponse> tours = guideTourService.getToursByGuideId(guideId);
-        return ResponseEntity.ok(tours);
+    @GetMapping("/my-tours")
+    public ResultModel<List<TourInfoResponse>> getMyTours(@AuthenticationPrincipal(expression = "username") String guideId) {
+        List<TourInfoResponse> tours = guideTourService.getToursByGuideId(guideId);
+        return ResultModel.success(tours);
     }
 
     /**
      * 투어 등록
      */
     @PostMapping
-    public ResponseEntity<Long> createTour(
+    public ResultModel<Long> createTour(
             @AuthenticationPrincipal(expression = "username") String guideId,
-            @RequestBody TourCreateRequest request
+            @RequestBody TourInfoCreateRequest request
     ) {
         Long createdId = guideTourService.createTour(guideId, request);
-        return ResponseEntity.ok(createdId);
+        return ResultModel.success(createdId);
     }
 
     /**
      * 투어 수정
      */
     @PutMapping("/{tourId}")
-    public ResponseEntity<Void> updateTour(
+    public ResultModel<Void> updateTour(
             @PathVariable Long tourId,
-            @AuthenticationPrincipal(expression = "username") String guideId,
-            @RequestBody TourUpdateRequest request
+            @Auth Long memberId,
+            @RequestBody TourInfoUpdateRequest request
     ) {
-        guideTourService.updateTour(guideId, tourId, request);
-        return ResponseEntity.ok().build();
+        guideTourService.updateTour(memberId, tourId, request);
+        return ResultModel.success();
     }
 }

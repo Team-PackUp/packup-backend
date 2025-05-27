@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Builder
-public class TourDetailResponse {
+public class TourInfoResponse {
 
     /**
      * 투어 일련번호 (PK)
@@ -100,8 +100,8 @@ public class TourDetailResponse {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public static TourDetailResponse from(TourInfo tour) {
-        return TourDetailResponse.builder()
+    public static TourInfoResponse from(TourInfo tour) {
+        return TourInfoResponse.builder()
                 .seq(tour.getSeq())
                 .guideSeq(tour.getGuideSeq())
                 .minPeople(tour.getMinPeople())

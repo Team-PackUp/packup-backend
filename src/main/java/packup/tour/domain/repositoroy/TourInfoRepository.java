@@ -23,7 +23,7 @@ public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
      * @param guideSeq 가이드의 고유 식별자
      * @return 해당 가이드의 투어 리스트
      */
-    List<TourInfo> findByGuideSeq(Long guideSeq);
+    List<TourInfo> findByGuideId(Long guideSeq);
 
-    Optional<Object> findByIdAndGuideSeq(Long tourId, Long guideSeq);
+    Optional<TourInfo> findByIdAndGuideId(Long tourId, Long guideSeq);
 }

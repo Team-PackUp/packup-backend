@@ -6,9 +6,9 @@ import packup.tour.domain.TourInfo;
 import packup.tour.domain.repositoroy.TourInfoRepository;
 import packup.tour.domain.value.ApplyPeriod;
 import packup.tour.domain.value.TourPeriod;
-import packup.tour.dto.TourCreateRequest;
-import packup.tour.dto.TourDetailResponse;
-import packup.tour.dto.TourUpdateRequest;
+import packup.tour.dto.TourInfoCreateRequest;
+import packup.tour.dto.TourInfoResponse;
+import packup.tour.dto.TourInfoUpdateRequest;
 
 import java.util.List;
 
@@ -18,9 +18,9 @@ public class GuideTourService {
 
     private final TourInfoRepository tourInfoRepository;
 
-    public Long createTour(String guideSeq, TourCreateRequest request) {
+    public Long createTour(String guideId, TourInfoCreateRequest request) {
         TourInfo tour = TourInfo.builder()
-                .guideSeq(Long.parseLong(guideSeq))
+                .guideSeq(Long.parseLong(guideId))
                 .minPeople(request.getMinPeople())
                 .maxPeople(request.getMaxPeople())
                 .applyPeriod(ApplyPeriod.of(request.getApplyStartDate(), request.getApplyEndDate()))
@@ -35,18 +35,17 @@ public class GuideTourService {
         return tourInfoRepository.save(tour).getSeq();
     }
 
-    public List<TourDetailResponse> getToursByGuideId(String guideId) {
+    public List<TourInfoResponse> getToursByGuideId(String guideId) {
         Long guideSeq = Long.parseLong(guideId);
-        List<TourInfo> tours = tourInfoRepository.findByGuideSeq(guideSeq);
+        List<TourInfo> tours = tourInfoRepository.findByGuideId(guideSeq);
 
         return tours.stream()
-                .map(TourDetailResponse::from)
+                .map(TourInfoResponse::from)
                 .toList();
     }
 
-    public void updateTour(String guideId, Long tourId, TourUpdateRequest request) {
-        Long guideSeq = Long.parseLong(guideId);
-        TourInfo tour = tourInfoRepository.findByIdAndGuideSeq(tourId, guideSeq)
+    public void updateTour(Long guideSeq, Long tourSeq, TourInfoUpdateRequest request) {
+        TourInfo tour = tourInfoRepository.findByIdAndGuideId(tourSeq, guideSeq)
                 .orElseThrow(() -> new IllegalArgumentException("해당 투어가 존재하지 않거나 수정 권한이 없습니다."));
 
         tour.update(
@@ -57,10 +56,11 @@ public class GuideTourService {
                 request.getTourIntroduce(),
                 request.getTourStatusCode(),
                 request.getTourLocation(),
-                request.getTitleImagePath()
+                request.getTitleImagePath(),
+
         );
 
-        tourInfoRepository.save(tour); // JPA 영속성 컨텍스트로 인해 생략해도 무방할 수 있음
+        tourInfoRepository.save(tour);
     }
 
     //투어 수정

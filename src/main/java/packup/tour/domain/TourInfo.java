@@ -2,12 +2,12 @@ package packup.tour.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import packup.common.domain.BaseEntity;
-import packup.tour.enums.TourStatusCode;
 import packup.tour.domain.value.ApplyPeriod;
 import packup.tour.domain.value.TourPeriod;
+import packup.tour.enums.TourStatusCode;
 
 import java.time.LocalDateTime;
 
@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "tour_info")
+@EntityListeners(AuditingEntityListener.class)
 public class TourInfo extends BaseEntity {
 
     /**
@@ -104,16 +105,23 @@ public class TourInfo extends BaseEntity {
     private String titleImagePath;
 
     /**
-     * 등록시각
-     */
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    /**
      * 수정시각
      */
-    @UpdateTimestamp
+    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void update(Integer minPeople, Integer maxPeople,
+                       ApplyPeriod applyPeriod, TourPeriod tourPeriod,
+                       String tourIntroduce, TourStatusCode tourStatusCode,
+                       String tourLocation, String titleImagePath) {
+        this.minPeople = minPeople;
+        this.maxPeople = maxPeople;
+        this.applyPeriod = applyPeriod;
+        this.tourPeriod = tourPeriod;
+        this.tourIntroduce = tourIntroduce;
+        this.tourStatusCode = tourStatusCode;
+        this.tourLocation = tourLocation;
+        this.titleImagePath = titleImagePath;
+    }
 }

@@ -1,11 +1,8 @@
 package packup.tour.dto;
 
 import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import packup.tour.enums.TourStatusCode;
 
@@ -13,55 +10,53 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * 투어 등록 요청 DTO
+ * 투어 수정 요청 DTO
  *
  * @author SBLEE
  * @since 2025.05.16
  */
 @Getter
 @Setter
-public class TourCreateRequest {
+public class TourInfoUpdateRequest {
+
+    /**
+     * 수정 대상 투어 일련번호 (PK)
+     */
+    private Long seq;
 
     /**
      * 최소 모집 인원
      */
-    @NotNull
     private Integer minPeople;
 
     /**
      * 최대 모집 인원
      */
-    @NotNull
     private Integer maxPeople;
 
     /**
      * 모집 시작일 (yyyy-MM-dd)
      */
-    @NotNull
     private LocalDate applyStartDate;
 
     /**
      * 모집 종료일 (yyyy-MM-dd)
      */
-    @NotNull
     private LocalDate applyEndDate;
 
     /**
      * 투어 시작일시 (yyyy-MM-dd'T'HH:mm:ss)
      */
-    @NotNull
     private LocalDateTime tourStartDate;
 
     /**
      * 투어 종료일시 (yyyy-MM-dd'T'HH:mm:ss)
      */
-    @NotNull
     private LocalDateTime tourEndDate;
 
     /**
      * 투어 소개
      */
-    @NotBlank
     private String tourIntroduce;
 
     /**
@@ -73,22 +68,22 @@ public class TourCreateRequest {
      * - ONGOING: 투어중
      * - FINISHED: 종료
      */
-    @NotNull
     private TourStatusCode tourStatusCode;
 
     /**
      * 투어 지역
      */
-    @NotBlank
     private String tourLocation;
 
     /**
      * 대표 이미지 경로
      */
-    @NotBlank
     private String titleImagePath;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    /**
+     * 수정시각
+     */
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

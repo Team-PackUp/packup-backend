@@ -52,6 +52,8 @@ public class GuideInfo {
     @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "timestamp default current_timestamp")
     private LocalDateTime createdAt;
 
+
+
     @UpdateTimestamp
     @Column(name = "updated_at", columnDefinition = "timestamp")
     private LocalDateTime updatedAt;

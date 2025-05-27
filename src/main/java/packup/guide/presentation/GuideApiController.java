@@ -7,7 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import packup.tour.domain.TourInfo;
-import packup.tour.dto.TourCreateRequest;
+import packup.tour.dto.TourInfoCreateRequest;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class GuideApiController {
 
     // 투어 등록
     @PostMapping
-    public ResponseEntity<?> registerTour(@RequestBody TourCreateRequest request) {
+    public ResponseEntity<?> registerTour(@RequestBody TourInfoCreateRequest request) {
         return null;
     }
 }
