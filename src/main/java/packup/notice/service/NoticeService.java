@@ -12,6 +12,8 @@ import packup.notice.domain.Notice;
 import packup.notice.domain.repository.NoticeRepository;
 import packup.notice.dto.NoticeResponse;
 import packup.notice.exception.NoticeException;
+import packup.recommend.annotation.RecommendTrace;
+import packup.recommend.enums.ActionType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,12 +48,12 @@ public class NoticeService {
                 .build();
     }
 
-    public NoticeResponse getNoticeView(Long noticeSeq) {
+    @RecommendTrace(actionType = ActionType.CLICK)
+    public NoticeResponse getNoticeView(Long memeberId, Long noticeSeq) {
 
         Notice responseNotice = noticeRepository.findById(noticeSeq)
                 .orElseThrow(() -> new NoticeException(NOT_FOUND_NOTICE));
 
-        System.out.println("공지 내용");
         System.out.println(responseNotice.getContent());
 
         return NoticeResponse.builder()

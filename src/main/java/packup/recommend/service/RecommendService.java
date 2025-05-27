@@ -1,19 +1,18 @@
-package packup.recommendation.service;
+package packup.recommend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
-import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.UncenteredCosineSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.recommender.IDRescorer;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.springframework.stereotype.Service;
-import packup.recommendation.domain.JpaDataModelBuilder;
-import packup.recommendation.domain.Recommend;
-import packup.recommendation.domain.repository.RecommendRepository;
-import packup.recommendation.dto.RecommendResponse;
+import packup.recommend.domain.builder.JpaDataModelBuilder;
+import packup.recommend.domain.Recommend;
+import packup.recommend.domain.repository.RecommendRepository;
+import packup.recommend.dto.RecommendResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,8 +42,13 @@ public class RecommendService {
 
         // DTO 변환
         List<RecommendResponse> recommendResponseList = recommendList.stream()
-                .map(recommendedItem -> new RecommendResponse(recommendedItem.getItemID(), recommendedItem.getValue()))
+                .map(recommendedItem -> RecommendResponse.builder()
+                        .userSeq(recommendedItem.getItemID())
+                        .score(recommendedItem.getValue())
+                        .build()
+                )
                 .collect(Collectors.toList());
+
 
         // 추천 상품 셔플
         recommendResponseList = shuffleAndLimit(recommendResponseList);

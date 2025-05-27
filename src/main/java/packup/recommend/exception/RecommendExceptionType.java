@@ -1,4 +1,4 @@
-package packup.recommendation.exception;
+package packup.recommend.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

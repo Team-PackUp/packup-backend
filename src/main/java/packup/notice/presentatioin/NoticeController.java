@@ -2,6 +2,7 @@ package packup.notice.presentatioin;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import packup.auth.annotation.Auth;
 import packup.common.dto.PageDTO;
 import packup.common.dto.ResultModel;
 import packup.notice.dto.NoticeResponse;
@@ -29,13 +30,13 @@ public class NoticeController {
     }
 
     @GetMapping("/view/{noticeSeq}")
-    public ResultModel<NoticeResponse> getNoticeView(@PathVariable Long noticeSeq) {
+    public ResultModel<NoticeResponse> getNoticeView(@Auth Long memeberId, @PathVariable Long noticeSeq) {
 
         if(noticeSeq == null) {
             throw new NoticeException(ABNORMAL_ACCESS);
         }
 
-        return ResultModel.success(noticeService.getNoticeView(noticeSeq));
+        return ResultModel.success(noticeService.getNoticeView(memeberId, noticeSeq));
     }
 
 }

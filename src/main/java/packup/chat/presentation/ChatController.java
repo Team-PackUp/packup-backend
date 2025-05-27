@@ -7,7 +7,7 @@ import packup.auth.annotation.Auth;
 import packup.chat.dto.InviteRequest;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
-import packup.chat.dto.exception.ChatException;
+import packup.chat.exception.ChatException;
 import packup.chat.service.ChatService;
 import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
@@ -16,7 +16,7 @@ import packup.common.dto.ResultModel;
 import java.io.IOException;
 import java.util.List;
 
-import static packup.chat.dto.exception.ChatExceptionType.ABNORMAL_ACCESS;
+import static packup.chat.exception.ChatExceptionType.ABNORMAL_ACCESS;
 
 @RestController
 @RequiredArgsConstructor

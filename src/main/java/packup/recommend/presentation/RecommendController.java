@@ -1,22 +1,20 @@
-package packup.recommendation.presentation;
+package packup.recommend.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import packup.auth.annotation.Auth;
 import packup.common.dto.ResultModel;
-import packup.recommendation.dto.RecommendResponse;
-import packup.recommendation.exception.RecommendException;
-import packup.recommendation.service.RecommendService;
+import packup.recommend.dto.RecommendResponse;
+import packup.recommend.exception.RecommendException;
+import packup.recommend.service.RecommendService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static packup.recommendation.exception.RecommendExceptionType.ABNORMAL_ACCESS;
+import static packup.recommend.exception.RecommendExceptionType.ABNORMAL_ACCESS;
 
 @RestController
 @RequiredArgsConstructor

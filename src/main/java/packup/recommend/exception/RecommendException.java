@@ -1,4 +1,4 @@
-package packup.recommendation.exception;
+package packup.recommend.exception;
 
 import packup.common.exception.BaseException;
 import packup.common.exception.BaseExceptionType;

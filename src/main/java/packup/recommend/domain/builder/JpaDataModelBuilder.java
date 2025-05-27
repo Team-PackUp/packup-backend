@@ -1,10 +1,11 @@
-package packup.recommendation.domain;
+package packup.recommend.domain.builder;
 
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
+import packup.recommend.domain.Recommend;
 
 import java.util.List;
 import java.util.Map;

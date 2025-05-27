@@ -8,11 +8,8 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.LastModifiedDate;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
-import packup.common.util.DeltaConverter;
-import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Entity
 @Builder
