@@ -1,14 +1,14 @@
 package packup.recommend.dto;
 
 
-import lombok.*;
-import packup.recommend.enums.ActionType;
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 @Builder
 public class RecommendResponse {
     private final Long userSeq;
     private Long tourSeq;
-    private ActionType actionType;
+    private String actionType;
     private final float score;
 }

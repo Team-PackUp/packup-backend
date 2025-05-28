@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import packup.common.domain.repository.CommonCodeRepository;
 import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
 import packup.notice.domain.Notice;
@@ -53,8 +52,6 @@ public class NoticeService {
 
         Notice responseNotice = noticeRepository.findById(noticeSeq)
                 .orElseThrow(() -> new NoticeException(NOT_FOUND_NOTICE));
-
-        System.out.println(responseNotice.getContent());
 
         return NoticeResponse.builder()
                 .seq(responseNotice.getSeq())

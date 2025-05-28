@@ -1,12 +1,13 @@
 package packup.recommend.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import packup.common.domain.BaseEntity;
-import packup.recommend.enums.ActionType;
 
 @Entity
 @Getter
@@ -22,9 +23,9 @@ public class Recommend extends BaseEntity {
     @Column(name = "tour_seq", nullable = false)
     private Long tourSeq;
 
-    @Enumerated(EnumType.STRING)
+//    @Enumerated(EnumType.STRING)
     @Column(name = "action_type", nullable = false)
-    private ActionType actionType;
+    private String actionType;
 
     @Column(name = "score", nullable = false)
     private Float score;

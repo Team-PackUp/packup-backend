@@ -6,15 +6,11 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import packup.common.domain.CommonCode;
 import packup.common.domain.repository.CommonCodeRepository;
-import packup.fcmpush.exception.FcmPushException;
 import packup.recommend.annotation.RecommendTrace;
 import packup.recommend.domain.RecommendScore;
 import packup.recommend.domain.repository.RecommendScoreRepository;
 import packup.recommend.dto.RecommendResponse;
-
-import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_OS_TYPE;
 
 @Aspect
 @Component
@@ -32,19 +28,19 @@ public class RecommendAspect {
         Long userSeq = (Long) args[0];
         Long tourSeq = (Long) args[1];
 
-        String actionTypeCode = commonCodeRepository.findByCodeName(
-                recommendTrace.actionType().getString()
-                )
+        String actionTypeName = recommendTrace.actionType().getString();
+        String actionType = commonCodeRepository.findByCodeName(
+                        actionTypeName)
                 .orElseThrow()
                 .getCodeId();
 
-        RecommendScore recommendScore = recommendScoreRepository.findByActionType(actionTypeCode);
+        RecommendScore recommendScore = recommendScoreRepository.findByActionType(actionType);
 
 
         RecommendResponse recommendEvent = RecommendResponse.builder()
                 .userSeq(userSeq)
                 .tourSeq(tourSeq)
-                .actionType(recommendTrace.actionType())
+                .actionType(actionType)
                 .score(recommendScore.getScore())
                 .build();
 
