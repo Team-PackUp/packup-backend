@@ -10,6 +10,7 @@ import static org.springframework.http.HttpStatus.*;
 public enum ChatExceptionType implements BaseExceptionType {
 
     NOT_FOUND_CHAT_ROOM(BAD_REQUEST, "채팅 방을 찾을 수 없습니다"),
+    NOT_FOUND_CHAT_MESSAGE(BAD_REQUEST, "채팅을 찾을 수 없습니다"),
     NOT_FOUND_MEMBER(NOT_FOUND, "회원을 찾을 수 없습니다"),
     UNAUTHORIZED_REQUEST(UNAUTHORIZED, "인증되지 않았습니다"),
     ALREADY_PARTICIPATION(UNAUTHORIZED, "이미 참여한 회원 입니다"),

@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import packup.auth.annotation.Auth;
-import packup.chat.dto.InviteRequest;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
+import packup.chat.dto.InviteRequest;
 import packup.chat.exception.ChatException;
 import packup.chat.service.ChatService;
 import packup.common.dto.FileResponse;
@@ -14,7 +14,6 @@ import packup.common.dto.PageDTO;
 import packup.common.dto.ResultModel;
 
 import java.io.IOException;
-import java.util.List;
 
 import static packup.chat.exception.ChatExceptionType.ABNORMAL_ACCESS;
 
@@ -33,17 +32,6 @@ public class ChatController {
         }
 
         return ResultModel.success(chatService.getChatRoomList(memberId, page));
-    }
-
-    @PostMapping("/room/create")
-    public ResultModel<ChatRoomResponse> createChatRoom(@Auth Long memberId, @RequestBody List<Long> partUserSeq) {
-
-        if(partUserSeq == null || partUserSeq.size() < 1) {
-            throw new ChatException(ABNORMAL_ACCESS);
-        }
-
-
-        return ResultModel.success(chatService.createChatRoom(partUserSeq, memberId));
     }
 
     @PostMapping("/room/invite")

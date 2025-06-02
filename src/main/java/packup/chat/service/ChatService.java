@@ -1,5 +1,7 @@
 package packup.chat.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,13 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import packup.chat.domain.ChatMessage;
 import packup.chat.domain.ChatMessageFile;
+import packup.chat.domain.ChatRead;
 import packup.chat.domain.ChatRoom;
 import packup.chat.domain.repository.ChatMessageFileRepository;
 import packup.chat.domain.repository.ChatMessageRepository;
+import packup.chat.domain.repository.ChatReadRepository;
 import packup.chat.domain.repository.ChatRoomRepository;
 import packup.chat.dto.ChatMessageRequest;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
+import packup.chat.dto.ReadMessageRequest;
 import packup.chat.exception.ChatException;
 import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
@@ -29,8 +34,11 @@ import packup.user.domain.repository.UserInfoRepository;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static packup.chat.constant.ChatConstant.PAGE_SIZE;
@@ -45,6 +53,7 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final UserInfoRepository userInfoRepository;
     private final ChatMessageFileRepository chatMessageFileRepository;
+    private final ChatReadRepository chatReadRepository;
 
     private final FileUtil fileUtil;
 
@@ -71,15 +80,36 @@ public class ChatService {
 
     public PageDTO<ChatRoomResponse> getChatRoomList(Long memberId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Page<ChatRoom> chatRoomListPage = chatRoomRepository.findByPartUserSeqContains(memberId, pageable);
+        Page<Map<String, Object>> chatRoomListPage = chatRoomRepository.findChatRoomListWithUnreadCount(memberId, pageable);
+
+        ObjectMapper objectMapper = new ObjectMapper();
 
         List<ChatRoomResponse> chatRooms = chatRoomListPage.getContent().stream()
-                .map(chatRoom -> ChatRoomResponse.builder()
-                        .seq(chatRoom.getSeq())
-                        .partUserSeq(chatRoom.getPartUserSeq())
-                        .createdAt(chatRoom.getCreatedAt())
-                        .updatedAt(chatRoom.getUpdatedAt())
-                        .build())
+                .map(row -> {
+                    List<Long> partUserSeqList = new ArrayList<>();
+                    try {
+                        Object partUserRaw = row.get("part_user_seq");
+                        if (partUserRaw != null) {
+                            partUserSeqList = objectMapper.readValue(
+                                    partUserRaw.toString(),
+                                    new TypeReference<>() {
+                                    }
+                            );
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    return ChatRoomResponse.builder()
+                            .seq(((Number) row.get("seq")).longValue())
+                            .partUserSeq(partUserSeqList)
+                            .userSeq(row.get("user_seq") != null ? ((Number) row.get("user_seq")).longValue() : null)
+                            .nickNames((String) row.get("nick_names")) // 이게 null일 수도 있음
+                            .unReadCount(row.get("unread_count") != null ? ((Number) row.get("unread_count")).intValue() : 0)
+                            .createdAt(((Timestamp) row.get("created_at")).toLocalDateTime())
+                            .updatedAt(((Timestamp) row.get("updated_at")).toLocalDateTime())
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         return PageDTO.<ChatRoomResponse>builder()
@@ -88,28 +118,6 @@ public class ChatService {
                 .build();
     }
 
-
-
-    public ChatRoomResponse createChatRoom(List<Long> partUserSeq, Long userSeq) {
-
-        UserInfo userInfo = userInfoRepository.findById(userSeq)
-                .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
-
-        ChatRoom chatRoom = ChatRoom.builder()
-                .partUserSeq(partUserSeq)
-                .user(userInfo)
-                .build();
-
-        ChatRoom newChatRoom = chatRoomRepository.save(chatRoom);
-
-        return ChatRoomResponse.builder()
-                .seq(newChatRoom.getSeq())
-                .userSeq(newChatRoom.getUser().getSeq())
-                .partUserSeq(newChatRoom.getPartUserSeq())
-                .createdAt(newChatRoom.getCreatedAt())
-                .updatedAt(newChatRoom.getUpdatedAt())
-                .build();
-    }
 
     public ChatRoomResponse inviteChatRoom(Long chatRoomSeq, Long newPartUserSeq) {
 
@@ -188,8 +196,13 @@ public class ChatService {
             newChatMessage.setFileFlag(true);
         }
 
+        // 새로운 채팅 추가
         chatMessageRepository.save(newChatMessage);
+        
+        // 채팅방 수정일자 반영
         updateChatRoom(chatRoom.seq());
+
+        // 채팅 읽은 회원 기록
 
         return ChatMessageResponse
                 .builder()
@@ -210,6 +223,31 @@ public class ChatService {
         chatRoom.setUpdatedAt(LocalDateTime.now());
 
 //        chatRoomRepository.save(chatRoom);
+    }
+
+    @Transactional
+    public void readChatMessage(long memberId, ReadMessageRequest readMessageRequest) {
+
+        UserInfo userInfo = userInfoRepository.findById(memberId)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
+
+        ChatRoom chatRoom = chatRoomRepository.findById(readMessageRequest.getChatRoomSeq())
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+
+        ChatMessage chatMessage = chatMessageRepository.findById(readMessageRequest.getLastReadMessageSeq())
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_MESSAGE));
+
+        ChatRead chatRead = chatReadRepository.findChatReadByUserAndChatRoomSeq(userInfo, chatRoom)
+                .orElseGet(() -> ChatRead.builder()
+                        .chatRoomSeq(chatRoom)
+                        .user(userInfo)
+                        .lastReadMessageSeq(chatMessage)
+                        .build()
+                );
+        chatRead.setLastReadMessageSeq(chatMessage);
+
+
+        chatReadRepository.save(chatRead);
     }
 
     public List<Long> getPartUserInRoom(Long chatRoomSeq) {
