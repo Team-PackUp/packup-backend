@@ -24,6 +24,7 @@ import packup.chat.exception.ChatException;
 import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
 import packup.common.util.FileUtil;
+import packup.common.util.JsonUtil;
 import packup.fcmpush.dto.FcmPushRequest;
 import packup.fcmpush.service.FcmPushService;
 import packup.user.domain.UserDetailInfo;
@@ -82,19 +83,14 @@ public class ChatService {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Page<Map<String, Object>> chatRoomListPage = chatRoomRepository.findChatRoomListWithUnreadCount(memberId, pageable);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         List<ChatRoomResponse> chatRooms = chatRoomListPage.getContent().stream()
                 .map(row -> {
                     List<Long> partUserSeqList = new ArrayList<>();
                     try {
                         Object partUserRaw = row.get("part_user_seq");
                         if (partUserRaw != null) {
-                            partUserSeqList = objectMapper.readValue(
-                                    partUserRaw.toString(),
-                                    new TypeReference<>() {
-                                    }
-                            );
+                            partUserSeqList = JsonUtil.fromJson(partUserRaw.toString(), new TypeReference<>() {
+                            });
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -104,7 +100,7 @@ public class ChatService {
                             .seq(((Number) row.get("seq")).longValue())
                             .partUserSeq(partUserSeqList)
                             .userSeq(row.get("user_seq") != null ? ((Number) row.get("user_seq")).longValue() : null)
-                            .nickNames((String) row.get("nick_names")) // 이게 null일 수도 있음
+                            .nickNames((String) row.get("nick_names"))
                             .unReadCount(row.get("unread_count") != null ? ((Number) row.get("unread_count")).intValue() : 0)
                             .createdAt(((Timestamp) row.get("created_at")).toLocalDateTime())
                             .updatedAt(((Timestamp) row.get("updated_at")).toLocalDateTime())
