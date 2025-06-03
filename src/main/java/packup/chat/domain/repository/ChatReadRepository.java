@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface ChatReadRepository extends JpaRepository<ChatRead, Long> {
     Optional<ChatRead> findChatReadByUserAndChatRoomSeq(UserInfo userInfo, ChatRoom chatRoom);
+
 }

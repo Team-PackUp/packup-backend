@@ -40,6 +40,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static packup.chat.constant.ChatConstant.PAGE_SIZE;
@@ -61,22 +62,34 @@ public class ChatService {
     private final UserDetailInfoRepository userDetailInfoRepository;
     private final FcmPushService firebaseService;
 
-    public ChatRoomResponse getChatRoom(Long chatRoomSeq) {
-
+    public ChatRoomResponse getChatRoom(Long memberId, Long chatRoomSeq) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
 
-        UserInfo userInfo = userInfoRepository.findById(chatRoom.getUser().getSeq())
+        UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
+
+        int unreadCount;
+
+        Optional<ChatRead> chatReadOpt = chatReadRepository.findChatReadByUserAndChatRoomSeq(userInfo, chatRoom);
+        LocalDateTime lastReadTime = chatReadOpt.map(ChatRead::getUpdatedAt).orElse(LocalDateTime.of(1970, 1, 1, 0, 0));
+
+        unreadCount = chatMessageRepository.countByChatRoomSeqAndUserNotAndCreatedAtAfter(
+                chatRoom,
+                userInfo,
+                lastReadTime
+        );
 
         return ChatRoomResponse.builder()
                 .seq(chatRoom.getSeq())
                 .userSeq(userInfo.getSeq())
                 .partUserSeq(chatRoom.getPartUserSeq())
+                .unReadCount(unreadCount)
                 .createdAt(chatRoom.getCreatedAt())
                 .updatedAt(chatRoom.getUpdatedAt())
                 .build();
     }
+
 
 
     public PageDTO<ChatRoomResponse> getChatRoomList(Long memberId, int page) {

@@ -31,11 +31,10 @@ public class ChatSocketMapper {
     public void sendMessage(@Payload ChatMessageRequest chatMessage, Message<?> stompMessage) {
 
         Long userSeq = getUserSeqInSocket(stompMessage);
-
         Long chatRoomSeq = chatMessage.getChatRoomSeq();
         String content = chatMessage.getMessage();
 
-        // 새로운 채팅 메시지 DTO 생성
+        // 메시지 DTO 생성
         ChatMessageRequest chatMessageDTO = ChatMessageRequest.builder()
                 .message(content)
                 .chatRoomSeq(chatRoomSeq)
@@ -46,29 +45,30 @@ public class ChatSocketMapper {
         // 채팅 저장
         ChatMessageResponse newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
 
-        // STOMP 구독 알림
         if (newChatMessageDTO.getSeq() > 0) {
-
             List<Long> targetFcmUserSeq = new ArrayList<>();
 
             messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
 
-            ChatRoomResponse firstChatRoomDTO = chatService.getChatRoom(newChatMessageDTO.getChatRoomSeq());
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
+
             for (Long username : chatRoomPartUser) {
-                
-                // 발송자를 제외한 회원에게 FCM 발송
-                if(!userSeq.equals(username)) {
+                ChatRoomResponse userSpecificDTO = chatService.getChatRoom(username, chatRoomSeq);
+
+                if (!userSeq.equals(username)) {
                     targetFcmUserSeq.add(username);
                 }
-                
-                messagingTemplate.convertAndSendToUser(username.toString(), "/queue/chatroom-refresh", firstChatRoomDTO);
+
+                messagingTemplate.convertAndSendToUser(
+                        username.toString(), "/queue/chatroom-refresh", userSpecificDTO
+                );
             }
 
             // FCM
             chatService.chatSendFcmPush(newChatMessageDTO, targetFcmUserSeq);
         }
     }
+
 
     @MessageMapping("/read.message")
     public void readChatMessage(@Payload ReadMessageRequest readMessageRequest, Message<?> stompMessage) {
