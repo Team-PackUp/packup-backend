@@ -8,9 +8,12 @@ import packup.chat.domain.ChatRoom;
 import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     Page<ChatMessage> findByChatRoomSeqOrderByCreatedAtDesc(ChatRoom chatRoom, Pageable page);
 
     int countByChatRoomSeqAndUserNotAndCreatedAtAfter(ChatRoom chatRoomSeq, UserInfo user, LocalDateTime createdAt);
+    Optional<ChatMessage> findTopByChatRoomSeqOrderByCreatedAtDesc(ChatRoom chatRoom);
+
 }

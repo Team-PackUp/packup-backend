@@ -69,26 +69,37 @@ public class ChatService {
         UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
-        int unreadCount;
+        // 최근 읽은 시각
+        LocalDateTime lastReadTime = chatReadRepository
+                .findChatReadByUserAndChatRoomSeq(userInfo, chatRoom)
+                .map(ChatRead::getUpdatedAt)
+                .orElse(LocalDateTime.of(1970, 1, 1, 0, 0));
 
-        Optional<ChatRead> chatReadOpt = chatReadRepository.findChatReadByUserAndChatRoomSeq(userInfo, chatRoom);
-        LocalDateTime lastReadTime = chatReadOpt.map(ChatRead::getUpdatedAt).orElse(LocalDateTime.of(1970, 1, 1, 0, 0));
-
-        unreadCount = chatMessageRepository.countByChatRoomSeqAndUserNotAndCreatedAtAfter(
+        // 안 읽은 메시지 수
+        int unreadCount = chatMessageRepository.countByChatRoomSeqAndUserNotAndCreatedAtAfter(
                 chatRoom,
                 userInfo,
                 lastReadTime
         );
+
+        Optional<ChatMessage> lastMessageOpt = chatMessageRepository
+                .findTopByChatRoomSeqOrderByCreatedAtDesc(chatRoom);
+
+        String lastMessage = lastMessageOpt.map(ChatMessage::getMessage).orElse(null);
+        LocalDateTime lastMessageDate = lastMessageOpt.map(ChatMessage::getCreatedAt).orElse(null);
 
         return ChatRoomResponse.builder()
                 .seq(chatRoom.getSeq())
                 .userSeq(userInfo.getSeq())
                 .partUserSeq(chatRoom.getPartUserSeq())
                 .unReadCount(unreadCount)
+                .lastMessage(lastMessage)
+                .lastMessageDate(lastMessageDate)
                 .createdAt(chatRoom.getCreatedAt())
                 .updatedAt(chatRoom.getUpdatedAt())
                 .build();
     }
+
 
 
 
