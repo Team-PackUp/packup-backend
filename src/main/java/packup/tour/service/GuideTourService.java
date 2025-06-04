@@ -35,8 +35,7 @@ public class GuideTourService {
         return tourInfoRepository.save(tour).getSeq();
     }
 
-    public List<TourInfoResponse> getToursByGuideId(String guideId) {
-        Long guideSeq = Long.parseLong(guideId);
+    public List<TourInfoResponse> getToursByGuideId(Long guideSeq) {
         List<TourInfo> tours = tourInfoRepository.findByGuideId(guideSeq);
 
         return tours.stream()
@@ -56,8 +55,7 @@ public class GuideTourService {
                 request.getTourIntroduce(),
                 request.getTourStatusCode(),
                 request.getTourLocation(),
-                request.getTitleImagePath(),
-
+                request.getTitleImagePath()
         );
 
         tourInfoRepository.save(tour);

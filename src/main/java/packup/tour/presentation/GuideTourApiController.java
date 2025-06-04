@@ -23,16 +23,16 @@ public class GuideTourApiController {
     /**
      * 등록한 투어 목록 조회
      */
-    @GetMapping("/my-tours")
-    public ResultModel<List<TourInfoResponse>> getMyTours(@AuthenticationPrincipal(expression = "username") String guideId) {
-        List<TourInfoResponse> tours = guideTourService.getToursByGuideId(guideId);
+    @GetMapping("/my-tour")
+    public ResultModel<List<TourInfoResponse>> getMyTours(@Auth Long memberId) {
+        List<TourInfoResponse> tours = guideTourService.getToursByGuideId(memberId);
         return ResultModel.success(tours);
     }
 
     /**
      * 투어 등록
      */
-    @PostMapping
+    @PostMapping("/my-tour")
     public ResultModel<Long> createTour(
             @AuthenticationPrincipal(expression = "username") String guideId,
             @RequestBody TourInfoCreateRequest request
@@ -44,8 +44,21 @@ public class GuideTourApiController {
     /**
      * 투어 수정
      */
-    @PutMapping("/{tourId}")
+    @PutMapping("/my-tour")
     public ResultModel<Void> updateTour(
+            @PathVariable Long tourId,
+            @Auth Long memberId,
+            @RequestBody TourInfoUpdateRequest request
+    ) {
+        guideTourService.updateTour(memberId, tourId, request);
+        return ResultModel.success();
+    }
+
+    /**
+     * 투어 삭제
+     */
+    @DeleteMapping("/my-tour")
+    public ResultModel<Void> deleteTour(
             @PathVariable Long tourId,
             @Auth Long memberId,
             @RequestBody TourInfoUpdateRequest request
