@@ -52,6 +52,7 @@ public class ChatSocketMapper {
 
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
 
+            // 회원별로 따로 구독 response
             for (Long username : chatRoomPartUser) {
                 ChatRoomResponse userSpecificDTO = chatService.getChatRoom(username, chatRoomSeq);
 

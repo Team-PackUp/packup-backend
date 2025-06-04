@@ -15,6 +15,8 @@ public class ChatRoomResponse {
     private List<Long> partUserSeq;
     private Long userSeq;
     private String nickNames;
+    private String lastMessage;
+    private LocalDateTime lastMessageDate;
     private int unReadCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

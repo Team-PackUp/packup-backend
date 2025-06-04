@@ -115,6 +115,12 @@ public class ChatService {
                             .userSeq(row.get("user_seq") != null ? ((Number) row.get("user_seq")).longValue() : null)
                             .nickNames((String) row.get("nick_names"))
                             .unReadCount(row.get("unread_count") != null ? ((Number) row.get("unread_count")).intValue() : 0)
+                            .lastMessage((String) row.get("last_message"))
+                            .lastMessageDate(
+                                    row.get("last_message_date") != null
+                                            ? ((Timestamp) row.get("last_message_date")).toLocalDateTime()
+                                            : null
+                            )
                             .createdAt(((Timestamp) row.get("created_at")).toLocalDateTime())
                             .updatedAt(((Timestamp) row.get("updated_at")).toLocalDateTime())
                             .build();
