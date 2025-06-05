@@ -29,6 +29,9 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(name = "user_seq", nullable = false)
     private UserInfo user;
 
+    @Column(name = "title", nullable = false)
+    private String title;
+
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

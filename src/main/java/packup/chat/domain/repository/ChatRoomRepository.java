@@ -44,7 +44,16 @@ SELECT
     WHERE cm.chat_room_seq = cr.seq
     ORDER BY cm.created_at DESC
     LIMIT 1
-  ) AS last_message_date
+  ) AS last_message_date,
+  
+    -- 가장 최근 메시지 날짜
+  (
+    SELECT cm.file_flag
+    FROM chat_message cm
+    WHERE cm.chat_room_seq = cr.seq
+    ORDER BY cm.created_at DESC
+    LIMIT 1
+  ) AS last_message_file_flag
 
 FROM chat_room cr
 WHERE cr.part_user_seq @> to_jsonb(array[:memberId]::int[])

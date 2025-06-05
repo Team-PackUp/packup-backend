@@ -1,10 +1,11 @@
 package packup.chat.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +24,7 @@ import packup.chat.dto.ReadMessageRequest;
 import packup.chat.exception.ChatException;
 import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
+import packup.common.enums.YnType;
 import packup.common.util.FileUtil;
 import packup.common.util.JsonUtil;
 import packup.fcmpush.dto.FcmPushRequest;
@@ -31,8 +33,6 @@ import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserDetailInfoRepository;
 import packup.user.domain.repository.UserInfoRepository;
-
-import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -43,8 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static packup.chat.constant.ChatConstant.PAGE_SIZE;
-import static packup.chat.constant.ChatConstant.REPLACE_IMAGE_TEXT;
+import static packup.chat.constant.ChatConstant.*;
 import static packup.chat.exception.ChatExceptionType.*;
 
 @Service
@@ -79,14 +78,17 @@ public class ChatService {
         int unreadCount = chatMessageRepository.countByChatRoomSeqAndUserNotAndCreatedAtAfter(
                 chatRoom,
                 userInfo,
-                lastReadTime
+                lastReadTime,
+                Limit.of(UNREAD_CHAT_COUNT_LIMIT)
         );
 
+        // 마지막 채팅 정보
         Optional<ChatMessage> lastMessageOpt = chatMessageRepository
                 .findTopByChatRoomSeqOrderByCreatedAtDesc(chatRoom);
 
         String lastMessage = lastMessageOpt.map(ChatMessage::getMessage).orElse(null);
         LocalDateTime lastMessageDate = lastMessageOpt.map(ChatMessage::getCreatedAt).orElse(null);
+        YnType fileFlag = lastMessageOpt.map(ChatMessage::getFileFlag).orElse(null);
 
         return ChatRoomResponse.builder()
                 .seq(chatRoom.getSeq())
@@ -95,6 +97,8 @@ public class ChatService {
                 .unReadCount(unreadCount)
                 .lastMessage(lastMessage)
                 .lastMessageDate(lastMessageDate)
+                .title(chatRoom.getTitle())
+                .fileFlag(fileFlag)
                 .createdAt(chatRoom.getCreatedAt())
                 .updatedAt(chatRoom.getUpdatedAt())
                 .build();
@@ -124,7 +128,7 @@ public class ChatService {
                             .seq(((Number) row.get("seq")).longValue())
                             .partUserSeq(partUserSeqList)
                             .userSeq(row.get("user_seq") != null ? ((Number) row.get("user_seq")).longValue() : null)
-                            .nickNames((String) row.get("nick_names"))
+                            .title((String) row.get("title"))
                             .unReadCount(row.get("unread_count") != null ? ((Number) row.get("unread_count")).intValue() : 0)
                             .lastMessage((String) row.get("last_message"))
                             .lastMessageDate(
@@ -132,6 +136,7 @@ public class ChatService {
                                             ? ((Timestamp) row.get("last_message_date")).toLocalDateTime()
                                             : null
                             )
+                            .fileFlag(YnType.valueOf(row.get("last_message_file_flag").toString()))
                             .createdAt(((Timestamp) row.get("created_at")).toLocalDateTime())
                             .updatedAt(((Timestamp) row.get("updated_at")).toLocalDateTime())
                             .build();
@@ -217,10 +222,7 @@ public class ChatService {
         newChatMessage.setChatRoomSeq(chatRoom);
         newChatMessage.setMessage(chatMessageDTO.getMessage());
         newChatMessage.setUser(userInfo);
-
-        if(chatMessageDTO.isFileFlag()) {
-            newChatMessage.setFileFlag(true);
-        }
+        newChatMessage.setFileFlag(chatMessageDTO.getFileFlag());
 
         // 새로운 채팅 추가
         chatMessageRepository.save(newChatMessage);
@@ -322,7 +324,7 @@ public class ChatService {
 
             String message = chatMessageResponse.getMessage();
 
-            if(chatMessageResponse.isFileFlag()) {
+            if(chatMessageResponse.getFileFlag().equals(YnType.Y)) {
                 message = REPLACE_IMAGE_TEXT;
             }
 

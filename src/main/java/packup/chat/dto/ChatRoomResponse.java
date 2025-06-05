@@ -1,6 +1,7 @@
 package packup.chat.dto;
 
 import lombok.*;
+import packup.common.enums.YnType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,10 +15,11 @@ public class ChatRoomResponse {
     private Long seq;
     private List<Long> partUserSeq;
     private Long userSeq;
-    private String nickNames;
+    private String title;
     private String lastMessage;
     private LocalDateTime lastMessageDate;
     private int unReadCount;
+    private YnType fileFlag;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

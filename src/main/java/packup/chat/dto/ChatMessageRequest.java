@@ -1,8 +1,7 @@
 package packup.chat.dto;
 
 import lombok.*;
-
-import java.time.LocalDateTime;
+import packup.common.enums.YnType;
 
 @Builder
 @Getter
@@ -13,5 +12,5 @@ public class ChatMessageRequest {
     private Long chatRoomSeq;
     private Long userSeq;
     private String message;
-    private boolean fileFlag;
+    private YnType fileFlag;
 }
