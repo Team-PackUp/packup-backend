@@ -3,7 +3,9 @@ package packup.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import packup.common.domain.repository.CommonCodeRepository;
 import packup.common.util.JsonUtil;
+import packup.fcmpush.exception.FcmPushException;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.UserPrefer;
@@ -18,6 +20,8 @@ import packup.user.exception.UserExceptionType;
 
 import java.util.List;
 
+import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_OS_TYPE;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -25,6 +29,7 @@ public class UserService {
     private final UserInfoRepository userInfoRepository;
     private final UserPreferRepository userPreferRepository;
     private final UserDetailInfoRepository userDetailInfoRepository;
+    private final CommonCodeRepository commonCodeRepository;
 
     public UserInfoResponse getUserInfo(Long memberId) {
         UserInfo userInfo = userInfoRepository.findById(memberId)
@@ -52,12 +57,20 @@ public class UserService {
         UserInfo user = userInfoRepository.findById(memberId)
             .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
 
+        String genderCode = commonCodeRepository.findByCodeName(request.getUserGender())
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_GENDER))
+                .getCodeId();
+
+        String nationCode = commonCodeRepository.findByCodeName(request.getUserNation())
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_NATION))
+                .getCodeId();
+
         UserDetailInfo detail = userDetailInfoRepository.findByUser(user)
                 .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_USER_DETAIL));
 
         detail.updateBasicInfo(
-                request.getUserGender(),
-                request.getUserNation(),
+                genderCode,
+                nationCode,
                 Integer.parseInt(request.getUserAge())
         );
     }

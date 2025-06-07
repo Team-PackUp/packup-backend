@@ -24,7 +24,6 @@ public class UserDetailInfo extends BaseEntity {
     @JoinColumn(name = "user_seq", nullable = false, unique = true)
     private UserInfo user;
 
-    @Column(name = "gender", length = 1)
     private String gender;
 
     private String nation;
