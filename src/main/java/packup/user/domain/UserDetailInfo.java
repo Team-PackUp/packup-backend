@@ -51,4 +51,11 @@ public class UserDetailInfo extends BaseEntity {
     public void assignUser(UserInfo userInfo) {
         this.user = userInfo;
     }
+
+    public void updateBasicInfo(String gender, String nation, int age) {
+        this.gender = gender;
+        this.nation = nation;
+        this.age = age;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

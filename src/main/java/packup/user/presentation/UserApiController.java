@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import packup.auth.annotation.Auth;
 import packup.common.dto.ResultModel;
 import packup.user.domain.UserInfo;
+import packup.user.dto.UserDetailRequest;
 import packup.user.dto.UserInfoResponse;
 import packup.user.dto.UserPreferRequest;
 import packup.user.service.UserService;
@@ -28,6 +29,15 @@ public class UserApiController {
             @RequestBody UserPreferRequest request) {
 
         userService.updateUserPrefer(memberId, request);
+        return ResultModel.success();
+    }
+
+    @PutMapping("/detail")
+    public ResultModel<Void> updateUserDetail(
+            @Auth Long memberId,
+            @RequestBody UserDetailRequest request) {
+
+        userService.updateUserDetail(memberId, request);
         return ResultModel.success();
     }
 
