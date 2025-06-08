@@ -23,9 +23,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatSocketMapper {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
     private final JwtTokenProvider jwtTokenProvider;
+
+    List<Long> targetUserSeq = new ArrayList<>();
 
     @MessageMapping("/send.message")
     public void sendMessage(@Payload ChatMessageRequest chatMessage, Message<?> stompMessage) {
@@ -46,29 +47,21 @@ public class ChatSocketMapper {
         ChatMessageResponse newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
 
         if (newChatMessageDTO.getSeq() > 0) {
-            List<Long> targetFcmUserSeq = new ArrayList<>();
 
-            messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
+            // 메시지 발송
+            chatService.sendMessage(chatRoomSeq, newChatMessageDTO);
 
+            // 채팅방에 포함되어있는 회원 겟
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
 
-            // 회원별로 따로 구독 response
-            for (Long username : chatRoomPartUser) {
-                ChatRoomResponse userSpecificDTO = chatService.getChatRoom(username, chatRoomSeq);
-
-                if (!userSeq.equals(username)) {
-                    targetFcmUserSeq.add(username);
-                }
-
-                messagingTemplate.convertAndSendToUser(
-                        username.toString(), "/queue/chatroom-refresh", userSpecificDTO
-                );
-            }
+            // 채팅방 새로고침
+            chatService.refreshChatRoom(userSeq, chatRoomSeq, chatRoomPartUser);
 
             // FCM
-            chatService.chatSendFcmPush(newChatMessageDTO, targetFcmUserSeq);
+            chatService.chatSendFcmPush(newChatMessageDTO, targetUserSeq);
         }
     }
+
 
 
     @MessageMapping("/read.message")

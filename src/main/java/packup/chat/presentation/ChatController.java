@@ -34,17 +34,6 @@ public class ChatController {
         return ResultModel.success(chatService.getChatRoomList(memberId, page));
     }
 
-    @PostMapping("/room/invite")
-    public ResultModel<ChatRoomResponse> inviteChatRoom(@RequestBody InviteRequest inviteRequest) {
-
-        ChatRoomResponse chatRoomDTO = chatService.inviteChatRoom(
-                inviteRequest.getChatRoomSeq(),
-                inviteRequest.getNewPartUserSeq()
-        );
-
-        return ResultModel.success(chatRoomDTO);
-    }
-
     @GetMapping("/message/list/{chatRoomSeq}")
     public ResultModel<PageDTO<ChatMessageResponse>> getChatMessageList(@Auth Long memberId, @PathVariable Long chatRoomSeq, @RequestParam Integer page) {
 

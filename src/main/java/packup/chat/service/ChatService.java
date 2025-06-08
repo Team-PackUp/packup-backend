@@ -6,6 +6,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,6 +61,9 @@ public class ChatService {
 
     private final UserDetailInfoRepository userDetailInfoRepository;
     private final FcmPushService firebaseService;
+
+    private final SimpMessagingTemplate messagingTemplate;
+    List<Long> targetUserSeq = new ArrayList<>();
 
     public ChatRoomResponse getChatRoom(Long memberId, Long chatRoomSeq) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
@@ -146,34 +150,6 @@ public class ChatService {
         return PageDTO.<ChatRoomResponse>builder()
                 .objectList(chatRooms)
                 .totalPage(chatRoomListPage.getTotalPages())
-                .build();
-    }
-
-
-    public ChatRoomResponse inviteChatRoom(Long chatRoomSeq, Long newPartUserSeq) {
-
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
-                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
-
-        if (chatRoom.getPartUserSeq().contains(newPartUserSeq)) {
-            throw new ChatException(ALREADY_PARTICIPATION);
-        }
-
-        chatRoom.getPartUserSeq().add(newPartUserSeq);
-
-        chatRoom = chatRoomRepository.save(
-                ChatRoom.builder()
-                        .partUserSeq(chatRoom.getPartUserSeq())
-                        .updatedAt(LocalDateTime.now())
-                        .build()
-        );
-
-        return ChatRoomResponse.builder()
-                .seq(chatRoom.getSeq())
-                .userSeq(chatRoom.getUser().getSeq())
-                .partUserSeq(chatRoom.getPartUserSeq())
-                .createdAt(chatRoom.getCreatedAt())
-                .updatedAt(chatRoom.getUpdatedAt())
                 .build();
     }
 
@@ -337,6 +313,47 @@ public class ChatService {
 
             firebaseService.requestFcmPush(fcmPushRequest);
         }
+    }
+
+    public void sendMessage(Long chatRoomSeq, ChatMessageResponse newChatMessageDTO) {
+        messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
+    }
+
+    public void refreshChatRoom(Long userSeq, Long chatRoomSeq, List<Long> chatRoomPartUser) {
+
+        // 회원별로 따로 구독 response
+        for (Long username : chatRoomPartUser) {
+            ChatRoomResponse userSpecificDTO = getChatRoom(username, chatRoomSeq);
+
+            if (!userSeq.equals(username)) {
+                targetUserSeq.add(username);
+            }
+
+            messagingTemplate.convertAndSendToUser(
+                    username.toString(), "/queue/chatroom-refresh", userSpecificDTO
+            );
+        }
+    }
+
+    public void createChatRoom() {
+        // 생성할 채팅방 대상 투어들 조회
+
+        // 생성
+
+//        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq);
+//
+//        if (chatRoom.getPartUserSeq().contains(newPartUserSeq)) {
+//            throw new ChatException(ALREADY_PARTICIPATION);
+//        }
+//
+//        chatRoom.getPartUserSeq().add(newPartUserSeq);
+//
+//        chatRoom = chatRoomRepository.save(
+//                ChatRoom.builder()
+//                        .partUserSeq(chatRoom.getPartUserSeq())
+//                        .updatedAt(LocalDateTime.now())
+//                        .build()
+//        );
     }
 }
 
