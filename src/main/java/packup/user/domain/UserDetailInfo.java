@@ -24,7 +24,6 @@ public class UserDetailInfo extends BaseEntity {
     @JoinColumn(name = "user_seq", nullable = false, unique = true)
     private UserInfo user;
 
-    @Column(name = "gender", length = 1)
     private String gender;
 
     private String nation;
@@ -50,5 +49,12 @@ public class UserDetailInfo extends BaseEntity {
 
     public void assignUser(UserInfo userInfo) {
         this.user = userInfo;
+    }
+
+    public void updateBasicInfo(String gender, String nation, int age) {
+        this.gender = gender;
+        this.nation = nation;
+        this.age = age;
+        this.updatedAt = LocalDateTime.now();
     }
 }
