@@ -13,4 +13,5 @@ public class ChatMessageRequest {
     private Long userSeq;
     private String message;
     private YnType fileFlag;
+    private String deepLink;
 }

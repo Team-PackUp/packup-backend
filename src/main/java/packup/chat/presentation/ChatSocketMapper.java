@@ -34,6 +34,7 @@ public class ChatSocketMapper {
         Long userSeq = getUserSeqInSocket(stompMessage);
         Long chatRoomSeq = chatMessage.getChatRoomSeq();
         String content = chatMessage.getMessage();
+        String deepLink = chatMessage.getDeepLink();
 
         // 메시지 DTO 생성
         ChatMessageRequest chatMessageDTO = ChatMessageRequest.builder()
@@ -55,10 +56,10 @@ public class ChatSocketMapper {
             List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
 
             // 채팅방 새로고침
-            chatService.refreshChatRoom(userSeq, chatRoomSeq, chatRoomPartUser);
+            List<Long> targetUserSeq = chatService.refreshChatRoom(userSeq, chatRoomSeq, chatRoomPartUser);
 
             // FCM
-            chatService.chatSendFcmPush(newChatMessageDTO, targetUserSeq);
+            chatService.chatSendFcmPush(newChatMessageDTO, targetUserSeq, deepLink);
         }
     }
 

@@ -37,6 +37,7 @@ public class FcmPushService {
     @Transactional
     public void requestFcmPush(FcmPushRequest firebaseRequest) {
 
+
         List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqInAndActiveFlag(firebaseRequest.getUserSeqList(), YnType.Y);
 
         for (UserFcmToken userList : userFcmTokenList) {
@@ -44,6 +45,12 @@ public class FcmPushService {
             Map<String, String> data = new HashMap<>();
             data.put("title", firebaseRequest.getTitle());
             data.put("body", firebaseRequest.getBody());
+
+            Optional.ofNullable(firebaseRequest.getDeepLink())
+                    .filter(s -> !s.isEmpty())
+                    .ifPresent(deepLink -> data.put("deeplink", deepLink));
+
+
 
             Message message = Message.builder()
                     .putAllData(data)

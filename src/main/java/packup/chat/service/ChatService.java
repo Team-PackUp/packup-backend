@@ -288,7 +288,7 @@ public class ChatService {
     }
 
     // FCM 알림
-    public void chatSendFcmPush(ChatMessageResponse chatMessageResponse, List<Long> targetFcmUserSeq) {
+    public void chatSendFcmPush(ChatMessageResponse chatMessageResponse, List<Long> targetFcmUserSeq, String deepLink) {
 
         // 닉네임
         UserDetailInfo userDetailInfo = userInfoRepository.findById(chatMessageResponse.getUserSeq())
@@ -309,6 +309,7 @@ public class ChatService {
                     .userSeqList(targetFcmUserSeq)
                     .title(userDetailInfo.getNickname())
                     .body(message)
+                    .deepLink(deepLink)
                     .build();
 
             firebaseService.requestFcmPush(fcmPushRequest);
@@ -319,7 +320,7 @@ public class ChatService {
         messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
     }
 
-    public void refreshChatRoom(Long userSeq, Long chatRoomSeq, List<Long> chatRoomPartUser) {
+    public List<Long> refreshChatRoom(Long userSeq, Long chatRoomSeq, List<Long> chatRoomPartUser) {
 
         // 회원별로 따로 구독 response
         for (Long username : chatRoomPartUser) {
@@ -333,6 +334,8 @@ public class ChatService {
                     username.toString(), "/queue/chatroom-refresh", userSpecificDTO
             );
         }
+
+        return  targetUserSeq;
     }
 
     public void createChatRoom() {
