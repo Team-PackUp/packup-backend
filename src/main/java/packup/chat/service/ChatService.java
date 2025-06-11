@@ -29,8 +29,9 @@ import packup.common.enums.YnType;
 import packup.common.util.FileUtil;
 import packup.common.util.JsonUtil;
 import packup.fcmpush.dto.FcmPushRequest;
+import packup.fcmpush.enums.DeepLinkType;
+import packup.fcmpush.presentation.DeepLinkGenerator;
 import packup.fcmpush.service.FcmPushService;
-import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserDetailInfoRepository;
 import packup.user.domain.repository.UserInfoRepository;
@@ -288,12 +289,9 @@ public class ChatService {
     }
 
     // FCM 알림
-    public void chatSendFcmPush(ChatMessageResponse chatMessageResponse, List<Long> targetFcmUserSeq, String deepLink) {
+    public void chatSendFcmPush(ChatMessageResponse chatMessageResponse, List<Long> targetFcmUserSeq) {
 
-        // 닉네임
-        UserDetailInfo userDetailInfo = userInfoRepository.findById(chatMessageResponse.getUserSeq())
-                .flatMap(userDetailInfoRepository::findByUser)
-                .orElseThrow(() -> new ChatException(FAIL_TO_PUSH_FCM));
+        ChatRoomResponse chatRoomResponse = getChatRoom(chatMessageResponse.getUserSeq(), chatMessageResponse.getChatRoomSeq());
 
         List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
         if(targetFcmUserList.size() > 0) {
@@ -307,9 +305,14 @@ public class ChatService {
             FcmPushRequest fcmPushRequest = FcmPushRequest
                     .builder()
                     .userSeqList(targetFcmUserSeq)
-                    .title(userDetailInfo.getNickname())
+                    .title(chatRoomResponse.getTitle())
                     .body(message)
-                    .deepLink(deepLink)
+                    .deepLink(DeepLinkGenerator.generate(
+                            DeepLinkType.CHAT_MESSAGE,
+                            chatMessageResponse.getChatRoomSeq(),
+                            chatRoomResponse.getTitle()
+                        )
+                    )
                     .build();
 
             firebaseService.requestFcmPush(fcmPushRequest);

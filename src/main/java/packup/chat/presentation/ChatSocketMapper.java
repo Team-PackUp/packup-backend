@@ -34,7 +34,6 @@ public class ChatSocketMapper {
         Long userSeq = getUserSeqInSocket(stompMessage);
         Long chatRoomSeq = chatMessage.getChatRoomSeq();
         String content = chatMessage.getMessage();
-        String deepLink = chatMessage.getDeepLink();
 
         // 메시지 DTO 생성
         ChatMessageRequest chatMessageDTO = ChatMessageRequest.builder()
@@ -59,7 +58,7 @@ public class ChatSocketMapper {
             List<Long> targetUserSeq = chatService.refreshChatRoom(userSeq, chatRoomSeq, chatRoomPartUser);
 
             // FCM
-            chatService.chatSendFcmPush(newChatMessageDTO, targetUserSeq, deepLink);
+            chatService.chatSendFcmPush(newChatMessageDTO, targetUserSeq);
         }
     }
 

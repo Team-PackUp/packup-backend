@@ -48,9 +48,7 @@ public class FcmPushService {
 
             Optional.ofNullable(firebaseRequest.getDeepLink())
                     .filter(s -> !s.isEmpty())
-                    .ifPresent(deepLink -> data.put("deeplink", deepLink));
-
-
+                    .ifPresent(deepLink -> data.put("deepLink", deepLink));
 
             Message message = Message.builder()
                     .putAllData(data)
@@ -65,7 +63,6 @@ public class FcmPushService {
                 }
             }
         }
-
     }
 
     @Transactional
