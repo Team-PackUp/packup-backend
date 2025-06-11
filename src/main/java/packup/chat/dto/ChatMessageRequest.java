@@ -1,18 +1,16 @@
 package packup.chat.dto;
 
 import lombok.*;
-import java.time.LocalDateTime;
+import packup.common.enums.YnType;
 
 @Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessageDTO {
-    private Long seq;
+public class ChatMessageRequest {
     private Long chatRoomSeq;
     private Long userSeq;
     private String message;
-    private LocalDateTime createdAt;
-    private boolean fileFlag;
+    private YnType fileFlag;
 }

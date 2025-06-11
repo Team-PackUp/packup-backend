@@ -3,6 +3,7 @@ package packup.chat.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.annotation.LastModifiedDate;
 import packup.chat.presentation.ChatConverter;
 import packup.common.domain.BaseEntity;
 import packup.user.domain.UserInfo;
@@ -26,8 +27,12 @@ public class ChatRoom extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq", nullable = false)
-    private UserInfo userSeq;
+    private UserInfo user;
 
+    @Column(name = "title", nullable = false)
+    private String title;
+
+    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }

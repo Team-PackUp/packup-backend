@@ -1,6 +1,7 @@
 package packup.config.security.provider;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -31,6 +32,7 @@ public class JwtTokenProvider {
     public String createRefreshToken(String username) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshIntervalInMilliseconds);
+        System.out.println(expiry);
         return Jwts.builder()
                 .setSubject(username)
                 .claim("type", "refresh")
@@ -83,11 +85,15 @@ public class JwtTokenProvider {
     }
 
     public Claims parseClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
 

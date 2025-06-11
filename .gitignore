@@ -43,5 +43,6 @@ out/
 *.env
 application-*.yml
 application-*.properties
+packup-90eda-firebase-*
 
 *.log

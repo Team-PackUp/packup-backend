@@ -43,6 +43,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	implementation 'com.google.firebase:firebase-admin:9.4.3'
+
+	implementation 'org.apache.mahout:mahout-core:0.9'
 }
 
 tasks.named('test') {

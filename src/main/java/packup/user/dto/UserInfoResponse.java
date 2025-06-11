@@ -12,6 +12,10 @@ import java.util.Map;
 @Builder
 public class UserInfoResponse {
     // 필요한거 여기서 추가..
+    private Integer age;
+    private String gender;
+    private String nation;
+
     private String email;
     private Map<String, Object> preferCategorySeqJson;
     private String nickname;
@@ -27,6 +31,9 @@ public class UserInfoResponse {
 
         return UserInfoResponse.builder()
                 .email(userInfo.getEmail())
+                .gender(userInfo.getDetailInfo().getGender())
+                .age(userInfo.getDetailInfo().getAge())
+                .nation(userInfo.getDetailInfo().getNation())
                 .preferCategorySeqJson(preferCategory)
                 .nickname(userInfo.getDetailInfo().getNickname())
                 .build();
