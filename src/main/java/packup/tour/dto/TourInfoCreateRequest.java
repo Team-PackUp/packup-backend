@@ -58,6 +58,12 @@ public class TourInfoCreateRequest {
     private LocalDateTime tourEndDate;
 
     /**
+     * 투어 제목
+     */
+    @NotBlank
+    private String tourTitle;
+
+    /**
      * 투어 소개
      */
     @NotBlank

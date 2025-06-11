@@ -57,6 +57,11 @@ public class TourInfoUpdateRequest {
     /**
      * 투어 소개
      */
+    private String tourTitle;
+
+    /**
+     * 투어 소개
+     */
     private String tourIntroduce;
 
     /**

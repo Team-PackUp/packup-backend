@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import packup.tour.domain.TourInfo;
 import packup.tour.domain.repositoroy.TourInfoRepository;
-import packup.tour.domain.value.ApplyPeriod;
-import packup.tour.domain.value.TourPeriod;
 import packup.tour.dto.TourInfoCreateRequest;
 import packup.tour.dto.TourInfoResponse;
 import packup.tour.dto.TourInfoUpdateRequest;
@@ -23,8 +21,10 @@ public class GuideTourService {
                 .guideSeq(Long.parseLong(guideId))
                 .minPeople(request.getMinPeople())
                 .maxPeople(request.getMaxPeople())
-                .applyPeriod(ApplyPeriod.of(request.getApplyStartDate(), request.getApplyEndDate()))
-                .tourPeriod(TourPeriod.of(request.getTourStartDate(), request.getTourEndDate()))
+                .applyStartDate(request.getApplyStartDate())
+                .applyEndDate(request.getApplyEndDate())
+                .tourStartDate(request.getTourStartDate())
+                .tourEndDate(request.getTourEndDate())
                 .tourIntroduce(request.getTourIntroduce())
                 .tourStatusCode(request.getTourStatusCode())
                 .tourLocation(request.getTourLocation())
@@ -36,7 +36,7 @@ public class GuideTourService {
     }
 
     public List<TourInfoResponse> getToursByGuideId(Long guideSeq) {
-        List<TourInfo> tours = tourInfoRepository.findByGuideId(guideSeq);
+        List<TourInfo> tours = tourInfoRepository.findByGuideSeq(guideSeq);
 
         return tours.stream()
                 .map(TourInfoResponse::from)
@@ -44,14 +44,16 @@ public class GuideTourService {
     }
 
     public void updateTour(Long guideSeq, Long tourSeq, TourInfoUpdateRequest request) {
-        TourInfo tour = tourInfoRepository.findByIdAndGuideId(tourSeq, guideSeq)
+        TourInfo tour = tourInfoRepository.findBySeqAndGuideSeq(tourSeq, guideSeq)
                 .orElseThrow(() -> new IllegalArgumentException("해당 투어가 존재하지 않거나 수정 권한이 없습니다."));
 
         tour.update(
                 request.getMinPeople(),
                 request.getMaxPeople(),
-                ApplyPeriod.of(request.getApplyStartDate(), request.getApplyEndDate()),
-                TourPeriod.of(request.getTourStartDate(), request.getTourEndDate()),
+                request.getApplyStartDate(),
+                request.getApplyEndDate(),
+                request.getTourStartDate(),
+                request.getTourEndDate(),
                 request.getTourIntroduce(),
                 request.getTourStatusCode(),
                 request.getTourLocation(),

@@ -5,10 +5,10 @@ import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import packup.common.domain.BaseEntity;
-import packup.tour.domain.value.ApplyPeriod;
-import packup.tour.domain.value.TourPeriod;
 import packup.tour.enums.TourStatusCode;
+import packup.tour.enums.TourStatusCodeConverter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -62,16 +62,24 @@ public class TourInfo extends BaseEntity {
     private Integer maxPeople;
 
     /**
-     * 모집 기간 (시작일 ~ 종료일)
+     * 모집 시작일
      */
-    @Embedded
-    private ApplyPeriod applyPeriod;
+    private LocalDate applyStartDate;
 
     /**
-     * 투어 기간 (시작 일시 ~ 종료 일시)
+     * 모집 종료일
      */
-    @Embedded
-    private TourPeriod tourPeriod;
+    private LocalDate applyEndDate;
+
+    /**
+     * 투어 시작 일시
+     */
+    private LocalDateTime tourStartDate;
+
+    /**
+     * 투어 종료 일시
+     */
+    private LocalDateTime tourEndDate;
 
     /**
      * 투어 소개 (자유 입력 설명, TEXT 컬럼)
@@ -88,9 +96,15 @@ public class TourInfo extends BaseEntity {
      * - ONGOING: 투어중
      * - FINISHED: 종료
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TourStatusCodeConverter.class)
     @Column(name = "tour_status_code", length = 50)
     private TourStatusCode tourStatusCode;
+
+    /**
+     * 투어 제목
+     */
+    @Column(name = "tour_title", length = 255)
+    private String tourTitle;
 
     /**
      * 투어 지역 (지역명 또는 장소명)
@@ -112,13 +126,16 @@ public class TourInfo extends BaseEntity {
     private LocalDateTime updatedAt;
 
     public void update(Integer minPeople, Integer maxPeople,
-                       ApplyPeriod applyPeriod, TourPeriod tourPeriod,
+                       LocalDate applyStartDate, LocalDate applyEndDate,
+                       LocalDateTime tourStartDate,  LocalDateTime tourEndDate,
                        String tourIntroduce, TourStatusCode tourStatusCode,
                        String tourLocation, String titleImagePath) {
         this.minPeople = minPeople;
         this.maxPeople = maxPeople;
-        this.applyPeriod = applyPeriod;
-        this.tourPeriod = tourPeriod;
+        this.applyStartDate = applyStartDate;
+        this.applyEndDate = applyEndDate;
+        this.tourStartDate = tourStartDate;
+        this.tourEndDate = tourEndDate;
         this.tourIntroduce = tourIntroduce;
         this.tourStatusCode = tourStatusCode;
         this.tourLocation = tourLocation;

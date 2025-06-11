@@ -2,6 +2,8 @@ package packup.tour.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 /**
  * <pre>
  * TourStatus (투어 상태 코드 열거형)
@@ -25,39 +27,25 @@ import lombok.Getter;
 @Getter
 public enum TourStatusCode {
 
-    /**
-     * 임시저장 상태 (작성 중이지만 공개되지 않음)
-     */
-    TEMP("임시저장"),
+    TEMP("100001", "임시저장"),
+    RECRUITING("100002", "모집중"),
+    RECRUITED("100003", "모집완료"),
+    READY("100004", "출발대기"),
+    ONGOING("100005", "투어중"),
+    FINISHED("100006", "종료");
 
-    /**
-     * 모집중 상태 (사용자에게 노출됨)
-     */
-    RECRUITING("모집중"),
-
-    /**
-     * 모집완료 상태 (최소 인원 충족)
-     */
-    RECRUITED("모집완료"),
-
-    /**
-     * 출발 대기 상태 (모집 완료 후 출발 전)
-     */
-    READY("출발대기"),
-
-    /**
-     * 투어 진행 중
-     */
-    ONGOING("투어중"),
-
-    /**
-     * 투어 종료 상태
-     */
-    FINISHED("종료");
-
+    private final String code;
     private final String label;
 
-    TourStatusCode(String label) {
+    TourStatusCode(String code, String label) {
+        this.code = code;
         this.label = label;
+    }
+
+    public static TourStatusCode fromCode(String code) {
+        return Arrays.stream(values())
+                .filter(status -> status.code.equals(code))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown TourStatusCode code: " + code));
     }
 }

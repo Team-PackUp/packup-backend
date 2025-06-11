@@ -1,6 +1,8 @@
 package packup.tour.dto;
 
 import jakarta.persistence.Column;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Builder
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class TourInfoResponse {
 
     /**
@@ -62,6 +65,11 @@ public class TourInfoResponse {
     private LocalDateTime tourEndDate;
 
     /**
+     * 투어 제목 (텍스트)
+     */
+    private String tourTitle;
+
+    /**
      * 투어 소개 내용 (텍스트)
      */
     private String tourIntroduce;
@@ -100,20 +108,22 @@ public class TourInfoResponse {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public static TourInfoResponse from(TourInfo tour) {
+    public static TourInfoResponse from(TourInfo tourInfo) {
         return TourInfoResponse.builder()
-                .seq(tour.getSeq())
-                .guideSeq(tour.getGuideSeq())
-                .minPeople(tour.getMinPeople())
-                .maxPeople(tour.getMaxPeople())
-                .applyStartDate(tour.getApplyPeriod().getStartDate())
-                .applyEndDate(tour.getApplyPeriod().getEndDate())
-                .tourStartDate(tour.getTourPeriod().getStartDateTime())
-                .tourEndDate(tour.getTourPeriod().getEndDateTime())
-                .tourIntroduce(tour.getTourIntroduce())
-                .tourStatusCode(tour.getTourStatusCode())
-                .tourLocation(tour.getTourLocation())
-                .titleImagePath(tour.getTitleImagePath())
+                .seq(tourInfo.getSeq())
+                .guideSeq(tourInfo.getGuideSeq())
+                .minPeople(tourInfo.getMinPeople())
+                .maxPeople(tourInfo.getMaxPeople())
+                .applyStartDate(tourInfo.getApplyStartDate())
+                .applyEndDate(tourInfo.getApplyEndDate())
+                .tourStartDate(tourInfo.getTourStartDate())
+                .tourEndDate(tourInfo.getTourEndDate())
+                .tourTitle(tourInfo.getTourTitle())
+                .tourIntroduce(tourInfo.getTourIntroduce())
+                .tourStatusCode(tourInfo.getTourStatusCode())
+                .tourStatusLabel(tourInfo.getTourStatusCode().getLabel())
+                .tourLocation(tourInfo.getTourLocation())
+                .titleImagePath(tourInfo.getTitleImagePath())
                 .build();
     }
 }
