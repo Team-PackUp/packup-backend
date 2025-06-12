@@ -13,11 +13,8 @@ import packup.user.domain.UserInfo;
 import java.time.LocalDateTime;
 
 @Entity
-@Builder
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicUpdate
 @Table(name = "user_fcm_token")
 public class UserFcmToken extends BaseEntity {
@@ -40,4 +37,32 @@ public class UserFcmToken extends BaseEntity {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    private UserFcmToken(UserInfo user, String fcmToken, String osType, YnType activeFlag) {
+        this.user = user;
+        this.fcmToken = fcmToken;
+        this.osType = osType;
+        this.activeFlag = activeFlag;
+    }
+
+    public static UserFcmToken of(UserInfo user, String fcmToken, String osType, YnType activeFlag) {
+        return new UserFcmToken(user, fcmToken, osType, activeFlag);
+    }
+
+    public void updateUser(UserInfo user) {
+     this.user = user;
+    }
+
+    public void updateOsType(String osTypeCode) {
+        this.osType = osTypeCode;
+    }
+
+    public void deactivate() {
+        this.activeFlag = YnType.N;
+    }
+
+    public void activate() {
+        this.activeFlag = YnType.Y;
+    }
 }
+

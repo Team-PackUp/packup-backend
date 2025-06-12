@@ -9,11 +9,9 @@ import packup.common.enums.YnType;
 import packup.user.domain.UserInfo;
 
 @Entity
-@Builder
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "chat_message")
 public class ChatMessage extends BaseEntity {
 
@@ -32,4 +30,16 @@ public class ChatMessage extends BaseEntity {
     @Column(name = "file_flag", columnDefinition = "yn_enum", nullable = false)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType fileFlag;
+
+    private ChatMessage(ChatRoom chatRoom, UserInfo user, String message, YnType fileFlag) {
+        this.chatRoomSeq = chatRoom;
+        this.user = user;
+        this.message = message;
+        this.fileFlag = fileFlag;
+    }
+
+    public static ChatMessage of(ChatRoom chatRoom, UserInfo user, String message, YnType fileFlag) {
+        return new ChatMessage(chatRoom, user, message, fileFlag);
+    }
 }
+

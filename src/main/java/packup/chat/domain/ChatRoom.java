@@ -12,11 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Builder
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicUpdate
 @Table(name = "chat_room")
 public class ChatRoom extends BaseEntity {
@@ -35,4 +32,18 @@ public class ChatRoom extends BaseEntity {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    private ChatRoom(List<Long> partUserSeq, UserInfo user, String title) {
+        this.partUserSeq = partUserSeq;
+        this.user = user;
+        this.title = title;
+    }
+
+    public static ChatRoom of(List<Long> partUserSeq, UserInfo user, String title) {
+        return new ChatRoom(partUserSeq, user, title);
+    }
+
+    public void updateChatLastDate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

@@ -81,20 +81,16 @@ public class FcmPushService {
                 if (existing.getActiveFlag() == YnType.Y) {
                     throw new FcmPushException(INVALID_TOKEN_OWNER);
                 }
-                existing.setUser(user);
+                existing.updateUser(user);
             }
 
-            existing.setActiveFlag(YnType.Y);
+            existing.activate();
 //            existing.setUpdatedAt(LocalDateTime.now());
-            existing.setOsType(osTypeCode);
+            existing.updateOsType(osTypeCode);
         }, () -> {
-            UserFcmToken newToken = UserFcmToken.builder()
-                    .user(user)
-                    .fcmToken(token)
-                    .activeFlag(YnType.Y)
-//                    .updatedAt(LocalDateTime.now())
-                    .osType(osTypeCode)
-                    .build();
+            UserFcmToken newToken = UserFcmToken.of(
+                            user, token, osTypeCode, YnType.Y
+                    );
             userFcmTokenRepository.save(newToken);
         });
     }
@@ -102,6 +98,6 @@ public class FcmPushService {
     @Transactional
     public void deactivateFcmToken(String token) {
         userFcmTokenRepository.findByFcmToken(token)
-                .ifPresent(t -> t.setActiveFlag(YnType.N));
+                .ifPresent(UserFcmToken::deactivate);
     }
 }

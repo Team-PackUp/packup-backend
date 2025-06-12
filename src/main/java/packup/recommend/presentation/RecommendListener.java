@@ -14,14 +14,14 @@ public class RecommendListener {
 
     @EventListener
     public void recordScore(RecommendResponse event) {
-
-        recommendRepository.save(
-                new Recommend(
-                        event.getUserSeq(),
-                        event.getTourSeq(),
-                        event.getActionType(),
-                        event.getScore()
-                )
+        Recommend recommend = Recommend.of(
+                event.getUserSeq(),
+                event.getTourSeq(),
+                event.getActionType(),
+                event.getScore()
         );
+
+        recommendRepository.save(recommend);
     }
 }
+

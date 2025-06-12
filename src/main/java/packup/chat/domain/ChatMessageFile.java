@@ -6,11 +6,8 @@ import packup.common.domain.BaseEntity;
 import packup.user.domain.UserInfo;
 
 @Entity
-@Builder
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "chat_message_file")
 public class ChatMessageFile extends BaseEntity {
 
@@ -26,4 +23,16 @@ public class ChatMessageFile extends BaseEntity {
 
     @Column(name = "real_name", nullable = false)
     private String realName;
+
+    private ChatMessageFile(String chatFilePath, UserInfo user, String encodedName, String realName) {
+        this.chatFilePath = chatFilePath;
+        this.user = user;
+        this.encodedName = encodedName;
+        this.realName = realName;
+    }
+
+    public static ChatMessageFile of(String chatFilePath, UserInfo user, String encodedName, String realName) {
+        return new ChatMessageFile(chatFilePath, user, encodedName, realName);
+    }
 }
+

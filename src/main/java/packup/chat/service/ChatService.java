@@ -60,7 +60,6 @@ public class ChatService {
 
     private final FileUtil fileUtil;
 
-    private final UserDetailInfoRepository userDetailInfoRepository;
     private final FcmPushService firebaseService;
 
     private final SimpMessagingTemplate messagingTemplate;
@@ -195,17 +194,18 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDTO.getChatRoomSeq())
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
 
-        ChatMessage newChatMessage = new ChatMessage();
-        newChatMessage.setChatRoomSeq(chatRoom);
-        newChatMessage.setMessage(chatMessageDTO.getMessage());
-        newChatMessage.setUser(userInfo);
-        newChatMessage.setFileFlag(chatMessageDTO.getFileFlag());
+        ChatMessage newChatMessage = ChatMessage.of(
+                chatRoom,
+                userInfo,
+                chatMessageDTO.getMessage(),
+                chatMessageDTO.getFileFlag()
+        );
 
         // 새로운 채팅 추가
         chatMessageRepository.save(newChatMessage);
         
         // 채팅방 수정일자 반영
-        updateChatRoom(chatRoom.seq());
+        chatRoom.updateChatLastDate();
 
         // 채팅 읽은 회원 기록
 
@@ -218,16 +218,6 @@ public class ChatService {
                 .createdAt(newChatMessage.getCreatedAt())
                 .fileFlag(newChatMessage.getFileFlag())
                 .build();
-    }
-
-    public void updateChatRoom(Long chatRoomSeq) {
-
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
-                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
-
-        chatRoom.setUpdatedAt(LocalDateTime.now());
-
-//        chatRoomRepository.save(chatRoom);
     }
 
     @Transactional
@@ -243,13 +233,12 @@ public class ChatService {
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_MESSAGE));
 
         ChatRead chatRead = chatReadRepository.findChatReadByUserAndChatRoomSeq(userInfo, chatRoom)
-                .orElseGet(() -> ChatRead.builder()
-                        .chatRoomSeq(chatRoom)
-                        .user(userInfo)
-                        .lastReadMessageSeq(chatMessage)
-                        .build()
-                );
-        chatRead.setLastReadMessageSeq(chatMessage);
+                .orElseGet(() -> ChatRead.of(chatRoom, userInfo, chatMessage));
+
+        chatRead.updateLastReadMessage(chatMessage);
+
+        chatReadRepository.save(chatRead);
+
 
 
         chatReadRepository.save(chatRead);
@@ -267,12 +256,12 @@ public class ChatService {
 
         FileResponse imageDTO = fileUtil.saveImage(type, file);
 
-        ChatMessageFile chatMessageFile = new ChatMessageFile();
-        chatMessageFile.setChatFilePath(imageDTO.getPath());
-        chatMessageFile.setUser(userInfo);
-        chatMessageFile.setEncodedName(imageDTO.getEncodedName());
-        chatMessageFile.setRealName(imageDTO.getRealName());
-
+        ChatMessageFile chatMessageFile = ChatMessageFile.of(
+                imageDTO.getPath(),
+                userInfo,
+                imageDTO.getEncodedName(),
+                imageDTO.getRealName()
+        );
 
         chatMessageFileRepository.save(chatMessageFile);
 

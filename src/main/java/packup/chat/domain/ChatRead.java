@@ -10,13 +10,12 @@ import packup.user.domain.UserInfo;
 import java.time.LocalDateTime;
 
 @Entity
-@Builder
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicUpdate
-@Table(name = "chat_read", uniqueConstraints = {@UniqueConstraint(columnNames = {"chat_room_seq", "user_seq"})})
+@Table(name = "chat_read", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"chat_room_seq", "user_seq"})
+})
 public class ChatRead extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,4 +33,18 @@ public class ChatRead extends BaseEntity {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    private ChatRead(ChatRoom chatRoom, UserInfo user, ChatMessage lastReadMessage) {
+        this.chatRoomSeq = chatRoom;
+        this.user = user;
+        this.lastReadMessageSeq = lastReadMessage;
+    }
+
+    public static ChatRead of(ChatRoom chatRoom, UserInfo user, ChatMessage lastReadMessage) {
+        return new ChatRead(chatRoom, user, lastReadMessage);
+    }
+
+    public void updateLastReadMessage(ChatMessage newLastReadMessage) {
+        this.lastReadMessageSeq = newLastReadMessage;
+    }
 }

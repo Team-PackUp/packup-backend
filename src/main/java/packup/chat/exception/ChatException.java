@@ -1,6 +1,5 @@
 package packup.chat.exception;
 
-import lombok.RequiredArgsConstructor;
 import packup.common.exception.BaseException;
 import packup.common.exception.BaseExceptionType;
 

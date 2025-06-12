@@ -12,12 +12,9 @@ import packup.common.enums.YnType;
 import java.time.LocalDateTime;
 
 @Entity
-@Builder
 @Getter
-@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicUpdate
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "notice")
 public class Notice extends BaseEntity {
 
@@ -28,12 +25,8 @@ public class Notice extends BaseEntity {
     @Column(name = "content", columnDefinition = "jsonb")
     private String content;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_seq", nullable = false)
-//    private UserInfo admin; // 임시로 회원 테이블 사용
-
     @Column(name = "admin_seq", nullable = false)
-    private Long admin; // 임시로 회원 테이블 사용
+    private Long admin; // 사용자 대신 식별자만
 
     @Column(name = "notice_type", nullable = false)
     private String noticeType;
@@ -52,3 +45,4 @@ public class Notice extends BaseEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }
+
