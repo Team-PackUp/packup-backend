@@ -28,6 +28,7 @@ import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
 import packup.common.util.FileUtil;
 import packup.common.util.JsonUtil;
+import packup.fcmpush.dto.DeepLink;
 import packup.fcmpush.dto.FcmPushRequest;
 import packup.fcmpush.enums.DeepLinkType;
 import packup.fcmpush.presentation.DeepLinkGenerator;
@@ -109,8 +110,6 @@ public class ChatService {
     }
 
 
-
-
     public PageDTO<ChatRoomResponse> getChatRoomList(Long memberId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Page<Map<String, Object>> chatRoomListPage = chatRoomRepository.findChatRoomListWithUnreadCount(memberId, pageable);
@@ -184,7 +183,7 @@ public class ChatService {
     @Transactional
     public ChatMessageResponse saveChatMessage(Long memberId, ChatMessageRequest chatMessageDTO) {
 
-        if(chatMessageDTO.getMessage().isEmpty()) {
+        if (chatMessageDTO.getMessage().isEmpty()) {
             throw new ChatException(ABNORMAL_ACCESS);
         }
 
@@ -203,7 +202,7 @@ public class ChatService {
 
         // 새로운 채팅 추가
         chatMessageRepository.save(newChatMessage);
-        
+
         // 채팅방 수정일자 반영
         chatRoom.updateChatLastDate();
 
@@ -238,7 +237,6 @@ public class ChatService {
         chatRead.updateLastReadMessage(chatMessage);
 
         chatReadRepository.save(chatRead);
-
 
 
         chatReadRepository.save(chatRead);
@@ -283,11 +281,11 @@ public class ChatService {
         ChatRoomResponse chatRoomResponse = getChatRoom(chatMessageResponse.getUserSeq(), chatMessageResponse.getChatRoomSeq());
 
         List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
-        if(targetFcmUserList.size() > 0) {
+        if (targetFcmUserList.size() > 0) {
 
             String message = chatMessageResponse.getMessage();
 
-            if(chatMessageResponse.getFileFlag().equals(YnType.Y)) {
+            if (chatMessageResponse.getFileFlag().equals(YnType.Y)) {
                 message = REPLACE_IMAGE_TEXT;
             }
 
@@ -297,10 +295,9 @@ public class ChatService {
                     .title(chatRoomResponse.getTitle())
                     .body(message)
                     .deepLink(DeepLinkGenerator.generate(
-                            DeepLinkType.CHAT_MESSAGE,
-                            chatMessageResponse.getChatRoomSeq(),
-                            chatRoomResponse.getTitle()
-                        )
+                                    DeepLinkType.CHAT,
+                                    chatMessageResponse.getChatRoomSeq()
+                            )
                     )
                     .build();
 
@@ -327,7 +324,7 @@ public class ChatService {
             );
         }
 
-        return  targetUserSeq;
+        return targetUserSeq;
     }
 
     public void createChatRoom() {

@@ -15,5 +15,5 @@ public class FcmPushRequest {
     private List<Long> userSeqList;
     private String title;
     private String body;
-    private String deepLink;
+    private DeepLink deepLink;
 }

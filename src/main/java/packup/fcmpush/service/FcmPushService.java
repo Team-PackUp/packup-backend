@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import packup.common.domain.repository.CommonCodeRepository;
 import packup.common.enums.YnType;
+import packup.common.util.JsonUtil;
 import packup.fcmpush.domain.UserFcmToken;
 import packup.fcmpush.domain.repository.UserFcmTokenRepository;
 import packup.fcmpush.dto.FcmPushRequest;
@@ -47,8 +48,8 @@ public class FcmPushService {
             data.put("body", firebaseRequest.getBody());
 
             Optional.ofNullable(firebaseRequest.getDeepLink())
-                    .filter(s -> !s.isEmpty())
-                    .ifPresent(deepLink -> data.put("deepLink", deepLink));
+                    .ifPresent(deepLink -> data.put("deepLink", JsonUtil.toJson(deepLink)));
+
 
             Message message = Message.builder()
                     .putAllData(data)
