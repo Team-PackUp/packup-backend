@@ -5,12 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import packup.fcmpush.enums.DeepLinkType;
 
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @AllArgsConstructor
 @Builder
 public class DeepLink {
     private DeepLinkType deepLinkType;
-    private List<Object> parameter;
+    private Map<String, Object> parameter;
 }

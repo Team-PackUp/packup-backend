@@ -3,6 +3,7 @@ package packup.fcmpush.presentation;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 import packup.fcmpush.dto.DeepLink;
@@ -11,17 +12,10 @@ import packup.fcmpush.enums.DeepLinkType;
 @Component
 public class DeepLinkGenerator {
 
-    public static DeepLink generate(DeepLinkType type, Long parameter1) {
+    public static DeepLink generate(DeepLinkType type, Map<String, Object> parameter) {
         return DeepLink.builder()
                 .deepLinkType(type)
-                .parameter(List.of(parameter1))
-                .build();
-    }
-
-    public static DeepLink generate(DeepLinkType type, Long parameter1, String parameter2) {
-        return DeepLink.builder()
-                .deepLinkType(type)
-                .parameter(List.of(parameter1, parameter2))
+                .parameter(parameter)
                 .build();
     }
 

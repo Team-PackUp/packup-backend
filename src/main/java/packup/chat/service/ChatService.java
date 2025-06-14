@@ -40,10 +40,7 @@ import packup.user.domain.repository.UserInfoRepository;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static packup.chat.constant.ChatConstant.*;
@@ -289,15 +286,19 @@ public class ChatService {
                 message = REPLACE_IMAGE_TEXT;
             }
 
+            Map<String, Object> chatRoomMap = new HashMap<>();
+            chatRoomMap.put("chatRoomSeq", chatMessageResponse.getChatRoomSeq());
+
             FcmPushRequest fcmPushRequest = FcmPushRequest
                     .builder()
                     .userSeqList(targetFcmUserSeq)
                     .title(chatRoomResponse.getTitle())
                     .body(message)
-                    .deepLink(DeepLinkGenerator.generate(
-                                    DeepLinkType.CHAT,
-                                    chatMessageResponse.getChatRoomSeq()
-                            )
+                    .deepLink
+                    (   DeepLinkGenerator.generate
+                        (   DeepLinkType.CHAT,
+                            chatRoomMap
+                        )
                     )
                     .build();
 
