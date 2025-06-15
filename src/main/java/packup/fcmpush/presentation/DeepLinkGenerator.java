@@ -1,13 +1,12 @@
 package packup.fcmpush.presentation;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.stereotype.Component;
 import packup.fcmpush.dto.DeepLink;
 import packup.fcmpush.enums.DeepLinkType;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Component
 public class DeepLinkGenerator {
