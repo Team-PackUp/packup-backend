@@ -10,7 +10,6 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.LastModifiedDate;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
-import packup.reply.enums.TargetType;
 import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
@@ -29,9 +28,8 @@ public class Reply extends BaseEntity {
     @Column(name = "target_seq", nullable = false)
     private Long targetSeq;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "target_type", nullable = false)
-    private TargetType targetType;
+    private String targetType;
 
     @Column(name = "content", nullable = false)
     private String content;
@@ -44,11 +42,15 @@ public class Reply extends BaseEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    private Reply(UserInfo user, Long targetSeq, TargetType targetType, String content) {
+    private Reply(UserInfo user, Long targetSeq, String targetType, String content) {
         this.user = user;
         this.targetSeq = targetSeq;
         this.targetType = targetType;
         this.content = content;
+    }
+
+    public static Reply of(UserInfo user, Long targetSeq, String targetType, String content) {
+        return new Reply(user, targetSeq, targetType, content);
     }
 
     public void updateContent(String content) {
@@ -56,6 +58,6 @@ public class Reply extends BaseEntity {
     }
 
     public void deleteContent() {
-        this.deleteFlag = YnType.N;
+        this.deleteFlag = YnType.Y;
     }
 }

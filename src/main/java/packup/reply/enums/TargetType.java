@@ -1,8 +1,8 @@
 package packup.reply.enums;
 
 public enum TargetType {
-    TOUR("관광"),
-    GUIDE("가이드");
+    REPLY_TOUR("관광"),
+    REPLY_GUIDE("가이드");
 
     private final String value;
 
