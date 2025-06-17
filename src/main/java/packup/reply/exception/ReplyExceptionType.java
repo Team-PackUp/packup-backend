@@ -13,6 +13,7 @@ public enum ReplyExceptionType implements BaseExceptionType {
     FAIL_TO_SAVE_REPLY(INTERNAL_SERVER_ERROR, "%s 댓글 등록에 실패 하였습니다."),
     ABNORMAL_ACCESS(BAD_REQUEST, "비정상적인 접근입니다"), 
     NOT_FOUND_MEMBER(NOT_FOUND, "해당 회원을 찾을 수 없습니다"),
+    NOT_FOUND_REPLY(NOT_FOUND, "해당 댓글을 찾을 수 없습니다"),
     NOT_FOUND_TOUR(NOT_FOUND, "해당 관광을 찾을 수 없습니다"),
     NOT_FOUND_GUIDE(NOT_FOUND, "해당 가이드를 찾을 수 없습니다"),
     INVALID_REPLY_TYPE(FORBIDDEN, "유효하지 않은 댓글 TYPE입니다.");

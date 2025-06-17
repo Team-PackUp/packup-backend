@@ -8,6 +8,7 @@ import packup.reply.enums.TargetType;
 @Setter
 @AllArgsConstructor
 public class ReplyRequest {
+    private Long seq;
     private Long targetSeq;
     private TargetType targetType;
     private String content;

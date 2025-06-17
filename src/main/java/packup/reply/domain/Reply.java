@@ -53,9 +53,11 @@ public class Reply extends BaseEntity {
         return new Reply(user, targetSeq, targetType, content);
     }
 
-    public void updateContent(String content) {
+    public Reply updateContent(String content) {
         this.content = content;
+        return this;
     }
+
 
     public void deleteContent() {
         this.deleteFlag = YnType.Y;
