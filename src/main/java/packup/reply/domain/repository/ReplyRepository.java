@@ -1,5 +1,7 @@
 package packup.reply.domain.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import packup.common.enums.YnType;
 import packup.reply.domain.Reply;
@@ -11,7 +13,7 @@ import java.util.Optional;
 
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
-    Optional<List<Reply>> findAllByTargetSeqAndTargetTypeAndDeleteFlagOrderByCreatedAtDesc(Long targetSeq, TargetType targetType, YnType ynType);
+    Page<Reply> findAllByTargetSeqAndTargetTypeAndDeleteFlagOrderByCreatedAtDesc(Long targetSeq, String targetType, YnType ynType, Pageable pageable);
     Optional<Reply> findFirstBySeqAndDeleteFlag(Long seq, YnType deleteFlag);
 
     Optional<Reply> findFirstBySeqAndUserAndDeleteFlag(Long seq, UserInfo userInfo, YnType ynType);

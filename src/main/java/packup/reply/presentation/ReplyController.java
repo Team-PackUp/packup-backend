@@ -3,30 +3,36 @@ package packup.reply.presentation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import packup.auth.annotation.Auth;
+import packup.common.dto.PageDTO;
 import packup.common.dto.ResultModel;
 import packup.reply.dto.ReplyRequest;
 import packup.reply.dto.ReplyResponse;
+import packup.reply.exception.ReplyException;
 import packup.reply.service.ReplyService;
 
-import java.util.List;
+import static packup.reply.exception.ReplyExceptionType.ABNORMAL_ACCESS;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reply")
 public class ReplyController {
 
-    ReplyService replyService;
+    private final ReplyService replyService;
 
     @GetMapping("/list")
-    public ResultModel<List<ReplyResponse>> getReplyList(ReplyRequest replyRequest) {
+    public ResultModel<PageDTO<ReplyResponse>> getReplyList(ReplyRequest replyRequest, @RequestParam Integer page) {
 
-        return ResultModel.success(replyService.getReplyList(replyRequest));
+        return ResultModel.success(replyService.getReplyList(replyRequest, page));
     }
 
     @GetMapping("/view/{replySeq}")
-    public ResultModel<ReplyResponse> getReply(@Auth Long memeberId, @PathVariable Long replySeq) {
+    public ResultModel<ReplyResponse> getReply(@Auth Long memberId, @PathVariable Long replySeq) {
 
-        return ResultModel.success(replyService.getReply(memeberId, replySeq));
+        if(replySeq == null) {
+            throw new ReplyException(ABNORMAL_ACCESS);
+        }
+
+        return ResultModel.success(replyService.getReply(memberId, replySeq));
     }
 
     @PostMapping("/save")
@@ -41,6 +47,12 @@ public class ReplyController {
 
     @PutMapping("/delete")
     public ResultModel<Void> deleteReply(@Auth Long memberId, Long replySeq) {
+
+        if(replySeq == null) {
+            throw new ReplyException(ABNORMAL_ACCESS);
+        }
+
+
         replyService.deleteReply(memberId, replySeq);
         return ResultModel.success();
     }

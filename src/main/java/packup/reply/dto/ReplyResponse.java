@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class ReplyResponse {
     private long seq;
     private long targetSeq;
+    private long userSeq;
     private String targetType;
     private String content;
     private LocalDateTime createdAt;
@@ -20,6 +21,7 @@ public class ReplyResponse {
     public static ReplyResponse fromEntity(Reply reply) {
         return ReplyResponse.builder()
                 .seq(reply.getSeq())
+                .userSeq(reply.getUser().getSeq())
                 .targetSeq(reply.getTargetSeq())
                 .targetType(reply.getTargetType())
                 .content(reply.getContent())

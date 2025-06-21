@@ -1,9 +1,15 @@
 package packup.reply.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import packup.auth.exception.AuthException;
+import packup.auth.exception.AuthExceptionType;
 import packup.common.domain.repository.CommonCodeRepository;
+import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.reply.domain.Reply;
@@ -21,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static packup.reply.constant.ReplyConstant.PAGE_SIZE;
 import static packup.reply.exception.ReplyExceptionType.*;
 
 @Service
@@ -33,7 +40,9 @@ public class ReplyService {
     private final TourInfoRepository tourInfoRepository;
     private final GuideInfoRepository guideInfoRepository;
 
-    public List<ReplyResponse> getReplyList(ReplyRequest replyRequest) {
+    public PageDTO<ReplyResponse> getReplyList(ReplyRequest replyRequest, int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
         TargetType targetType = replyRequest.getTargetType();
         Long targetSeq = replyRequest.getTargetSeq();
 
@@ -41,13 +50,21 @@ public class ReplyService {
             throw new ReplyException(getNotFoundErrorByTargetType(targetType));
         }
 
-        List<Reply> replyList = replyRepository
-                .findAllByTargetSeqAndTargetTypeAndDeleteFlagOrderByCreatedAtDesc(targetSeq, targetType, YnType.N)
-                .orElse(Collections.emptyList());
+        String targetTypeCode = commonCodeRepository.findByCodeName(targetType.toString())
+                .orElseThrow(() -> new AuthException(AuthExceptionType.INVALID_OAUTH_TYPE_CODE))
+                .getCodeId();
 
-        return replyList.stream()
-                .map(ReplyResponse::fromEntity)
-                .collect(Collectors.toList());
+        Page<Reply> replyList = replyRepository
+                .findAllByTargetSeqAndTargetTypeAndDeleteFlagOrderByCreatedAtDesc(targetSeq, targetTypeCode, YnType.N, pageable);
+
+        return PageDTO.<ReplyResponse>builder()
+                .objectList(
+                        replyList.stream()
+                                .map(ReplyResponse::fromEntity)
+                                .toList()
+                )
+                .totalPage(replyList.getTotalPages())
+                .build();
     }
 
     public ReplyResponse getReply(Long memberId, Long replySeq) {
