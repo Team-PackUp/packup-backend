@@ -23,10 +23,6 @@ import packup.tour.domain.repositoroy.TourInfoRepository;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static packup.reply.constant.ReplyConstant.PAGE_SIZE;
 import static packup.reply.exception.ReplyExceptionType.*;
 
@@ -103,8 +99,7 @@ public class ReplyService {
     }
 
     @Transactional
-    public ReplyResponse updateReply(Long memberId, ReplyRequest replyRequest) {
-        Long replySeq = replyRequest.getSeq();
+    public ReplyResponse updateReply(Long memberId, Long replySeq, ReplyRequest replyRequest) {
 
         if(replySeq == null) {
             throw new ReplyException(ABNORMAL_ACCESS);

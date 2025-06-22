@@ -47,6 +47,7 @@ public class Reply extends BaseEntity {
         this.targetSeq = targetSeq;
         this.targetType = targetType;
         this.content = content;
+        this.deleteFlag = YnType.N;
     }
 
     public static Reply of(UserInfo user, Long targetSeq, String targetType, String content) {

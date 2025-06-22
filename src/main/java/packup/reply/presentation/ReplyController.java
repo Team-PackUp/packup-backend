@@ -1,5 +1,6 @@
 package packup.reply.presentation;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import packup.auth.annotation.Auth;
@@ -36,22 +37,21 @@ public class ReplyController {
     }
 
     @PostMapping("/save")
-    public ResultModel<ReplyResponse> saveReply(@Auth Long memberId, ReplyRequest replyRequest) {
+    public ResultModel<ReplyResponse> saveReply(@Auth Long memberId, @RequestBody @Valid ReplyRequest replyRequest) {
         return ResultModel.success(replyService.saveReply(memberId, replyRequest));
     }
 
-    @PutMapping("/update")
-    public ResultModel<ReplyResponse> updateReply(@Auth Long memberId, ReplyRequest replyRequest) {
-        return ResultModel.success(replyService.updateReply(memberId, replyRequest));
+    @PutMapping("/update/{replySeq}")
+    public ResultModel<ReplyResponse> updateReply(@Auth Long memberId,  @PathVariable Long replySeq, @RequestBody @Valid ReplyRequest replyRequest) {
+        return ResultModel.success(replyService.updateReply(memberId, replySeq, replyRequest));
     }
 
-    @PutMapping("/delete")
-    public ResultModel<Void> deleteReply(@Auth Long memberId, Long replySeq) {
+    @DeleteMapping("/delete/{replySeq}")
+    public ResultModel<Void> deleteReply(@Auth Long memberId, @PathVariable Long replySeq) {
 
         if(replySeq == null) {
             throw new ReplyException(ABNORMAL_ACCESS);
         }
-
 
         replyService.deleteReply(memberId, replySeq);
         return ResultModel.success();
