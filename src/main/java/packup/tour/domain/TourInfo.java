@@ -127,8 +127,8 @@ public class TourInfo extends BaseEntity {
 
     public void update(Integer minPeople, Integer maxPeople,
                        LocalDate applyStartDate, LocalDate applyEndDate,
-                       LocalDateTime tourStartDate,  LocalDateTime tourEndDate,
-                       String tourIntroduce, TourStatusCode tourStatusCode,
+                       LocalDateTime tourStartDate, LocalDateTime tourEndDate,
+                       String tourTitle, String tourIntroduce, TourStatusCode tourStatusCode,
                        String tourLocation, String titleImagePath) {
         this.minPeople = minPeople;
         this.maxPeople = maxPeople;
@@ -136,6 +136,7 @@ public class TourInfo extends BaseEntity {
         this.applyEndDate = applyEndDate;
         this.tourStartDate = tourStartDate;
         this.tourEndDate = tourEndDate;
+        this.tourTitle = tourTitle;
         this.tourIntroduce = tourIntroduce;
         this.tourStatusCode = tourStatusCode;
         this.tourLocation = tourLocation;

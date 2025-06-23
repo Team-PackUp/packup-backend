@@ -54,6 +54,7 @@ public class GuideTourService {
                 request.getApplyEndDate(),
                 request.getTourStartDate(),
                 request.getTourEndDate(),
+                request.getTourTitle(),
                 request.getTourIntroduce(),
                 request.getTourStatusCode(),
                 request.getTourLocation(),

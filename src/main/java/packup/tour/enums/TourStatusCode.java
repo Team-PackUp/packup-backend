@@ -1,5 +1,7 @@
 package packup.tour.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -42,10 +44,18 @@ public enum TourStatusCode {
         this.label = label;
     }
 
+    // JSON 요청에서 "100002" → RECRUITING 매핑
+    @JsonCreator
     public static TourStatusCode fromCode(String code) {
         return Arrays.stream(values())
                 .filter(status -> status.code.equals(code))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown TourStatusCode code: " + code));
+    }
+
+    // JSON 응답 시 "RECRUITING" 대신 "100002" 출력
+    @JsonValue
+    public String toValue() {
+        return this.code;
     }
 }
