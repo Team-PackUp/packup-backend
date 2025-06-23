@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import packup.guide.domain.GuideInfo;
+import packup.guide.dto.GuideInfoResponse;
 import packup.tour.domain.TourInfo;
 import packup.tour.enums.TourStatusCode;
 
@@ -32,7 +34,7 @@ public class TourInfoResponse {
     /**
      * 가이드 사용자 일련번호
      */
-    private Long guideSeq;
+    private GuideInfoResponse guide;
 
     /**
      * 최소 모집 인원
@@ -109,9 +111,24 @@ public class TourInfoResponse {
     private LocalDateTime updatedAt;
 
     public static TourInfoResponse from(TourInfo tourInfo) {
+        GuideInfo guide = tourInfo.getGuide();
+
+        GuideInfoResponse guideDto = GuideInfoResponse.builder()
+                .seq(guide.getSeq())
+                .userSeq(guide.getUser().getSeq())
+                .guideName(guide.getGuideName())
+                .telNumber(guide.getTelNumber())
+                .telNumber2(guide.getTelNumber2())
+                .languages(guide.getLanguages())
+                .guideIntroduce(guide.getGuideIntroduce())
+                .guideRating(guide.getGuideRating())
+                .createdAt(guide.getCreatedAt())
+                .updatedAt(guide.getUpdatedAt())
+                .build();
+
         return TourInfoResponse.builder()
                 .seq(tourInfo.getSeq())
-                .guideSeq(tourInfo.getGuideSeq())
+                .guide(guideDto)
                 .minPeople(tourInfo.getMinPeople())
                 .maxPeople(tourInfo.getMaxPeople())
                 .applyStartDate(tourInfo.getApplyStartDate())
@@ -124,6 +141,8 @@ public class TourInfoResponse {
                 .tourStatusLabel(tourInfo.getTourStatusCode().getLabel())
                 .tourLocation(tourInfo.getTourLocation())
                 .titleImagePath(tourInfo.getTitleImagePath())
+                .createdAt(tourInfo.getCreatedAt())
+                .updatedAt(tourInfo.getUpdatedAt())
                 .build();
     }
 }
