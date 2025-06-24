@@ -2,8 +2,13 @@ package packup.tour.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import packup.common.dto.PageResponse;
 import packup.guide.domain.GuideInfo;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.tour.domain.TourInfo;
@@ -20,7 +25,34 @@ public class GuideTourService {
     private final TourInfoRepository tourInfoRepository;
     private final GuideInfoRepository guideInfoRepository;
 
-    public List<TourInfoResponse> getToursByGuideId(Long guideSeq) {
+
+    /**
+     * 전체 투어 목록을 페이징하여 조회합니다.
+     *
+     * @param page 조회할 페이지 번호 (1부터 시작)
+     * @param size 페이지당 항목 수
+     * @return 투어 정보 응답 객체의 페이지(Page)
+     */
+    public PageResponse<TourInfoResponse> getTours(Long memberId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("seq").descending());
+        Page<TourInfo> tourPage = tourInfoRepository.findByGuide_User_Seq(memberId, pageable);
+        Page<TourInfoResponse> dtoPage = tourPage.map(TourInfoResponse::from);
+
+        return new PageResponse<>(
+                dtoPage.getContent(),
+                dtoPage.getNumber() + 1,
+                dtoPage.getNumber(),
+                dtoPage.getSize(),
+                dtoPage.getTotalElements(),
+                dtoPage.getTotalPages(),
+                dtoPage.isLast(),
+                dtoPage.isFirst(),
+                dtoPage.isEmpty()
+        );
+    }
+
+
+    public List<TourInfoResponse> getTours2(Long guideSeq) {
         List<TourInfo> tours = tourInfoRepository.findByGuideSeq(guideSeq);
 
         return tours.stream()
@@ -60,7 +92,10 @@ public class GuideTourService {
      * 투어 수정
      */
     @Transactional
-    public TourInfoResponse updateTour(TourInfoUpdateRequest request) {
+    public TourInfoResponse updateTour(Long memberId,TourInfoUpdateRequest request) {
+        GuideInfo guide = guideInfoRepository.findByUser_Seq(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 가이드 유저를 찾을 수 없습니다."));
+
         // 1. 투어 조회
         TourInfo tour = tourInfoRepository.findById(request.getSeq())
                 .orElseThrow(() -> new EntityNotFoundException("해당 투어가 존재하지 않습니다."));

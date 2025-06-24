@@ -2,12 +2,11 @@ package packup.tour.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import packup.common.dto.PageResponse;
 import packup.common.dto.ResultModel;
 import packup.tour.dto.TourInfoResponse;
+import packup.tour.dto.TourInfoUpdateRequest;
 import packup.tour.service.TourService;
 
 @RestController
@@ -25,11 +24,23 @@ public class TourApiController {
      * @return 투어 정보 응답 객체가 포함된 표준 결과 모델
      */
     @GetMapping
-    public ResultModel<Page<TourInfoResponse>> getTours(
+    public ResultModel<PageResponse<TourInfoResponse>> getTours(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<TourInfoResponse> tours = tourService.getTours(page, size);
+        PageResponse<TourInfoResponse> tours = tourService.getTours(page, size);
         return ResultModel.success(tours);
+    }
+
+    /**
+     * 투어 정보 수정
+     */
+    @PutMapping("/{seq}")
+    public ResultModel<TourInfoResponse> updateTour(
+            @PathVariable Long seq,
+            @RequestBody TourInfoUpdateRequest request) {
+        request.setSeq(seq); // pathVariable을 DTO에 반영
+        TourInfoResponse updatedTour = tourService.updateTour(request);
+        return ResultModel.success(updatedTour);
     }
 
 }
