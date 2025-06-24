@@ -19,6 +19,7 @@ public class UserInfoResponse {
     private String email;
     private Map<String, Object> preferCategorySeqJson;
     private String nickname;
+    private String profileImagePath;
 
     // 가입할 때 테이블 세 군데에 insert 해 주니까 null 체크 안함
     // JSON으로 받아온 데이터를 Map으로 파싱한 후 반환해 줘야 함
@@ -36,6 +37,7 @@ public class UserInfoResponse {
                 .nation(userInfo.getDetailInfo().getNation())
                 .preferCategorySeqJson(preferCategory)
                 .nickname(userInfo.getDetailInfo().getNickname())
+                .profileImagePath(userInfo.getDetailInfo().getProfileImagePath())
                 .build();
     }
 }

@@ -15,6 +15,7 @@ public class ChatMessageResponse {
     private Long chatRoomSeq;
     private Long userSeq;
     private String message;
+    private String profileImagePath;
     private LocalDateTime createdAt;
     private YnType fileFlag;
 }

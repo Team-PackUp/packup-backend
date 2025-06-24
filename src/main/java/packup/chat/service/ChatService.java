@@ -33,6 +33,7 @@ import packup.fcmpush.dto.FcmPushRequest;
 import packup.fcmpush.enums.DeepLinkType;
 import packup.fcmpush.presentation.DeepLinkGenerator;
 import packup.fcmpush.service.FcmPushService;
+import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserDetailInfoRepository;
 import packup.user.domain.repository.UserInfoRepository;
@@ -160,16 +161,24 @@ public class ChatService {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Page<ChatMessage> chatMessageListPage = chatMessageRepository.findByChatRoomSeqOrderByCreatedAtDesc(chatRoom, pageable);
 
-        List<ChatMessageResponse> chatMessages = chatMessageListPage.getContent().stream()
-                .map(chatMessageList -> ChatMessageResponse.builder()
-                        .seq(chatMessageList.getSeq())
-                        .userSeq(chatMessageList.getUser().getSeq())
-                        .message(chatMessageList.getMessage())
-                        .chatRoomSeq(chatMessageList.getChatRoomSeq().getSeq())
-                        .createdAt(chatMessageList.getCreatedAt())
-                        .fileFlag(chatMessageList.getFileFlag())
+        List<ChatMessageResponse> chatMessages = chatMessageListPage
+                .getContent()
+                .stream()
+                .map(msg -> ChatMessageResponse.builder()
+                        .seq(msg.getSeq())
+                        .userSeq(msg.getUser().getSeq())
+                        .message(msg.getMessage())
+                        .chatRoomSeq(msg.getChatRoomSeq().getSeq())
+                        .createdAt(msg.getCreatedAt())
+                        .fileFlag(msg.getFileFlag())
+                        .profileImagePath(
+                                Optional.ofNullable(msg.getUser().getDetailInfo())
+                                        .map(UserDetailInfo::getProfileImagePath)
+                                        .orElse(null)
+                        )
                         .build())
-                .collect(Collectors.toList());
+                .toList();
+
 
         return PageDTO.<ChatMessageResponse>builder()
                 .objectList(chatMessages)

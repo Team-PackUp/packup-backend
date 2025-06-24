@@ -74,7 +74,7 @@ public class ReplyService {
         Long targetSeq = replyRequest.getTargetSeq();
         String content = replyRequest.getContent();
 
-        if(content == null) {
+        if(content == null || content.isBlank()) {
             throw new ReplyException(ABNORMAL_ACCESS);
         }
 

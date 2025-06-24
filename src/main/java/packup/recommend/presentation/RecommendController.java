@@ -32,7 +32,7 @@ public class RecommendController {
 
         List<RecommendResponse> recommendResponseList = recommendationService.recommendForUser(memberId, count);
 
-        // 추천 결과가 요청 개수보다 적을 경우, DB에서 랜덤 상품 추가
+        // 추천 결과가 요청 갯수보다 적을 경우, DB에서 랜덤 상품 추가
         if(recommendResponseList.size() < count) {
             int needToAdd = count - recommendResponseList.size();
             recommendResponseList = recommendationService.ensureMinimumRecommendation(recommendResponseList, needToAdd);
