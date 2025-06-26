@@ -73,14 +73,17 @@ public class ReplyService {
         TargetType targetType = replyRequest.getTargetType();
         Long targetSeq = replyRequest.getTargetSeq();
         String content = replyRequest.getContent();
+        int point = replyRequest.getPoint();
 
-        if(content == null || content.isBlank()) {
+        if(content == null || content.isBlank() || point < 1) {
             throw new ReplyException(ABNORMAL_ACCESS);
         }
 
         if(validationExistContent(targetType, targetSeq)) {
             throw new ReplyException(getNotFoundErrorByTargetType(targetType));
         }
+        
+        // 해당 회원이 댓글 등록 가능한지 확인 로직 추가
 
         UserInfo user = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ReplyException(NOT_FOUND_MEMBER));
@@ -90,7 +93,7 @@ public class ReplyService {
                 .getCodeId();
 
         Reply newReply = Reply.of(
-                user, targetSeq, commonCode, content
+                user, targetSeq, commonCode, content, point
         );
 
         replyRepository.save(newReply);
@@ -106,7 +109,7 @@ public class ReplyService {
         }
 
         Reply reply = getOwnedActiveReply(memberId, replySeq)
-                .updateContent(replyRequest.getContent());
+                .updateContent(replyRequest.getContent(), replyRequest.getPoint());
 
         return ReplyResponse.fromEntity(reply);
     }

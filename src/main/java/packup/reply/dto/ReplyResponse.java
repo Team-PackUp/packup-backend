@@ -17,6 +17,7 @@ public class ReplyResponse {
     private String nickName;
     private String targetType;
     private String content;
+    private int point;
     private String profileImagePath;
     private LocalDateTime createdAt;
 
@@ -28,6 +29,7 @@ public class ReplyResponse {
                 .targetSeq(reply.getTargetSeq())
                 .targetType(reply.getTargetType())
                 .content(reply.getContent())
+                .point(reply.getPoint())
                 .profileImagePath(reply.getUser().getDetailInfo().getProfileImagePath())
                 .createdAt(reply.getCreatedAt())
                 .build();

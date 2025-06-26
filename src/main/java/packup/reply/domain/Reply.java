@@ -34,6 +34,9 @@ public class Reply extends BaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Column(name = "point", nullable = false)
+    private int point;
+
     @Column(name = "delete_flag", columnDefinition = "yn_enum", nullable = false)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType deleteFlag;
@@ -42,20 +45,22 @@ public class Reply extends BaseEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    private Reply(UserInfo user, Long targetSeq, String targetType, String content) {
+    private Reply(UserInfo user, Long targetSeq, String targetType, String content, int point) {
         this.user = user;
         this.targetSeq = targetSeq;
         this.targetType = targetType;
         this.content = content;
+        this.point = point;
         this.deleteFlag = YnType.N;
     }
 
-    public static Reply of(UserInfo user, Long targetSeq, String targetType, String content) {
-        return new Reply(user, targetSeq, targetType, content);
+    public static Reply of(UserInfo user, Long targetSeq, String targetType, String content, int point) {
+        return new Reply(user, targetSeq, targetType, content, point);
     }
 
-    public Reply updateContent(String content) {
+    public Reply updateContent(String content, int point) {
         this.content = content;
+        this.point = point;
         return this;
     }
 

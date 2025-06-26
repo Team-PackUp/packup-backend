@@ -12,4 +12,5 @@ public class ReplyRequest {
     private Long targetSeq;
     private TargetType targetType;
     private String content;
+    private Integer point;
 }
