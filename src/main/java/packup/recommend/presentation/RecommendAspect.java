@@ -10,6 +10,7 @@ import packup.common.domain.repository.CommonCodeRepository;
 import packup.recommend.annotation.RecommendTrace;
 import packup.recommend.domain.RecommendScore;
 import packup.recommend.domain.repository.RecommendScoreRepository;
+import packup.recommend.dto.RecommendRequest;
 import packup.recommend.dto.RecommendResponse;
 
 @Aspect
@@ -37,7 +38,7 @@ public class RecommendAspect {
         RecommendScore recommendScore = recommendScoreRepository.findByActionType(actionType);
 
 
-        RecommendResponse recommendEvent = RecommendResponse.builder()
+        RecommendRequest recommendEvent = RecommendRequest.builder()
                 .userSeq(userSeq)
                 .tourSeq(tourSeq)
                 .actionType(actionType)

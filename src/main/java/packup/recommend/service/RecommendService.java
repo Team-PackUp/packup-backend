@@ -13,10 +13,15 @@ import packup.recommend.domain.builder.JpaDataModelBuilder;
 import packup.recommend.domain.Recommend;
 import packup.recommend.domain.repository.RecommendRepository;
 import packup.recommend.dto.RecommendResponse;
+import packup.tour.domain.TourInfo;
+import packup.tour.domain.repositoroy.TourInfoRepository;
+import packup.tour.dto.TourInfoResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,12 +29,15 @@ import java.util.stream.Collectors;
 public class RecommendService {
 
     private final RecommendRepository preferenceRepository;
+    private final TourInfoRepository tourInfoRepository;
 
     // 협업 필터링 - 아이템 기반 추천
     // 기준 - 전체 회원이 평가한 데이터
     // 사용자가 선호한 상품과 유사한 상품을 추천(언센터드 코사인 - 코사인 유사도와 거의 비슷하지만, 벡터 평균을 빼지 않음.. 좀 더 빠른듯)
-    public List<RecommendResponse> recommendForUser(long userId, Integer count) throws TasteException {
+    public List<RecommendResponse> recommendForUser(long userId, Integer count)
+            throws TasteException {
 
+        // ───── 1) 추천 로직 그대로 ─────
         List<Recommend> preferences = preferenceRepository.findAll();
         DataModel model = JpaDataModelBuilder.buildPreferences(preferences);
 
@@ -40,20 +48,36 @@ public class RecommendService {
         // 추천 상품 뽑기
         List<RecommendedItem> recommendList = recommender.recommend(userId, count, rescorer());
 
+        System.out.println(userId);
+        System.out.println(count);
+        System.out.println(recommendList.size());
+
+        // 미리 투어들을 한꺼번에 조회해 N+1 방지
+        List<Long> tourIds = recommendList.stream()
+                .map(RecommendedItem::getItemID)
+                .toList();
+
+        System.out.println(tourIds.size());
+
+        Map<Long, TourInfo> tourMap = tourInfoRepository
+                .findAllById(tourIds)
+                .stream()
+                .collect(Collectors.toMap(TourInfo::getSeq, Function.identity()));
+
         // DTO 변환
         List<RecommendResponse> recommendResponseList = recommendList.stream()
-                .map(recommendedItem -> RecommendResponse.builder()
-                        .userSeq(recommendedItem.getItemID())
-                        .score(recommendedItem.getValue())
-                        .build()
-                )
-                .collect(Collectors.toList());
+                .map(r -> {
+                    TourInfo tour = tourMap.get(r.getItemID());
+                    return RecommendResponse.builder()
+                            .tour(TourInfoResponse.from(tour))
+                            .build();
+                })
+                .toList();
 
+        System.out.println(recommendResponseList.size());
 
-        // 추천 상품 셔플
-        recommendResponseList = shuffleAndLimit(recommendResponseList);
-
-        return recommendResponseList;
+        // 셔플·자르기
+        return shuffleAndLimit(recommendResponseList);
     }
 
     public List<RecommendResponse> ensureMinimumRecommendation(List<RecommendResponse> recommendList, int needToAdd) {
