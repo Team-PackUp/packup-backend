@@ -12,6 +12,8 @@ import packup.recommend.domain.RecommendScore;
 import packup.recommend.domain.repository.RecommendScoreRepository;
 import packup.recommend.dto.RecommendRequest;
 import packup.recommend.dto.RecommendResponse;
+import packup.recommend.enums.ActionType;
+import packup.reply.dto.ReplyRequest;
 
 @Aspect
 @Component
@@ -26,25 +28,44 @@ public class RecommendAspect {
     public void afterAction(JoinPoint joinPoint, RecommendTrace recommendTrace, Object result) {
         Object[] args = joinPoint.getArgs();
 
-        Long userSeq = (Long) args[0];
-        Long tourSeq = (Long) args[1];
+        publisher.publishEvent(buildRecommend(args, recommendTrace));
+    }
 
+    private RecommendRequest buildRecommend(Object[] args, RecommendTrace recommendTrace) {
+        float score;
+        Long tourSeq;
+
+        ActionType actionTypeEnum = recommendTrace.actionType();
         String actionTypeName = recommendTrace.actionType().getString();
+
+        Long userSeq = (Long) args[0];
+
         String actionType = commonCodeRepository.findByCodeName(
                         actionTypeName)
                 .orElseThrow()
                 .getCodeId();
-
         RecommendScore recommendScore = recommendScoreRepository.findByActionType(actionType);
 
+        switch (actionTypeEnum) {
 
-        RecommendRequest recommendEvent = RecommendRequest.builder()
+            case REVIEW :
+                ReplyRequest req = (ReplyRequest) args[1];
+                tourSeq = req.getTargetSeq();
+                score = req.getPoint();
+                break;
+
+            default:
+                tourSeq = (Long) args[1];
+                score = recommendScore.getScore();
+                break;
+        }
+
+        return RecommendRequest.builder()
                 .userSeq(userSeq)
                 .tourSeq(tourSeq)
                 .actionType(actionType)
-                .score(recommendScore.getScore())
+                .score(score)
                 .build();
-
-        publisher.publishEvent(recommendEvent);
     }
+
 }

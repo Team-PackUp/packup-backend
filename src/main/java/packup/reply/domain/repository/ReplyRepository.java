@@ -16,4 +16,5 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
     Optional<Reply> findFirstBySeqAndUserAndDeleteFlag(Long seq, UserInfo userInfo, YnType ynType);
 
+    boolean existsByUserAndTargetSeqAndTargetTypeAndDeleteFlag(UserInfo user, Long targetSeq, String targetType, YnType deleteFlag);
 }

@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 public enum ActionType {
     CLICK("CLICK"),
     LIKE("LIKE"),
-    TOUR("TOUR");
+    TOUR("TOUR"),
+    REVIEW("REVIEW");
 
     private final String s;
 

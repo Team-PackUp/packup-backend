@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import packup.auth.exception.AuthException;
@@ -12,6 +13,8 @@ import packup.common.domain.repository.CommonCodeRepository;
 import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
 import packup.guide.domain.repository.GuideInfoRepository;
+import packup.recommend.annotation.RecommendTrace;
+import packup.recommend.enums.ActionType;
 import packup.reply.domain.Reply;
 import packup.reply.domain.repository.ReplyRepository;
 import packup.reply.dto.ReplyRequest;
@@ -69,6 +72,7 @@ public class ReplyService {
         return ReplyResponse.fromEntity(reply);
     }
 
+    @RecommendTrace(actionType = ActionType.REVIEW)
     public ReplyResponse saveReply(Long memberId, ReplyRequest replyRequest) {
         TargetType targetType = replyRequest.getTargetType();
         Long targetSeq = replyRequest.getTargetSeq();
@@ -82,15 +86,19 @@ public class ReplyService {
         if(validationExistContent(targetType, targetSeq)) {
             throw new ReplyException(getNotFoundErrorByTargetType(targetType));
         }
-        
-        // 해당 회원이 댓글 등록 가능한지 확인 로직 추가
 
         UserInfo user = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ReplyException(NOT_FOUND_MEMBER));
 
+        // 해당 회원이 댓글 등록 여부 확인 로직 추가
+//        if(validationSave(user, targetType, targetSeq)) {
+//            throw new ReplyException(FAIL_TO_SAVE_REPLY);
+//        }
+
         String commonCode = commonCodeRepository.findByCodeName(targetType.name())
                 .orElseThrow(() -> new ReplyException(INVALID_REPLY_TYPE))
                 .getCodeId();
+
 
         Reply newReply = Reply.of(
                 user, targetSeq, commonCode, content, point
@@ -125,6 +133,32 @@ public class ReplyService {
 
         return replyRepository.findFirstBySeqAndUserAndDeleteFlag(replySeq, user, YnType.N)
                 .orElseThrow(() -> new ReplyException(NOT_FOUND_REPLY));
+    }
+
+    // true -> catch
+    private boolean validationSave(UserInfo user, TargetType targetType,Long targetSeq) {
+
+        boolean result;
+
+        // 리뷰 작성가능한 회원인지(상품 이용 여부, 가이드 이용여부 등...)
+        try {
+            switch (targetType) {
+
+                // 해당 상품을 이용했는지 및 이미 댓글 등록한 적 있는지
+                case REPLY_TOUR :
+
+//                    throw
+                case REPLY_GUIDE :
+//                    throw
+            }
+        } catch (Exception e) {
+            result = true;
+        }
+        
+        // 이미 댓글을 등록했었는지
+        result = replyRepository.existsByUserAndTargetSeqAndTargetTypeAndDeleteFlag(user, targetSeq, targetType.toString(), YnType.N);
+
+        return result;
     }
 
     private boolean validationExistContent(TargetType targetType,Long targetSeq)  {

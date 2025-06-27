@@ -48,10 +48,6 @@ public class RecommendService {
         // 추천 상품 뽑기
         List<RecommendedItem> recommendList = recommender.recommend(userId, count, rescorer());
 
-        System.out.println(userId);
-        System.out.println(count);
-        System.out.println(recommendList.size());
-
         // 미리 투어들을 한꺼번에 조회해 N+1 방지
         List<Long> tourIds = recommendList.stream()
                 .map(RecommendedItem::getItemID)
@@ -73,8 +69,6 @@ public class RecommendService {
                             .build();
                 })
                 .toList();
-
-        System.out.println(recommendResponseList.size());
 
         // 셔플·자르기
         return shuffleAndLimit(recommendResponseList);
