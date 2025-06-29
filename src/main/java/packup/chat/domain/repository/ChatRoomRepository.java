@@ -46,7 +46,7 @@ SELECT
     LIMIT 1
   ) AS last_message_date,
   
-    -- 가장 최근 메시지 날짜
+    -- 가장 최근 메시지 타입
   (
     SELECT cm.file_flag
     FROM chat_message cm

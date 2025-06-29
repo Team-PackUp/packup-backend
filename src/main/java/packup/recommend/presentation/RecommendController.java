@@ -24,19 +24,19 @@ public class RecommendController {
     private final RecommendService recommendationService;
 
     @GetMapping("/user")
-    public ResultModel<List<RecommendResponse>> recommendForUser(@Auth Long memberId, @RequestParam Integer count) throws TasteException {
+    public ResultModel<RecommendResponse> recommendForUser(@Auth Long memberId, @RequestParam Integer count) throws TasteException {
 
         if(count == null || count < 1) {
             throw new RecommendException(ABNORMAL_ACCESS);
         }
 
-        List<RecommendResponse> recommendResponseList = recommendationService.recommendForUser(memberId, count);
+        RecommendResponse recommendResponseList = recommendationService.recommendForUser(memberId, count);
 
         // 추천 결과가 요청 갯수보다 적을 경우, DB에서 랜덤 상품 추가
-        if(recommendResponseList.size() < count) {
-            int needToAdd = count - recommendResponseList.size();
-            recommendResponseList = recommendationService.ensureMinimumRecommendation(recommendResponseList, needToAdd);
-        }
+//        if(recommendResponseList.size() < count) {
+//            int needToAdd = count - recommendResponseList.size();
+//            recommendResponseList = recommendationService.ensureMinimumRecommendation(recommendResponseList, needToAdd);
+//        }
 
         return ResultModel.success(recommendResponseList);
     }
