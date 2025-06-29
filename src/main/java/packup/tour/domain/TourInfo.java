@@ -109,6 +109,12 @@ public class TourInfo extends BaseEntity {
     private String tourTitle;
 
     /**
+     * 투어 가격
+     */
+    @Column(name = "tour_price", nullable = false)
+    private Integer tourPrice;
+
+    /**
      * 투어 지역 (지역명 또는 장소명)
      */
     @Column(name = "tour_location", length = 255)
@@ -130,7 +136,7 @@ public class TourInfo extends BaseEntity {
     public void update(Integer minPeople, Integer maxPeople,
                        LocalDate applyStartDate, LocalDate applyEndDate,
                        LocalDateTime tourStartDate, LocalDateTime tourEndDate,
-                       String tourTitle, String tourIntroduce, TourStatusCode tourStatusCode,
+                       String tourTitle, Integer tourPrice, String tourIntroduce, TourStatusCode tourStatusCode,
                        String tourLocation, String titleImagePath) {
         this.minPeople = minPeople;
         this.maxPeople = maxPeople;
@@ -139,6 +145,7 @@ public class TourInfo extends BaseEntity {
         this.tourStartDate = tourStartDate;
         this.tourEndDate = tourEndDate;
         this.tourTitle = tourTitle;
+        this.tourPrice = tourPrice;
         this.tourIntroduce = tourIntroduce;
         this.tourStatusCode = tourStatusCode;
         this.tourLocation = tourLocation;

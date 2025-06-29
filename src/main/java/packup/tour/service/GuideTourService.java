@@ -78,6 +78,7 @@ public class GuideTourService {
                 .tourEndDate(request.getTourEndDate())
                 .tourIntroduce(request.getTourIntroduce())
                 .tourTitle(request.getTourTitle())
+                .tourPrice(request.getTourPrice())
                 .tourStatusCode(request.getTourStatusCode())
                 .tourLocation(request.getTourLocation())
                 .titleImagePath(request.getTitleImagePath())
@@ -109,6 +110,7 @@ public class GuideTourService {
                 request.getTourStartDate(),
                 request.getTourEndDate(),
                 request.getTourTitle(),
+                request.getTourPrice(),
                 request.getTourIntroduce(),
                 request.getTourStatusCode(),
                 request.getTourLocation(),

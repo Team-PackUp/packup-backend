@@ -63,6 +63,7 @@ public class TourService {
                 request.getTourStartDate(),
                 request.getTourEndDate(),
                 request.getTourTitle(),
+                request.getTourPrice(),
                 request.getTourIntroduce(),
                 request.getTourStatusCode(),
                 request.getTourLocation(),

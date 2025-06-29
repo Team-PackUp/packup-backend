@@ -62,9 +62,15 @@ public class TourInfoCreateRequest {
      */
     @NotBlank
     private String tourTitle;
+    
+    /**
+     * 투어 가격
+     */
+    @NotBlank
+    private String tourPrice;
 
     /**
-     * 투어 소개
+     * 투어 소개 내용 (텍스트)
      */
     @NotBlank
     private String tourIntroduce;

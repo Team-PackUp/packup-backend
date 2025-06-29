@@ -60,6 +60,11 @@ public class TourInfoUpdateRequest {
     private String tourTitle;
 
     /**
+     * 투어 가격
+     */
+    private Integer tourPrice;
+
+    /**
      * 투어 소개
      */
     private String tourIntroduce;
