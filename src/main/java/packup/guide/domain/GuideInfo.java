@@ -51,6 +51,12 @@ public class GuideInfo {
     @Column(name = "guide_rating", columnDefinition = "smallint", nullable = false)
     private short guideRating = 0;  // 기본값 0
 
+    /**
+     * 가이드 아바타 이미지 경로 (파일 시스템 또는 URL)
+     */
+    @Column(name = "guide_avatar_path", length = 255)
+    private String guideAvatarPath;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "timestamp default current_timestamp")
     private LocalDateTime createdAt;

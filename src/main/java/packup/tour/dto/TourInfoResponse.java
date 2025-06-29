@@ -136,6 +136,7 @@ public class TourInfoResponse {
                 .languages(guide.getLanguages())
                 .guideIntroduce(guide.getGuideIntroduce())
                 .guideRating(guide.getGuideRating())
+                .guideAvatarPath(guide.getGuideAvatarPath())
                 .createdAt(guide.getCreatedAt())
                 .updatedAt(guide.getUpdatedAt())
                 .build();

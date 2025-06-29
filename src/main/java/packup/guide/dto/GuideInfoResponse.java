@@ -26,6 +26,7 @@ public class GuideInfoResponse {
     private String guideIntroduce;
 
     private short guideRating;
+    private String guideAvatarPath;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -40,6 +41,7 @@ public class GuideInfoResponse {
                 .languages(guideInfo.getLanguages())
                 .guideIntroduce(guideInfo.getGuideIntroduce())
                 .guideRating(guideInfo.getGuideRating())
+                .guideAvatarPath(guideInfo.getGuideAvatarPath())
                 .createdAt(guideInfo.getCreatedAt())
                 .updatedAt(guideInfo.getUpdatedAt())
                 .build();
