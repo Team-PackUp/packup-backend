@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import packup.guide.domain.GuideInfo;
+import packup.guide.dto.GuideInfoResponse;
 import packup.tour.domain.TourInfo;
 import packup.tour.enums.TourStatusCode;
 
@@ -32,7 +34,7 @@ public class TourInfoResponse {
     /**
      * 가이드 사용자 일련번호
      */
-    private Long guideSeq;
+    private GuideInfoResponse guide;
 
     /**
      * 최소 모집 인원
@@ -75,6 +77,11 @@ public class TourInfoResponse {
     private String tourIntroduce;
 
     /**
+     * 투어 가격
+     */
+    private Integer tourPrice;
+
+    /**
      * 투어 상태 코드 (TEMP, RECRUITING, RECRUITED, READY, ONGOING, FINISHED)
      */
     private TourStatusCode tourStatusCode;
@@ -108,10 +115,34 @@ public class TourInfoResponse {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    /**
+     * TourInfo 엔티티 객체를 TourInfoResponse DTO로 변환하는 정적 팩토리 메서드입니다.
+     *
+     * <p>가이드 정보(GuideInfo)는 내부적으로 GuideInfoResponse로 매핑되며,
+     * 이를 포함하여 전체 투어 정보를 클라이언트 응답용 DTO로 변환합니다.</p>
+     *
+     * @param tourInfo 변환 대상이 되는 TourInfo 엔티티
+     * @return TourInfoResponse 변환된 투어 응답 DTO
+     */
     public static TourInfoResponse from(TourInfo tourInfo) {
+        GuideInfo guide = tourInfo.getGuide();
+
+        GuideInfoResponse guideDto = GuideInfoResponse.builder()
+                .seq(guide.getSeq())
+                .userSeq(guide.getUser().getSeq())
+                .guideName(guide.getGuideName())
+                .telNumber(guide.getTelNumber())
+                .telNumber2(guide.getTelNumber2())
+                .languages(guide.getLanguages())
+                .guideIntroduce(guide.getGuideIntroduce())
+                .guideRating(guide.getGuideRating())
+                .createdAt(guide.getCreatedAt())
+                .updatedAt(guide.getUpdatedAt())
+                .build();
+
         return TourInfoResponse.builder()
                 .seq(tourInfo.getSeq())
-                .guideSeq(tourInfo.getGuideSeq())
+                .guide(guideDto)
                 .minPeople(tourInfo.getMinPeople())
                 .maxPeople(tourInfo.getMaxPeople())
                 .applyStartDate(tourInfo.getApplyStartDate())
@@ -120,10 +151,13 @@ public class TourInfoResponse {
                 .tourEndDate(tourInfo.getTourEndDate())
                 .tourTitle(tourInfo.getTourTitle())
                 .tourIntroduce(tourInfo.getTourIntroduce())
+                .tourPrice(tourInfo.getTourPrice())
                 .tourStatusCode(tourInfo.getTourStatusCode())
                 .tourStatusLabel(tourInfo.getTourStatusCode().getLabel())
                 .tourLocation(tourInfo.getTourLocation())
                 .titleImagePath(tourInfo.getTitleImagePath())
+                .createdAt(tourInfo.getCreatedAt())
+                .updatedAt(tourInfo.getUpdatedAt())
                 .build();
     }
 }

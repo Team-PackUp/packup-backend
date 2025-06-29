@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import packup.common.domain.BaseEntity;
+import packup.guide.domain.GuideInfo;
 import packup.tour.enums.TourStatusCode;
 import packup.tour.enums.TourStatusCodeConverter;
 
@@ -46,8 +47,9 @@ public class TourInfo extends BaseEntity {
     /**
      * 가이드 사용자 일련번호 (user_info 테이블 참조, UK)
      */
-    @Column(name = "guide_seq", nullable = false)
-    private Long guideSeq;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guide_seq", referencedColumnName = "user_seq", nullable = false)
+    private GuideInfo guide;
 
     /**
      * 최소 모집 인원
@@ -107,6 +109,12 @@ public class TourInfo extends BaseEntity {
     private String tourTitle;
 
     /**
+     * 투어 가격
+     */
+    @Column(name = "tour_price", nullable = false)
+    private Integer tourPrice;
+
+    /**
      * 투어 지역 (지역명 또는 장소명)
      */
     @Column(name = "tour_location", length = 255)
@@ -128,7 +136,7 @@ public class TourInfo extends BaseEntity {
     public void update(Integer minPeople, Integer maxPeople,
                        LocalDate applyStartDate, LocalDate applyEndDate,
                        LocalDateTime tourStartDate, LocalDateTime tourEndDate,
-                       String tourTitle, String tourIntroduce, TourStatusCode tourStatusCode,
+                       String tourTitle, Integer tourPrice, String tourIntroduce, TourStatusCode tourStatusCode,
                        String tourLocation, String titleImagePath) {
         this.minPeople = minPeople;
         this.maxPeople = maxPeople;
@@ -137,6 +145,7 @@ public class TourInfo extends BaseEntity {
         this.tourStartDate = tourStartDate;
         this.tourEndDate = tourEndDate;
         this.tourTitle = tourTitle;
+        this.tourPrice = tourPrice;
         this.tourIntroduce = tourIntroduce;
         this.tourStatusCode = tourStatusCode;
         this.tourLocation = tourLocation;

@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/tour/guide")
+@RequestMapping("/api/guide")
 public class GuideApiController {
 
     // 가이드 소유 투어 조회
