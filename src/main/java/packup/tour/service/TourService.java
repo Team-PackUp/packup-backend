@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import packup.common.dto.PageResponse;
+import packup.guide.domain.repository.GuideInfoRepository;
 import packup.tour.domain.TourInfo;
 import packup.tour.domain.repositoroy.TourInfoRepository;
 import packup.tour.dto.TourInfoResponse;
@@ -18,36 +20,29 @@ import packup.tour.dto.TourInfoUpdateRequest;
 public class TourService {
     private final TourInfoRepository tourInfoRepository;
 
-    public Page<TourInfoResponse> getTours(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("seq").descending());
-
-        Page<TourInfo> tourPage = tourInfoRepository.findAll(pageable);
-        return tourPage.map(TourInfoResponse::from);
-    }
-
     /**
-     * 투어 등록
+     * 전체 투어 목록을 페이징하여 조회합니다.
+     *
+     * @param page 조회할 페이지 번호 (1부터 시작)
+     * @param size 페이지당 항목 수
+     * @return 투어 정보 응답 객체의 페이지(Page)
      */
-    @Transactional
-    public TourInfoResponse createTour(Long memberId, TourInfoUpdateRequest request) {
-        TourInfo newTour = TourInfo.builder()
-                .guideSeq(memberId) // 예시: 인증된 가이드 번호 (실제로는 SecurityContext 등에서 얻어야 함)
-                .minPeople(request.getMinPeople())
-                .maxPeople(request.getMaxPeople())
-                .applyStartDate(request.getApplyStartDate())
-                .applyEndDate(request.getApplyEndDate())
-                .tourStartDate(request.getTourStartDate())
-                .tourEndDate(request.getTourEndDate())
-                .tourIntroduce(request.getTourIntroduce())
-                .tourTitle(request.getTourTitle())
-                .tourStatusCode(request.getTourStatusCode())
-                .tourLocation(request.getTourLocation())
-                .titleImagePath(request.getTitleImagePath())
-                .build();
+    public PageResponse<TourInfoResponse> getTours(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("seq").descending());
+        Page<TourInfo> tourPage = tourInfoRepository.findAll(pageable);
+        Page<TourInfoResponse> dtoPage = tourPage.map(TourInfoResponse::from);
 
-        TourInfo savedTour =  tourInfoRepository.save(newTour);
-
-        return TourInfoResponse.from(savedTour);
+        return new PageResponse<>(
+                dtoPage.getContent(),
+                dtoPage.getNumber() + 1,
+                dtoPage.getNumber(),
+                dtoPage.getSize(),
+                dtoPage.getTotalElements(),
+                dtoPage.getTotalPages(),
+                dtoPage.isLast(),
+                dtoPage.isFirst(),
+                dtoPage.isEmpty()
+        );
     }
 
     /**
@@ -68,6 +63,7 @@ public class TourService {
                 request.getTourStartDate(),
                 request.getTourEndDate(),
                 request.getTourTitle(),
+                request.getTourPrice(),
                 request.getTourIntroduce(),
                 request.getTourStatusCode(),
                 request.getTourLocation(),

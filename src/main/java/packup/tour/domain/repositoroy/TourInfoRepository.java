@@ -1,7 +1,12 @@
 package packup.tour.domain.repositoroy;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import packup.tour.domain.TourInfo;
+import packup.tour.enums.TourStatusCode;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,5 +30,9 @@ public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
      */
     List<TourInfo> findByGuideSeq(Long guideSeq);
 
-    Optional<TourInfo> findBySeqAndGuideSeq(Long tourId, Long guideSeq);
+    Page<TourInfo> findByGuide_User_Seq(Long guideUserSeq, Pageable pageable);
+
+    @Query("SELECT t FROM TourInfo t WHERE t.tourStatusCode = :tourStatusCode")
+    Page<TourInfo> findFilteredTours(@Param("tourStatusCode") TourStatusCode tourStatusCode, Pageable pageable);
+
 }

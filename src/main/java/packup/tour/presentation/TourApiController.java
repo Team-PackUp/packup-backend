@@ -3,9 +3,8 @@ package packup.tour.presentation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import packup.auth.annotation.Auth;
+import packup.common.dto.PageResponse;
 import packup.common.dto.ResultModel;
-import packup.tour.domain.TourInfo;
 import packup.tour.dto.TourInfoResponse;
 import packup.tour.dto.TourInfoUpdateRequest;
 import packup.tour.service.TourService;
@@ -17,23 +16,19 @@ public class TourApiController {
 
     private final TourService tourService;
 
-    @GetMapping
-    public ResultModel<Page<TourInfoResponse>> getTours(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<TourInfoResponse> tours = tourService.getTours(page, size);
-        return ResultModel.success(tours);
-    }
-
     /**
-     * 투어 신규 등록
+     * 전체 투어 목록을 페이징 방식으로 조회합니다.
+     *
+     * @param page 조회할 페이지 번호 (1부터 시작)
+     * @param size 페이지당 조회할 투어 개수
+     * @return 투어 정보 응답 객체가 포함된 표준 결과 모델
      */
-    @PostMapping
-    public ResultModel<TourInfoResponse> createTour(
-            @Auth Long memberId,
-            @RequestBody TourInfoUpdateRequest request) {
-        TourInfoResponse newTour = tourService.createTour(memberId, request);
-        return ResultModel.success(newTour);
+    @GetMapping
+    public ResultModel<PageResponse<TourInfoResponse>> getTours(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PageResponse<TourInfoResponse> tours = tourService.getTours(page, size);
+        return ResultModel.success(tours);
     }
 
     /**
