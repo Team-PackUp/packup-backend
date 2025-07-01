@@ -32,7 +32,7 @@ public class RecommendService {
     // 협업 필터링 - 아이템 기반 추천
     // 기준 - 전체 회원이 평가한 데이터
     // 사용자가 선호한 상품과 유사한 상품을 추천(언센터드 코사인 - 코사인 유사도와 거의 비슷하지만, 벡터 평균을 빼지 않음.. 좀 더 빠른듯)
-    public RecommendResponse recommendForUser(long userId, Integer count) throws TasteException {
+    public List<TourInfoResponse> recommendForUser(long userId, Integer count) throws TasteException {
 
         // ───── 1) 추천 로직 그대로 ─────
         List<Recommend> preferences = recommendRepository.findAll();
@@ -53,28 +53,9 @@ public class RecommendService {
                 .stream()
                 .collect(Collectors.toMap(TourInfo::getSeq, Function.identity()));
 
-        // AI 추천
-        List<TourInfoResponse> recommendResponseList = recommendList.stream()
+        return recommendList.stream()
                 .map(r -> TourInfoResponse.from(tourMap.get(r.getItemID())))
                 .toList();
-
-        // 인기 투어
-        List<Map<String, Object>> popularTour =
-                recommendRepository.findTopPopularTour(tourIds, count);
-
-        List<Long> popularIds = popularTour.stream()
-                .map(m -> ((Number) m.get("tour_seq")).longValue())
-                .toList();
-
-        List<TourInfoResponse> popularList = popularIds.stream()
-                .map(id -> TourInfoResponse.from(tourMap.get(id)))
-                .filter(Objects::nonNull)
-                .toList();
-
-        return RecommendResponse.builder()
-                .tour(recommendResponseList)
-                .popular(popularList)
-                .build();
     }
 
     public List<RecommendResponse> ensureMinimumRecommendation(List<RecommendResponse> recommendList, int needToAdd) {
@@ -90,22 +71,19 @@ public class RecommendService {
         return copyList;
     }
 
-    private record DateRange(LocalDate start, LocalDate end) { }
-
+    // 2. Rescorer 구현을 DB 필터 버전으로 교체
     private IDRescorer rescorer(LocalDate today) {
-        Map<Long, DateRange> dateMap = tourInfoRepository.findAll()
-                .stream()
-                .collect(Collectors.toMap(TourInfo::getSeq,
-                        t -> new DateRange(t.getApplyStartDate(), t.getApplyEndDate())));
+
+        Set<Long> tourSeq = new HashSet<>(tourInfoRepository.findAllBetweenApplyDate(today));
 
         return new IDRescorer() {
-            @Override public double rescore(long id, double original) { return original; }
+            @Override public double rescore(long id, double original) {
+                return original;                // 점수는 그대로
+            }
             @Override public boolean isFiltered(long id) {
-                DateRange d = dateMap.get(id);
-                return d == null || today.isBefore(d.start()) || today.isAfter(d.end());
+                return !tourSeq.contains(id);  // today 범위를 벗어나면 필터링
             }
         };
     }
-
 
 }
