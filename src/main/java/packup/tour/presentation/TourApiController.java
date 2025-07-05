@@ -1,13 +1,18 @@
 package packup.tour.presentation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import packup.common.dto.PageResponse;
 import packup.common.dto.ResultModel;
+import packup.recommend.dto.RecommendResponse;
+import packup.recommend.exception.RecommendException;
 import packup.tour.dto.TourInfoResponse;
 import packup.tour.dto.TourInfoUpdateRequest;
 import packup.tour.service.TourService;
+
+import java.util.List;
+
+import static packup.recommend.exception.RecommendExceptionType.ABNORMAL_ACCESS;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,6 +46,25 @@ public class TourApiController {
         request.setSeq(seq); // pathVariable을 DTO에 반영
         TourInfoResponse updatedTour = tourService.updateTour(request);
         return ResultModel.success(updatedTour);
+    }
+
+    @GetMapping("/recommend")
+    public ResultModel<RecommendResponse> recommendForUser(@RequestParam Integer count) {
+
+        if(count == null || count < 1) {
+            throw new RecommendException(ABNORMAL_ACCESS);
+        }
+
+        // 최근껏 중에서 랜덤하게 추출
+        List<TourInfoResponse> popularResponseList = tourService.popularTour(count);
+        System.out.println("popularResponseList.size()");
+        System.out.println(popularResponseList.size());
+
+        RecommendResponse recommendResponse = RecommendResponse.builder()
+                .popular(popularResponseList)
+                .build();
+
+        return ResultModel.success(recommendResponse);
     }
 
 }

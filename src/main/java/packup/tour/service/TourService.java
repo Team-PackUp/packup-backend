@@ -15,6 +15,11 @@ import packup.tour.domain.repositoroy.TourInfoRepository;
 import packup.tour.dto.TourInfoResponse;
 import packup.tour.dto.TourInfoUpdateRequest;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TourService {
@@ -72,5 +77,22 @@ public class TourService {
 
         // 3. 응답 DTO로 변환하여 반환
         return TourInfoResponse.from(tour);
+    }
+
+    public List<TourInfoResponse> popularTour(int count) {
+
+        List<TourInfo> latestTour = new ArrayList<>(
+                tourInfoRepository.findLatest(LocalDate.now(), PageRequest.of(0, 50))
+                        .getContent()); //getContent or toList는 읽기 전용이라 복사 데이터 생성 후 shuffle
+
+
+        if(!latestTour.isEmpty()) {
+            Collections.shuffle(latestTour);
+        }
+
+        return latestTour.stream()
+                .limit(count)
+                .map(TourInfoResponse::from)
+                .toList();
     }
 }
