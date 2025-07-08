@@ -219,6 +219,7 @@ public class ChatService {
                 .seq(newChatMessage.seq())
                 .userSeq(userInfo.getSeq())
                 .message(newChatMessage.getMessage())
+                .profileImagePath(newChatMessage.getUser().getDetailInfo().getProfileImagePath())
                 .chatRoomSeq(chatRoom.seq())
                 .createdAt(newChatMessage.getCreatedAt())
                 .fileFlag(newChatMessage.getFileFlag())
