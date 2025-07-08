@@ -26,21 +26,13 @@ public class AlertAspect {
     }
 
     // 제목 및 내용은 국제화 이슈도 있고 해서 프론트에서 처리 해야할듯
-    private AlertRequest buildAlert(Object[] args, AlertTrace alertTrace) {
-
-        AlertType alertTypeEnum = alertTrace.alertType();
-        String alertTypeName = alertTypeEnum.getString();
-
+    private AlertRequest buildAlert(Object[] args, AlertTrace trace) {
         Long userSeq = (Long) args[0];
-
-        String alertType = commonCodeRepository.findByCodeName(
-                alertTypeName)
-                .orElseThrow()
-                .getCodeId();
+        AlertType type = trace.alertType();
 
         return AlertRequest.builder()
                 .userSeq(userSeq)
-                .alertType(alertType)
+                .alertType(type.code())
                 .build();
     }
 }

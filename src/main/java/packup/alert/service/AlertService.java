@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import packup.alert.domain.Alert;
 import packup.alert.domain.repository.AlertRepository;
 import packup.alert.dto.AlertResponse;
+import packup.alert.enums.AlertType;
 import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
 
@@ -26,12 +27,13 @@ public class AlertService {
 
         Page<Alert> alertLogPage = alertLogRepository.findAllByUserSeqAndReadFlagOrderByCreatedAtDesc(memberId, YnType.N, pageable);
 
-        List<AlertResponse> alertLogResponses = alertLogPage.getContent().stream().map(
-                alertLog -> AlertResponse.builder()
-                        .seq(alertLog.seq())
-                        .alertType(alertLog.getAlertType())
-                        .createdAt(alertLog.getCreatedAt())
-                        .build()).toList();
+        List<AlertResponse> alertLogResponses = alertLogPage.getContent().stream()
+                .map(a -> AlertResponse.builder()
+                        .seq(a.seq())
+                        .alertType(AlertType.fromCode(a.getAlertType()).text())
+                        .createdAt(a.getCreatedAt())
+                        .build())
+                .toList();
 
 
         return PageDTO.<AlertResponse>builder()
