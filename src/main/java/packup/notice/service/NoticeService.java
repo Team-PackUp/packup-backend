@@ -48,7 +48,7 @@ public class NoticeService {
     }
 
     @RecommendTrace(actionType = ActionType.CLICK)
-    public NoticeResponse getNoticeView(Long memeberId, Long noticeSeq) {
+    public NoticeResponse getNoticeView(Long memberId, Long noticeSeq) {
 
         Notice responseNotice = noticeRepository.findById(noticeSeq)
                 .orElseThrow(() -> new NoticeException(NOT_FOUND_NOTICE));
