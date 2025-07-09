@@ -30,13 +30,13 @@ public class NoticeController {
     }
 
     @GetMapping("/view/{noticeSeq}")
-    public ResultModel<NoticeResponse> getNoticeView(@Auth Long memeberId, @PathVariable Long noticeSeq) {
+    public ResultModel<NoticeResponse> getNoticeView(@Auth Long memberId, @PathVariable Long noticeSeq) {
 
         if(noticeSeq == null) {
             throw new NoticeException(ABNORMAL_ACCESS);
         }
 
-        return ResultModel.success(noticeService.getNoticeView(memeberId, noticeSeq));
+        return ResultModel.success(noticeService.getNoticeView(memberId, noticeSeq));
     }
 
 }
