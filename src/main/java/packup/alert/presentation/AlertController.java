@@ -1,10 +1,8 @@
 package packup.alert.presentation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import packup.alert.domain.Alert;
 import packup.alert.dto.AlertResponse;
 import packup.alert.exception.AlertException;
 import packup.alert.service.AlertService;
@@ -28,5 +26,14 @@ public class AlertController {
         }
 
         return ResultModel.success(alertService.alertCenter(memberId, page));
+    }
+
+    @PutMapping("/mark_read/{alertSeq}")
+    public ResultModel<Alert> markRead(@Auth Long memberId, @PathVariable Long alertSeq) {
+        if(alertSeq == null) {
+            throw new AlertException(ABNORMAL_ACCESS);
+        }
+
+        return ResultModel.success(alertService.markRead(memberId, alertSeq));
     }
 }

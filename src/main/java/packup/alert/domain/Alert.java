@@ -9,7 +9,6 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.LastModifiedDate;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
-import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
 
@@ -44,8 +43,10 @@ public class Alert extends BaseEntity {
         return new Alert(userSeq, alertType);
     }
 
-    public void markRead() {
+    public Alert markRead() {
         this.readFlag = YnType.Y;
+
+        return this;
     }
 }
 
