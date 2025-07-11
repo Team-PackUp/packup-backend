@@ -12,6 +12,10 @@ import packup.auth.exception.AuthExceptionType;
 import packup.common.domain.repository.CommonCodeRepository;
 import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
+import packup.fcmpush.dto.FcmPushRequest;
+import packup.fcmpush.enums.DeepLinkType;
+import packup.fcmpush.presentation.DeepLinkGenerator;
+import packup.fcmpush.service.FcmPushService;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.recommend.annotation.RecommendTrace;
 import packup.recommend.enums.ActionType;
@@ -26,6 +30,10 @@ import packup.tour.domain.repositoroy.TourInfoRepository;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static packup.reply.constant.ReplyConstant.PAGE_SIZE;
 import static packup.reply.exception.ReplyExceptionType.*;
 
@@ -38,6 +46,7 @@ public class ReplyService {
     private final UserInfoRepository userInfoRepository;
     private final TourInfoRepository tourInfoRepository;
     private final GuideInfoRepository guideInfoRepository;
+    private final FcmPushService firebaseService;
 
     public PageDTO<ReplyResponse> getReplyList(ReplyRequest replyRequest, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
@@ -105,6 +114,25 @@ public class ReplyService {
         );
 
         replyRepository.save(newReply);
+        
+        // 테스트 코드 FCM 푸시
+        Map<String, Object> testMap = new HashMap<>();
+        testMap.put("chatRoomSeq", 1);
+        FcmPushRequest fcmPushRequest = FcmPushRequest
+                .builder()
+                .userSeqList(List.of(14L, 13L))
+                .title(replyRequest.getFcmPushRequest().getTitle())
+                .body(replyRequest.getFcmPushRequest().getBody())
+                .deepLink
+                        (   DeepLinkGenerator.generate
+                                (   DeepLinkType.ALERT,
+                                        testMap
+                                )
+                        )
+                .build();
+
+        firebaseService.requestFcmPush(fcmPushRequest);
+
 
         return ReplyResponse.fromEntity(newReply);
     }

@@ -38,6 +38,8 @@ public class ReplyController {
 
     @PostMapping("/save")
     public ResultModel<ReplyResponse> saveReply(@Auth Long memberId, @RequestBody @Valid ReplyRequest replyRequest) {
+        System.out.println(replyRequest.getFcmPushRequest().getBody());
+        System.out.println(replyRequest.getFcmPushRequest().getTitle());
         return ResultModel.success(replyService.saveReply(memberId, replyRequest));
     }
 

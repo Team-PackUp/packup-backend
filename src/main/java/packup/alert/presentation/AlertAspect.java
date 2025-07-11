@@ -7,6 +7,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import packup.alert.annotation.AlertTrace;
+import packup.alert.domain.Alert;
+import packup.alert.domain.repository.AlertRepository;
 import packup.alert.dto.AlertRequest;
 import packup.alert.enums.AlertType;
 import packup.common.domain.repository.CommonCodeRepository;
@@ -15,17 +17,22 @@ import packup.common.domain.repository.CommonCodeRepository;
 @Component
 @AllArgsConstructor
 public class AlertAspect {
-    private ApplicationEventPublisher publisher;
-    private CommonCodeRepository commonCodeRepository;
+    private final AlertRepository alertRepository;
 
     @AfterReturning(value = "@annotation(alertTrace)", returning = "result")
     public void afterAction(JoinPoint joinPoint, AlertTrace alertTrace, Object result) {
         Object[] args = joinPoint.getArgs();
 
-        publisher.publishEvent(buildAlert(args, alertTrace));
+        AlertRequest alertRequest = buildAlert(args, alertTrace);
+
+        Alert alert = Alert.of(
+                alertRequest.getUserSeq(),
+                alertRequest.getAlertType()
+        );
+
+        alertRepository.save(alert);
     }
 
-    // 제목 및 내용은 국제화 이슈도 있고 해서 프론트에서 처리 해야할듯
     private AlertRequest buildAlert(Object[] args, AlertTrace trace) {
         Long userSeq = (Long) args[0];
         AlertType type = trace.alertType();

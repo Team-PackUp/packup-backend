@@ -1,6 +1,7 @@
 package packup.reply.dto;
 
 import lombok.*;
+import packup.fcmpush.dto.FcmPushRequest;
 import packup.reply.enums.TargetType;
 
 @Builder
@@ -13,4 +14,5 @@ public class ReplyRequest {
     private TargetType targetType;
     private String content;
     private Integer point;
+    private FcmPushRequest fcmPushRequest;
 }

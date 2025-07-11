@@ -43,10 +43,9 @@ public class Alert extends BaseEntity {
         return new Alert(userSeq, alertType);
     }
 
-    public Alert markRead() {
+    public void markRead() {
         this.readFlag = YnType.Y;
 
-        return this;
     }
 }
 
