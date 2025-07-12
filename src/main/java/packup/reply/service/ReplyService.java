@@ -75,7 +75,13 @@ public class ReplyService {
                 .build();
     }
 
-    public ReplyResponse getReply(Long memberId, Long replySeq) {
+    public ReplyResponse getReply(Long replySeq) {
+        Reply reply = getActiveReply(replySeq);
+
+        return ReplyResponse.fromEntity(reply);
+    }
+
+    public ReplyResponse getOwnedReply(Long memberId, Long replySeq) {
         Reply reply = getOwnedActiveReply(memberId, replySeq);
 
         return ReplyResponse.fromEntity(reply);
@@ -155,11 +161,17 @@ public class ReplyService {
         getOwnedActiveReply(memberId, replySeq).deleteContent();
     }
 
+    private Reply getActiveReply(Long replySeq) {
+        return replyRepository.findFirstBySeqAndDeleteFlag(replySeq, YnType.N)
+                .orElseThrow(() -> new ReplyException(NOT_FOUND_REPLY));
+    }
+
     private Reply getOwnedActiveReply(Long memberId, Long replySeq) {
-        UserInfo user = userInfoRepository.findById(memberId)
+
+        UserInfo userInfo = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ReplyException(NOT_FOUND_MEMBER));
 
-        return replyRepository.findFirstBySeqAndUserAndDeleteFlag(replySeq, user, YnType.N)
+        return replyRepository.findFirstBySeqAndUserAndDeleteFlag(replySeq, userInfo, YnType.N)
                 .orElseThrow(() -> new ReplyException(NOT_FOUND_REPLY));
     }
 

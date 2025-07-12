@@ -33,7 +33,7 @@ public class ReplyController {
             throw new ReplyException(ABNORMAL_ACCESS);
         }
 
-        return ResultModel.success(replyService.getReply(memberId, replySeq));
+        return ResultModel.success(replyService.getReply(replySeq));
     }
 
     @PostMapping("/save")
