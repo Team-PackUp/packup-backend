@@ -2,6 +2,7 @@ package packup.tour.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import packup.common.dto.PageDTO;
 import packup.common.dto.PageResponse;
 import packup.common.dto.ResultModel;
 import packup.recommend.dto.RecommendResponse;
@@ -49,16 +50,14 @@ public class TourApiController {
     }
 
     @GetMapping("/recommend")
-    public ResultModel<RecommendResponse> recommendForUser(@RequestParam Integer count) {
+    public ResultModel<RecommendResponse> recommendForUser(@RequestParam Integer count, @RequestParam Integer page) {
 
         if(count == null || count < 1) {
             throw new RecommendException(ABNORMAL_ACCESS);
         }
 
         // 최근껏 중에서 랜덤하게 추출
-        List<TourInfoResponse> popularResponseList = tourService.popularTour(count);
-        System.out.println("popularResponseList.size()");
-        System.out.println(popularResponseList.size());
+        PageDTO<TourInfoResponse> popularResponseList = tourService.popularTour(count, page);
 
         RecommendResponse recommendResponse = RecommendResponse.builder()
                 .popular(popularResponseList)

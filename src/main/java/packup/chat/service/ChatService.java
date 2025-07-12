@@ -125,19 +125,24 @@ public class ChatService {
                         e.printStackTrace();
                     }
 
+                    YnType fileFlag = Optional.ofNullable(row.get("last_message_file_flag"))
+                            .map(Object::toString)
+                            .map(YnType::valueOf)
+                            .orElse(YnType.N);
+
                     return ChatRoomResponse.builder()
                             .seq(((Number) row.get("seq")).longValue())
                             .partUserSeq(partUserSeqList)
-                            .userSeq(row.get("user_seq") != null ? ((Number) row.get("user_seq")).longValue() : null)
+                            .userSeq(row.get("user_seq") != null
+                                    ? ((Number) row.get("user_seq")).longValue() : null)
                             .title((String) row.get("title"))
-                            .unReadCount(row.get("unread_count") != null ? ((Number) row.get("unread_count")).intValue() : 0)
+                            .unReadCount(row.get("unread_count") != null
+                                    ? ((Number) row.get("unread_count")).intValue() : 0)
                             .lastMessage((String) row.get("last_message"))
-                            .lastMessageDate(
-                                    row.get("last_message_date") != null
-                                            ? ((Timestamp) row.get("last_message_date")).toLocalDateTime()
-                                            : null
-                            )
-                            .fileFlag(YnType.valueOf(row.get("last_message_file_flag").toString()))
+                            .lastMessageDate(row.get("last_message_date") != null
+                                    ? ((Timestamp) row.get("last_message_date")).toLocalDateTime()
+                                    : null)
+                            .fileFlag(fileFlag)
                             .createdAt(((Timestamp) row.get("created_at")).toLocalDateTime())
                             .updatedAt(((Timestamp) row.get("updated_at")).toLocalDateTime())
                             .build();
@@ -242,9 +247,6 @@ public class ChatService {
                 .orElseGet(() -> ChatRead.of(chatRoom, userInfo, chatMessage));
 
         chatRead.updateLastReadMessage(chatMessage);
-
-        chatReadRepository.save(chatRead);
-
 
         chatReadRepository.save(chatRead);
     }

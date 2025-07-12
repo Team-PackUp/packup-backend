@@ -2,12 +2,11 @@ package packup.tour.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import packup.chat.dto.ChatMessageResponse;
+import packup.common.dto.PageDTO;
 import packup.common.dto.PageResponse;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.tour.domain.TourInfo;
@@ -19,6 +18,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static packup.tour.constant.tourConstant.PAGE_SIZE;
 
 @Service
 @RequiredArgsConstructor
@@ -79,20 +80,27 @@ public class TourService {
         return TourInfoResponse.from(tour);
     }
 
-    public List<TourInfoResponse> popularTour(int count) {
+    public PageDTO<TourInfoResponse> popularTour(int count, int page) {
 
-        List<TourInfo> latestTour = new ArrayList<>(
-                tourInfoRepository.findLatest(LocalDate.now(), PageRequest.of(0, 50))
-                        .getContent()); //getContent or toList는 읽기 전용이라 복사 데이터 생성 후 shuffle
-
-
-        if(!latestTour.isEmpty()) {
-            Collections.shuffle(latestTour);
+        List<TourInfo> shuffled = new ArrayList<>(tourInfoRepository.findLatest(
+                LocalDate.now(),
+                PageRequest.of(0, 50)).getContent());
+        if (!shuffled.isEmpty()) {
+            Collections.shuffle(shuffled);
         }
 
-        return latestTour.stream()
+        List<TourInfoResponse> content = shuffled.stream()
                 .limit(count)
                 .map(TourInfoResponse::from)
                 .toList();
+
+        Page<TourInfoResponse> resultPage = new PageImpl<>(
+                content,
+                PageRequest.of(page, PAGE_SIZE),
+                shuffled.size()
+        );
+
+        return PageDTO.of(resultPage);
     }
+
 }
