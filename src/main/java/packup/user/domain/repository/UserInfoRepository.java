@@ -1,6 +1,7 @@
 package packup.user.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import packup.common.enums.YnType;
 import packup.user.domain.UserInfo;
 
 import java.util.Collection;
@@ -10,4 +11,5 @@ import java.util.Optional;
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
     Optional<UserInfo> findByEmail(String email);
     List<UserInfo> findAllBySeqIn(Collection<Long> seq);
+    List<UserInfo> findBySeqInAndWithdrawFlag(List<Long> seqList, YnType ynType);
 }

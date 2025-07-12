@@ -253,7 +253,18 @@ public class ChatService {
 
     public List<Long> getPartUserInRoom(Long chatRoomSeq) {
         ChatRoom chatRoomPartUser = chatRoomRepository.findById(chatRoomSeq).orElseThrow();
-        return chatRoomPartUser.getPartUserSeq();
+
+        return validateActiveUser(chatRoomPartUser.getPartUserSeq());
+    }
+
+    public List<Long> validateActiveUser(List<Long> chatRoomSeq) {
+
+        if (chatRoomSeq.isEmpty()) return Collections.emptyList();
+
+        return userInfoRepository.findBySeqInAndWithdrawFlag(chatRoomSeq, YnType.N)
+                .stream()
+                .map(UserInfo::getSeq)
+                .toList();
     }
 
     public FileResponse saveFile(Long memberId, String type, MultipartFile file) throws IOException {
