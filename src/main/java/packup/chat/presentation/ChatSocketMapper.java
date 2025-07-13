@@ -18,6 +18,7 @@ import packup.config.security.provider.JwtTokenProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
@@ -72,8 +73,6 @@ public class ChatSocketMapper {
         chatService.readChatMessage(userSeq, readMessageRequest);
     }
 
-
-
     @MessageMapping("/send.connection")
     public void sendKeepSocket(String connection) {
         System.out.println("STOMP 연결 유지 " + connection);
@@ -82,7 +81,7 @@ public class ChatSocketMapper {
     private Long getUserSeqInSocket(Message<?> stompMessage) {
         // 헤더에서 Authorization 추출
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(stompMessage);
-        String token = (String) accessor.getSessionAttributes().get("Authorization");
+        String token = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("Authorization");
 
         // JWT 토큰에서 username (userSeq) 추출
         return Long.valueOf(jwtTokenProvider.getUsername(token));
