@@ -6,6 +6,7 @@ import lombok.Getter;
 import packup.common.util.JsonUtil;
 import packup.user.domain.UserInfo;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -17,7 +18,7 @@ public class UserInfoResponse {
     private String nation;
 
     private String email;
-    private Map<String, Object> preferCategorySeqJson;
+    private List<String> preferCategorySeqJson;
     private String nickname;
     private String profileImagePath;
 
@@ -25,9 +26,9 @@ public class UserInfoResponse {
     // JSON으로 받아온 데이터를 Map으로 파싱한 후 반환해 줘야 함
     public static UserInfoResponse of(UserInfo userInfo) {
 
-        Map<String, Object> preferCategory = JsonUtil.fromJson(
+        List<String> preferCategory = JsonUtil.fromJson(
                 userInfo.getPrefer().getPreferCategorySeqJson(),
-                new TypeReference<Map<String, Object>>() {}
+                new TypeReference<List<String>>() {}
         );
 
         return UserInfoResponse.builder()
