@@ -39,15 +39,40 @@ public class RecommendService {
     // 기준 - 전체 회원이 평가한 데이터
     // 사용자가 선호한 상품과 유사한 상품을 추천(언센터드 코사인 - 코사인 유사도와 거의 비슷하지만, 벡터 평균을 빼지 않음.. 좀 더 빠른듯)
     public PageDTO<TourInfoResponse> recommendForUser(long userId, int count, int page) throws TasteException {
+        Page<TourInfoResponse> resultPage;
 
-        List<Recommend> preferences = recommendRepository.findAll();
-        DataModel model = JpaDataModelBuilder.buildPreferences(preferences);
+        GenericItemBasedRecommender recommender = generateRecommend();
 
-        ItemSimilarity similarity = new UncenteredCosineSimilarity(model);
-        GenericItemBasedRecommender recommender = new GenericItemBasedRecommender(model, similarity);
+        if (recommender == null) {
+            resultPage = new PageImpl<>(
+                    Collections.emptyList(),
+                    PageRequest.of(page, PAGE_SIZE),
+                    0
+            );
+            return PageDTO.of(resultPage);
+        }
 
-        List<RecommendedItem> recommendList =
-                recommender.recommend(userId, count, rescorer(LocalDate.now()));
+        List<RecommendedItem> recommendList;
+
+        try {
+            recommendList = recommender.recommend(userId, count, rescorer(LocalDate.now()));
+        } catch (TasteException e) {
+            resultPage = new PageImpl<>(
+                    Collections.emptyList(),
+                    PageRequest.of(page, PAGE_SIZE),
+                    0
+            );
+            return PageDTO.of(resultPage);
+        }
+
+        if (recommendList.isEmpty()) {
+            resultPage = new PageImpl<>(
+                    Collections.emptyList(),
+                    PageRequest.of(page, PAGE_SIZE),
+                    0
+            );
+            return PageDTO.of(resultPage);
+        }
 
         List<Long> tourIds = recommendList.stream()
                 .map(RecommendedItem::getItemID)
@@ -61,13 +86,25 @@ public class RecommendService {
                 .map(r -> TourInfoResponse.from(tourMap.get(r.getItemID())))
                 .toList();
 
-        Page<TourInfoResponse> resultPage = new PageImpl<>(
+        resultPage = new PageImpl<>(
                 content,
                 PageRequest.of(page, PAGE_SIZE),
                 content.size()
         );
 
         return PageDTO.of(resultPage);
+    }
+
+    private GenericItemBasedRecommender generateRecommend() throws TasteException {
+        List<Recommend> preferences = recommendRepository.findAll();
+        if(preferences.isEmpty()) {
+            return null;
+        }
+        DataModel model = JpaDataModelBuilder.buildPreferences(preferences);
+
+        ItemSimilarity similarity = new UncenteredCosineSimilarity(model);
+
+        return new GenericItemBasedRecommender(model, similarity);
     }
 
 
