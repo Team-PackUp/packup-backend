@@ -3,6 +3,7 @@ package packup.faq.presentation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import packup.common.dto.ResultModel;
+import packup.faq.dto.FaqCategoryResponse;
 import packup.faq.dto.FaqRequest;
 import packup.faq.dto.FaqResponse;
 import packup.faq.exception.FaqException;
@@ -18,6 +19,12 @@ import static packup.faq.exception.FaqExceptionType.FAIL_TO_GET_FAQ;
 public class FaqController {
 
     private final FaqService faqService;
+
+    @GetMapping("/category")
+    public ResultModel<List<FaqCategoryResponse>> getFaqCategory() {
+
+        return ResultModel.success(faqService.getFaqCategory());
+    }
 
     @GetMapping("/list")
     public ResultModel<List<FaqResponse>> getFaqList() {
