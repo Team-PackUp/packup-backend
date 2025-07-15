@@ -2,6 +2,7 @@ package packup.faq.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import packup.faq.domain.Faq;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class FaqResponse {
