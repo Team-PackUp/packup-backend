@@ -31,14 +31,4 @@ public class FaqController {
 
         return ResultModel.success(faqService.getFaqList());
     }
-
-    @GetMapping("/list/category")
-    public ResultModel<List<FaqResponse>> getFaqListByCategory(FaqRequest faqRequest) {
-        String faqType = faqRequest.getFaqType();
-        if(faqType == null) {
-            throw new FaqException(FAIL_TO_GET_FAQ);
-        }
-
-        return ResultModel.success(faqService.getFaqListByCategory(faqType));
-    }
 }
