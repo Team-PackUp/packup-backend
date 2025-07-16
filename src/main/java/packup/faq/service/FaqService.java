@@ -45,14 +45,4 @@ public class FaqService {
         Optional<List<Faq>> faqOptional = faqRepository.findAllByDeleteFlag(YnType.N);
         return FaqResponse.fromEntityList(faqOptional.orElse(Collections.emptyList()));
     }
-
-    public List<FaqResponse> getFaqListByCategory(String faqType) {
-
-        String faqCode = commonCodeRepository.findByCodeName(faqType)
-                .orElseThrow(() -> new FaqException(FAIL_TO_GET_FAQ))
-                .getCodeId();
-
-        Optional<List<Faq>> faqOptional = faqRepository.findAllByFaqTypeAndDeleteFlag(faqCode, YnType.N);
-        return FaqResponse.fromEntityList(faqOptional.orElse(Collections.emptyList()));
-    }
 }

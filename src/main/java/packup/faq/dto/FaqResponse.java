@@ -14,12 +14,14 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FaqResponse {
+    private Long seq;
     private String question;
     private String answer;
     private String faqType;
 
     public static FaqResponse fromEntity(Faq faq) {
         return FaqResponse.builder()
+                .seq(faq.seq())
                 .faqType(faq.getFaqType())
                 .question(faq.getQuestion())
                 .answer(faq.getAnswer())

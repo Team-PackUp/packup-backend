@@ -9,5 +9,4 @@ import java.util.Optional;
 
 public interface FaqRepository extends JpaRepository<Faq, Long> {
     Optional<List<Faq>> findAllByDeleteFlag(YnType deleteFlag);
-    Optional<List<Faq>> findAllByFaqTypeAndDeleteFlag(String faqType, YnType deleteFlag);
 }
