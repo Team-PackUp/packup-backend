@@ -35,8 +35,8 @@ import packup.fcmpush.presentation.DeepLinkGenerator;
 import packup.fcmpush.service.FcmPushService;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
-import packup.user.domain.repository.UserDetailInfoRepository;
 import packup.user.domain.repository.UserInfoRepository;
+import packup.user.dto.UserInfoResponse;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -95,7 +95,7 @@ public class ChatService {
 
         return ChatRoomResponse.builder()
                 .seq(chatRoom.getSeq())
-                .userSeq(userInfo.getSeq())
+                .user(UserInfoResponse.of(userInfo))
                 .partUserSeq(chatRoom.getPartUserSeq())
                 .unReadCount(unreadCount)
                 .lastMessage(lastMessage)
@@ -118,8 +118,7 @@ public class ChatService {
                     try {
                         Object partUserRaw = row.get("part_user_seq");
                         if (partUserRaw != null) {
-                            partUserSeqList = JsonUtil.fromJson(partUserRaw.toString(), new TypeReference<>() {
-                            });
+                            partUserSeqList = JsonUtil.fromJson(partUserRaw.toString(), new TypeReference<>() {});
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -130,11 +129,12 @@ public class ChatService {
                             .map(YnType::valueOf)
                             .orElse(YnType.N);
 
+                    UserInfo userInfo = userInfoRepository.findById((Long) row.get("user_seq")).orElseThrow();
+
                     return ChatRoomResponse.builder()
                             .seq(((Number) row.get("seq")).longValue())
                             .partUserSeq(partUserSeqList)
-                            .userSeq(row.get("user_seq") != null
-                                    ? ((Number) row.get("user_seq")).longValue() : null)
+                            .user(UserInfoResponse.of(userInfo))
                             .title((String) row.get("title"))
                             .unReadCount(row.get("unread_count") != null
                                     ? ((Number) row.get("unread_count")).intValue() : 0)
