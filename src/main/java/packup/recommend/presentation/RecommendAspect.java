@@ -31,7 +31,7 @@ public class RecommendAspect {
         RecommendRequest recommendRequest = buildRecommend(args, recommendTrace);
         if(recommendRequest.getScore() == 0) return;
 
-        publisher.publishEvent(buildRecommend(args, recommendTrace));
+        publisher.publishEvent(recommendRequest);
     }
 
     private RecommendRequest buildRecommend(Object[] args, RecommendTrace recommendTrace) {
@@ -51,7 +51,7 @@ public class RecommendAspect {
 
         switch (actionTypeEnum) {
 
-            // 리뷰에서 2점 이하는 부정적이라 판단하여 점수에서 제외
+            // 리뷰(댓글) 등록시 평점 2 이하는 점수 반영 제외
             case REVIEW :
                 ReplyRequest req = (ReplyRequest) args[1];
                 tourSeq = req.getTargetSeq();
