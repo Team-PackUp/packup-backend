@@ -28,7 +28,10 @@ public class RecommendAspect {
     public void afterAction(JoinPoint joinPoint, RecommendTrace recommendTrace, Object result) {
         Object[] args = joinPoint.getArgs();
 
-        publisher.publishEvent(buildRecommend(args, recommendTrace));
+        RecommendRequest recommendRequest = buildRecommend(args, recommendTrace);
+        if(recommendRequest.getScore() == 0) return;
+
+        publisher.publishEvent(recommendRequest);
     }
 
     private RecommendRequest buildRecommend(Object[] args, RecommendTrace recommendTrace) {
@@ -48,10 +51,12 @@ public class RecommendAspect {
 
         switch (actionTypeEnum) {
 
+            // 리뷰(댓글) 등록시 평점 2 이하는 점수 반영 제외
             case REVIEW :
                 ReplyRequest req = (ReplyRequest) args[1];
                 tourSeq = req.getTargetSeq();
                 score = req.getPoint();
+                if(score <= 2) score = 0;
                 break;
 
             default:
