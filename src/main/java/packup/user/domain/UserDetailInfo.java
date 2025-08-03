@@ -44,6 +44,10 @@ public class UserDetailInfo extends BaseEntity {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType marketingFlag = YnType.N;
 
+    @Column(name = "push_flag", columnDefinition = "yn_enum", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private YnType pushFlag = YnType.N;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -56,5 +60,10 @@ public class UserDetailInfo extends BaseEntity {
         this.nation = nation;
         this.age = age;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateSettingPush(YnType pushFlag, YnType marketingFlag) {
+        if(this.pushFlag != pushFlag) this.pushFlag = pushFlag;
+        if(this.marketingFlag != marketingFlag) this.marketingFlag = marketingFlag;
     }
 }

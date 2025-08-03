@@ -3,6 +3,7 @@ package packup.user.dto;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Builder;
 import lombok.Getter;
+import packup.common.enums.YnType;
 import packup.common.util.JsonUtil;
 import packup.user.domain.UserInfo;
 
@@ -22,6 +23,9 @@ public class UserInfoResponse {
     private String nickname;
     private String profileImagePath;
 
+    private YnType marketingFlag;
+    private YnType pushFlag;
+
     // 가입할 때 테이블 세 군데에 insert 해 주니까 null 체크 안함
     // JSON으로 받아온 데이터를 Map으로 파싱한 후 반환해 줘야 함
     public static UserInfoResponse of(UserInfo userInfo) {
@@ -39,6 +43,8 @@ public class UserInfoResponse {
                 .preferCategorySeqJson(preferCategory)
                 .nickname(userInfo.getDetailInfo().getNickname())
                 .profileImagePath(userInfo.getDetailInfo().getProfileImagePath())
+                .marketingFlag(userInfo.getDetailInfo().getMarketingFlag())
+                .pushFlag(userInfo.getDetailInfo().getPushFlag())
                 .build();
     }
 }

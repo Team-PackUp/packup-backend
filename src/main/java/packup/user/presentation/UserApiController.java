@@ -5,9 +5,12 @@ import org.springframework.web.bind.annotation.*;
 import packup.auth.annotation.Auth;
 import packup.common.dto.ResultModel;
 import packup.user.domain.UserInfo;
+import packup.user.dto.SettingPushRequest;
 import packup.user.dto.UserDetailRequest;
 import packup.user.dto.UserInfoResponse;
 import packup.user.dto.UserPreferRequest;
+import packup.user.exception.UserException;
+import packup.user.exception.UserExceptionType;
 import packup.user.service.UserService;
 
 @RestController
@@ -42,6 +45,15 @@ public class UserApiController {
     }
 
 
+    @PutMapping("/setting-push")
+    public ResultModel<Void> updateSettingPush(@Auth Long memberId, @RequestBody SettingPushRequest request) {
 
+        if(request.getPushFlag() == null || request.getMarketingFlag() == null) {
+            throw new UserException(UserExceptionType.ABNORMAL_ACCESS);
+        }
+
+        userService.updateSettingPush(memberId, request);
+        return ResultModel.success();
+    }
 
 }

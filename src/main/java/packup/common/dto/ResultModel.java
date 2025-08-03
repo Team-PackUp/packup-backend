@@ -25,6 +25,7 @@ public class ResultModel<T> {
         return ResultModel.<T>builder()
                 .statusCode(responseMessage.httpStatus().value())
                 .message(responseMessage.message())
+                .resultFlag(false)
                 .response(null)
                 .build();
     }
