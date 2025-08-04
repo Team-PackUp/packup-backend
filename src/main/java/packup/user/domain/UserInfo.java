@@ -71,5 +71,7 @@ public class UserInfo  {
         prefer.assignUser(this);
     }
 
-
+    public void withdrawOrReRegister(YnType ynType) {
+        this.withdrawFlag = ynType;
+    }
 }

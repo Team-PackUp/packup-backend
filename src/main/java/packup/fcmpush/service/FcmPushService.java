@@ -35,6 +35,7 @@ public class FcmPushService {
     private final CommonCodeRepository commonCodeRepository;
     private final UserInfoRepository userInfoRepository;
 
+    // 마케팅 수신 동의 여부, 알림 푸시 동의 여부, 회원 탈퇴 여부 확인 후 발송
     @Transactional
     public void requestFcmPush(FcmPushRequest firebaseRequest) {
 

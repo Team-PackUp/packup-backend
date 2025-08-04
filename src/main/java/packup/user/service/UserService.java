@@ -4,24 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import packup.common.domain.repository.CommonCodeRepository;
+import packup.common.enums.YnType;
 import packup.common.util.JsonUtil;
-import packup.fcmpush.exception.FcmPushException;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.UserPrefer;
+import packup.user.domain.UserWithDrawLog;
 import packup.user.domain.repository.UserDetailInfoRepository;
 import packup.user.domain.repository.UserInfoRepository;
 import packup.user.domain.repository.UserPreferRepository;
-import packup.user.dto.SettingPushRequest;
-import packup.user.dto.UserDetailRequest;
-import packup.user.dto.UserInfoResponse;
-import packup.user.dto.UserPreferRequest;
+import packup.user.domain.repository.UserWithDrawRepository;
+import packup.user.dto.*;
 import packup.user.exception.UserException;
 import packup.user.exception.UserExceptionType;
 
 import java.util.List;
-
-import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_OS_TYPE;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +27,7 @@ public class UserService {
     private final UserInfoRepository userInfoRepository;
     private final UserPreferRepository userPreferRepository;
     private final UserDetailInfoRepository userDetailInfoRepository;
+    private final UserWithDrawRepository userWithDrawRepository;
     private final CommonCodeRepository commonCodeRepository;
 
     public UserInfoResponse getUserInfo(Long memberId) {
@@ -85,5 +83,46 @@ public class UserService {
                 .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_USER_DETAIL));
 
         detail.updateSettingPush(request.getPushFlag(), request.getMarketingFlag());
+    }
+
+    @Transactional
+    public void userWithDraw(Long memberId, UserWithDrawLogRequest request) {
+        UserInfo user = userInfoRepository.findById(memberId)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
+
+        if(user.getWithdrawFlag() == YnType.Y) {
+            throw new UserException(UserExceptionType.ALREADY_WITHDRAW);
+        }
+
+        // 탈퇴 처리
+        user.withdrawOrReRegister(YnType.Y);
+
+        // 로그 기록
+        saveUserWithDrawLog(user, request);
+    }
+
+    // 재가입
+    public void userReRegister(UserInfo user) {
+        user.withdrawOrReRegister(YnType.N);
+
+        UserWithDrawLogRequest userWithDrawLogRequest = UserWithDrawLogRequest.builder()
+                .reason("재가입")
+                .codeName("RE-REGISTER")
+                .build();
+
+        saveUserWithDrawLog(user, userWithDrawLogRequest);
+    }
+
+    public void saveUserWithDrawLog(UserInfo user, UserWithDrawLogRequest request) {
+        // 탈퇴 로그
+        String logTypeCode = commonCodeRepository.findByCodeName(request.getCodeName())
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_GENDER))
+                .getCodeId();
+
+        UserWithDrawLog userWithDrawLog = UserWithDrawLog.of(
+                user, request.getReason(), logTypeCode
+        );
+
+        userWithDrawRepository.save(userWithDrawLog);
     }
 }

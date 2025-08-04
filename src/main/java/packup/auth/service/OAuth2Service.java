@@ -12,9 +12,12 @@ import packup.auth.domain.repository.RefreshTokenRepository;
 import packup.auth.dto.OAuth2LoginRequest;
 import packup.auth.dto.OAuth2LoginResponse;
 import packup.auth.exception.AuthException;
+import packup.common.enums.YnType;
 import packup.config.security.provider.JwtTokenProvider;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
+import packup.user.dto.UserWithDrawLogRequest;
+import packup.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -30,6 +33,8 @@ public class OAuth2Service {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    private final UserService userService;
+
     @Transactional
     public OAuth2LoginResponse login(String providerName, OAuth2LoginRequest loginRequest) {
         OAuth2ServerType provider = OAuth2ServerType.fromName(providerName);
@@ -40,6 +45,11 @@ public class OAuth2Service {
                 .orElseGet(() -> userInfoRepository.save(userInfo));
 
         Long userId = savedUserInfo.getSeq();
+
+        // 탈퇴 회원 => 재가입 처리
+        if(savedUserInfo.getWithdrawFlag() == YnType.Y) {
+            userService.userReRegister(savedUserInfo);
+        }
 
         String accessToken = jwtTokenProvider.createToken(String.valueOf(savedUserInfo.getSeq()));
         String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(savedUserInfo.getSeq()));
