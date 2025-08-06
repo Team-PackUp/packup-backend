@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface UserDetailInfoRepository extends JpaRepository<UserDetailInfo, Long> {
     Optional<UserDetailInfo> findByUser(UserInfo user);
+
+    boolean existsByUserNotAndNickname(UserInfo user, String nickname);
 }

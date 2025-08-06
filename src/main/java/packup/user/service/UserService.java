@@ -96,6 +96,10 @@ public class UserService {
         UserPrefer prefer = userPreferRepository.findByUser(user)
                 .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_USER_PREFER));
 
+        if(!checkDuplicateNickName(user, request.getNickName())) {
+            throw  new UserException(UserExceptionType.ALREADY_NICKNAME);
+        };
+
         // 회원 기본정보 수정(언어 추가 예정)
 
 
@@ -145,5 +149,11 @@ public class UserService {
         );
 
         userWithDrawRepository.save(userWithDrawLog);
+    }
+
+    private boolean checkDuplicateNickName(UserInfo user, String nickName) {
+
+        boolean result = userDetailInfoRepository.existsByUserNotAndNickname(user, nickName);
+        return !result;
     }
 }

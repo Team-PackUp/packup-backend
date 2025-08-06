@@ -16,6 +16,7 @@ public enum UserExceptionType implements BaseExceptionType {
     NOT_FOUND_NATION(NOT_FOUND, "국가를 찾을 수 없습니다."),
     NOT_FOUND_GENDER(NOT_FOUND, "성별을 찾을 수 없습니다."),
     ALREADY_WITHDRAW(NOT_ACCEPTABLE, "이미 탈퇴한 회원 입니다."),
+    ALREADY_NICKNAME(NOT_ACCEPTABLE, "이미 존재하는 닉네임 입니다."),
     ABNORMAL_ACCESS(BAD_REQUEST, "비정상적인 접근입니다."),
     ;
 
