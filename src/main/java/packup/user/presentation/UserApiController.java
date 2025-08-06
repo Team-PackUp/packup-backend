@@ -40,6 +40,21 @@ public class UserApiController {
         return ResultModel.success();
     }
 
+    @PutMapping("/profile-update")
+    public ResultModel<Void> updateUserProfile(@Auth Long memberId, @RequestBody UserProfileRequest request) {
+
+        if(request.getLanguage() == null ||
+                request.getPreference() == null ||
+                request.getProfileImagePath() == null ||
+                request.getNickName() == null
+        ) {
+            throw new UserException(UserExceptionType.ABNORMAL_ACCESS);
+        }
+
+        userService.updateUserProfile(memberId, request);
+        return ResultModel.success();
+    }
+
 
     @PutMapping("/setting-push")
     public ResultModel<Void> updateSettingPush(@Auth Long memberId, @RequestBody SettingPushRequest request) {

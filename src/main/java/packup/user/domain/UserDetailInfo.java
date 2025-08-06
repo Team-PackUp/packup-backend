@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import packup.common.domain.BaseEntity;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name = "user_detail_info")
 @DynamicInsert
+@DynamicUpdate
 public class UserDetailInfo extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -67,5 +69,10 @@ public class UserDetailInfo extends BaseEntity {
     public void updateSettingPush(YnType pushFlag, YnType marketingFlag) {
         if(this.pushFlag != pushFlag) this.pushFlag = pushFlag;
         if(this.marketingFlag != marketingFlag) this.marketingFlag = marketingFlag;
+    }
+
+    public void updateUserProfile(String profileImagePath, String nickname) {
+        this.profileImagePath = profileImagePath;
+        this.nickname = nickname;
     }
 }

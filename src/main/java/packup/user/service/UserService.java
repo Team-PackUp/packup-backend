@@ -86,6 +86,27 @@ public class UserService {
     }
 
     @Transactional
+    public void updateUserProfile(Long memberId, UserProfileRequest request) {
+        UserInfo user = userInfoRepository.findById(memberId)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
+
+        UserDetailInfo detail = userDetailInfoRepository.findByUser(user)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_USER_DETAIL));
+
+        UserPrefer prefer = userPreferRepository.findByUser(user)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_USER_PREFER));
+
+        // 회원 기본정보 수정(언어 추가 예정)
+
+
+        // 회원 상세정보 수정
+        detail.updateUserProfile(request.getProfileImagePath(), request.getNickName());
+
+        // 회원 선호아이템 수정
+        prefer.updatePreferCategory(JsonUtil.toJson(request.getPreference()));
+    }
+
+    @Transactional
     public void userWithDraw(Long memberId, UserWithDrawLogRequest request) {
         UserInfo user = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
