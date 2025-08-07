@@ -2,12 +2,19 @@ package packup.user.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import packup.auth.annotation.Auth;
+import packup.chat.exception.ChatException;
+import packup.common.dto.FileResponse;
 import packup.common.dto.ResultModel;
 import packup.user.dto.*;
 import packup.user.exception.UserException;
 import packup.user.exception.UserExceptionType;
 import packup.user.service.UserService;
+
+import java.io.IOException;
+
+import static packup.chat.exception.ChatExceptionType.ABNORMAL_ACCESS;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,12 +47,19 @@ public class UserApiController {
         return ResultModel.success();
     }
 
-    @PutMapping("/profile-update")
+    @PostMapping("/update/profile-image")
+    public ResultModel<FileResponse> saveUserProfileImage(@Auth Long memberId, @RequestParam("file") MultipartFile file) throws IOException {
+        if(file == null || file.isEmpty()) {
+            throw new UserException(UserExceptionType.ABNORMAL_ACCESS);
+        }
+        return ResultModel.success(userService.updateUserProfileImage(memberId, "profile", file));
+    }
+
+    @PutMapping("/update/profile")
     public ResultModel<Void> updateUserProfile(@Auth Long memberId, @RequestBody UserProfileRequest request) {
 
         if(request.getLanguage() == null ||
                 request.getPreference() == null ||
-                request.getProfileImagePath() == null ||
                 request.getNickName() == null
         ) {
             throw new UserException(UserExceptionType.ABNORMAL_ACCESS);

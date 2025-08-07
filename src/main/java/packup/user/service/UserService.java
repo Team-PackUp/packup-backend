@@ -3,8 +3,13 @@ package packup.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import packup.chat.domain.ChatMessageFile;
+import packup.chat.exception.ChatException;
 import packup.common.domain.repository.CommonCodeRepository;
+import packup.common.dto.FileResponse;
 import packup.common.enums.YnType;
+import packup.common.util.FileUtil;
 import packup.common.util.JsonUtil;
 import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
@@ -18,7 +23,10 @@ import packup.user.dto.*;
 import packup.user.exception.UserException;
 import packup.user.exception.UserExceptionType;
 
+import java.io.IOException;
 import java.util.List;
+
+import static packup.chat.exception.ChatExceptionType.NOT_FOUND_MEMBER;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +37,8 @@ public class UserService {
     private final UserDetailInfoRepository userDetailInfoRepository;
     private final UserWithDrawRepository userWithDrawRepository;
     private final CommonCodeRepository commonCodeRepository;
+
+    private final FileUtil fileUtil;
 
     public UserInfoResponse getUserInfo(Long memberId) {
         UserInfo userInfo = userInfoRepository.findById(memberId)
@@ -108,6 +118,14 @@ public class UserService {
 
         // 회원 선호아이템 수정
         prefer.updatePreferCategory(JsonUtil.toJson(request.getPreference()));
+    }
+
+    public FileResponse updateUserProfileImage(Long memberId, String type, MultipartFile file) throws IOException {
+
+        userInfoRepository.findById(memberId)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
+
+        return fileUtil.saveImage(type, file);
     }
 
     @Transactional
