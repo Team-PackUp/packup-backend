@@ -11,8 +11,10 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
+import packup.user.dto.UserProfileRequest;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Builder
 @AllArgsConstructor
@@ -71,8 +73,25 @@ public class UserDetailInfo extends BaseEntity {
         if(this.marketingFlag != marketingFlag) this.marketingFlag = marketingFlag;
     }
 
-    public void updateUserProfile(String profileImagePath, String nickname) {
-        this.profileImagePath = profileImagePath;
-        this.nickname = nickname;
+    public void updateUserProfile(UserProfileRequest request) {
+        if (!Objects.equals(this.profileImagePath, request.getProfileImagePath())) {
+            this.profileImagePath = request.getProfileImagePath();
+        }
+
+        if (!Objects.equals(this.nickname, request.getNickName())) {
+            this.nickname = request.getNickName();
+        }
+
+        if (request.getAge() != null) {
+            int requestAge = Integer.parseInt(request.getAge());
+            if (requestAge != this.age) {
+                this.age = requestAge;
+            }
+        }
+
+        if (!Objects.equals(this.gender, request.getGender())) {
+            this.gender = request.getGender();
+        }
     }
+
 }

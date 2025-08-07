@@ -60,7 +60,9 @@ public class UserApiController {
 
         if(request.getLanguage() == null ||
                 request.getPreference() == null ||
-                request.getNickName() == null
+                request.getNickName() == null ||
+                request.getAge() == null ||
+                request.getGender() == null
         ) {
             throw new UserException(UserExceptionType.ABNORMAL_ACCESS);
         }

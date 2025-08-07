@@ -108,13 +108,10 @@ public class UserService {
 
         if(!checkDuplicateNickName(user, request.getNickName())) {
             throw  new UserException(UserExceptionType.ALREADY_NICKNAME);
-        };
-
-        // 회원 기본정보 수정(언어 추가 예정)
-
+        }
 
         // 회원 상세정보 수정
-        detail.updateUserProfile(request.getProfileImagePath(), request.getNickName());
+        detail.updateUserProfile(request);
 
         // 회원 선호아이템 수정
         prefer.updatePreferCategory(JsonUtil.toJson(request.getPreference()));

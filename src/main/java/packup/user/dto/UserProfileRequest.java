@@ -13,6 +13,8 @@ import java.util.List;
 public class UserProfileRequest {
     private String profileImagePath;
     private String nickName;
+    private String age;
+    private String gender;
     private String language;
     private List<String> preference;
 }
