@@ -80,7 +80,8 @@ public class UserService {
         detail.updateBasicInfo(
                 genderCode,
                 nationCode,
-                Integer.parseInt(request.getUserAge())
+                Integer.parseInt(request.getUserAge()),
+                request.getUserLanguage()
         );
     }
 
@@ -111,7 +112,13 @@ public class UserService {
         }
 
         // 회원 상세정보 수정
-        detail.updateUserProfile(request);
+        detail.updateProfile(
+                request.getProfileImagePath(),
+                request.getNickName(),
+                request.getAge() != null ? Integer.parseInt(request.getAge()) : null,
+                request.getGender(),
+                request.getLanguage()
+        );
 
         // 회원 선호아이템 수정
         prefer.updatePreferCategory(JsonUtil.toJson(request.getPreference()));

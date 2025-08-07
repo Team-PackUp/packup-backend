@@ -39,11 +39,11 @@ public class UserDetailInfo extends BaseEntity {
     @Column(unique = true)
     private String nickname;
 
-    @Column(name = "fcm_token", unique = true)
-    private String fcmToken;
-
     @Column(name = "profile_image_path")
     private String profileImagePath;
+
+    @Column(name = "language", nullable = false)
+    private String language;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "marketing_flag", columnDefinition = "yn_enum", nullable = false)
@@ -61,10 +61,11 @@ public class UserDetailInfo extends BaseEntity {
         this.user = userInfo;
     }
 
-    public void updateBasicInfo(String gender, String nation, int age) {
+    public void updateBasicInfo(String gender, String nation, int age, String language) {
         this.gender = gender;
         this.nation = nation;
         this.age = age;
+        this.language = language;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -73,25 +74,23 @@ public class UserDetailInfo extends BaseEntity {
         if(this.marketingFlag != marketingFlag) this.marketingFlag = marketingFlag;
     }
 
-    public void updateUserProfile(UserProfileRequest request) {
-        if (!Objects.equals(this.profileImagePath, request.getProfileImagePath())) {
-            this.profileImagePath = request.getProfileImagePath();
+    public void updateProfile(String profileImagePath, String nickname, Integer age, String gender, String language) {
+        if (!Objects.equals(this.profileImagePath, profileImagePath)) {
+            this.profileImagePath = profileImagePath;
         }
-
-        if (!Objects.equals(this.nickname, request.getNickName())) {
-            this.nickname = request.getNickName();
+        if (!Objects.equals(this.nickname, nickname)) {
+            this.nickname = nickname;
         }
-
-        if (request.getAge() != null) {
-            int requestAge = Integer.parseInt(request.getAge());
-            if (requestAge != this.age) {
-                this.age = requestAge;
-            }
+        if (age != null && !Objects.equals(this.age, age)) {
+            this.age = age;
         }
-
-        if (!Objects.equals(this.gender, request.getGender())) {
-            this.gender = request.getGender();
+        if (!Objects.equals(this.gender, gender)) {
+            this.gender = gender;
+        }
+        if (!Objects.equals(this.language, language)) {
+            this.language = language;
         }
     }
+
 
 }

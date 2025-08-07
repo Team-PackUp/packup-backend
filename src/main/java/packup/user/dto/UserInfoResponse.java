@@ -20,6 +20,7 @@ public class UserInfoResponse {
     private String joinType;
 
     private String email;
+    private String language;
     private List<String> preferCategorySeqJson;
     private String nickname;
     private String profileImagePath;
@@ -42,6 +43,7 @@ public class UserInfoResponse {
                 .age(userInfo.getDetailInfo().getAge())
                 .nation(userInfo.getDetailInfo().getNation())
                 .joinType(userInfo.getJoinType())
+                .language(userInfo.getDetailInfo().getLanguage())
                 .preferCategorySeqJson(preferCategory)
                 .nickname(userInfo.getDetailInfo().getNickname())
                 .profileImagePath(userInfo.getDetailInfo().getProfileImagePath())

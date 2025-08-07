@@ -10,6 +10,7 @@ public class UserDetailRequest {
     private String userGender;
     private String userAge;
     private String userNation;
+    private String userLanguage;
     private YnType marketingFlag;
     private YnType pushFLag;
 
