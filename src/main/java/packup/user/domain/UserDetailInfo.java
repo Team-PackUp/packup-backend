@@ -11,7 +11,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import packup.common.domain.BaseEntity;
 import packup.common.enums.YnType;
-import packup.user.dto.UserProfileRequest;
+import java.time.LocalDate;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -34,7 +34,7 @@ public class UserDetailInfo extends BaseEntity {
 
     private String nation;
 
-    private Integer age;
+    private LocalDate birth;
 
     @Column(unique = true)
     private String nickname;
@@ -61,10 +61,10 @@ public class UserDetailInfo extends BaseEntity {
         this.user = userInfo;
     }
 
-    public void updateBasicInfo(String gender, String nation, int age, String language) {
+    public void updateBasicInfo(String gender, String nation, LocalDate birth, String language) {
         this.gender = gender;
         this.nation = nation;
-        this.age = age;
+        this.birth = birth;
         this.language = language;
         this.updatedAt = LocalDateTime.now();
     }
@@ -74,15 +74,15 @@ public class UserDetailInfo extends BaseEntity {
         if(this.marketingFlag != marketingFlag) this.marketingFlag = marketingFlag;
     }
 
-    public void updateProfile(String profileImagePath, String nickname, Integer age, String gender, String language) {
+    public void updateProfile(String profileImagePath, String nickname, LocalDate birth, String gender, String language) {
         if (!Objects.equals(this.profileImagePath, profileImagePath)) {
             this.profileImagePath = profileImagePath;
         }
         if (!Objects.equals(this.nickname, nickname)) {
             this.nickname = nickname;
         }
-        if (age != null && !Objects.equals(this.age, age)) {
-            this.age = age;
+        if (birth != null && !Objects.equals(this.birth, birth)) {
+            this.birth = birth;
         }
         if (!Objects.equals(this.gender, gender)) {
             this.gender = gender;

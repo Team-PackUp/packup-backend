@@ -80,7 +80,7 @@ public class UserService {
         detail.updateBasicInfo(
                 genderCode,
                 nationCode,
-                Integer.parseInt(request.getUserAge()),
+                request.getUserBirth(),
                 request.getUserLanguage()
         );
     }
@@ -115,7 +115,7 @@ public class UserService {
         detail.updateProfile(
                 request.getProfileImagePath(),
                 request.getNickName(),
-                request.getAge() != null ? Integer.parseInt(request.getAge()) : null,
+                request.getBirth(),
                 request.getGender(),
                 request.getLanguage()
         );

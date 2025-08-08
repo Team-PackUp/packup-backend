@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import packup.common.enums.YnType;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Builder
@@ -13,7 +14,7 @@ import java.util.List;
 public class UserProfileRequest {
     private String profileImagePath;
     private String nickName;
-    private String age;
+    private LocalDate birth;
     private String gender;
     private String language;
     private List<String> preference;

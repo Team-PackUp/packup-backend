@@ -7,6 +7,7 @@ import packup.common.enums.YnType;
 import packup.common.util.JsonUtil;
 import packup.user.domain.UserInfo;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 @Builder
 public class UserInfoResponse {
     // 필요한거 여기서 추가..
-    private Integer age;
+    private LocalDate birth;
     private String gender;
     private String nation;
     private String joinType;
@@ -40,7 +41,7 @@ public class UserInfoResponse {
         return UserInfoResponse.builder()
                 .email(userInfo.getEmail())
                 .gender(userInfo.getDetailInfo().getGender())
-                .age(userInfo.getDetailInfo().getAge())
+                .birth(userInfo.getDetailInfo().getBirth())
                 .nation(userInfo.getDetailInfo().getNation())
                 .joinType(userInfo.getJoinType())
                 .language(userInfo.getDetailInfo().getLanguage())
