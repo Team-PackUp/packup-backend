@@ -27,4 +27,6 @@ public interface GuideInfoRepository extends JpaRepository<GuideInfo, Long> {
     List<TourInfo> findByUserSeq(Long userSeq);
 
     Optional<GuideInfo> findByUser_Seq(Long userSeq);
+
+    boolean existsByUserSeq(Long userSeq);
 }
