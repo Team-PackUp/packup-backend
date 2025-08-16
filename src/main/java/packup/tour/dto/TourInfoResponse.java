@@ -1,128 +1,112 @@
 package packup.tour.dto;
 
-import jakarta.persistence.Column;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import packup.common.enums.YnType;
 import packup.guide.domain.GuideInfo;
 import packup.guide.dto.GuideInfoResponse;
 import packup.tour.domain.TourInfo;
 import packup.tour.enums.TourStatusCode;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
  * 투어 상세 조회 응답 DTO
  *
  * @author SBLEE
- * @since 2025.05.16
+ * @since 2025.08.16
  */
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class TourInfoResponse {
 
-    /**
-     * 투어 일련번호 (PK)
-     */
+    /** 투어 정보 식별번호 (PK) */
     private Long seq;
 
-    /**
-     * 가이드 사용자 일련번호
-     */
+    /** 가이드 정보 */
     private GuideInfoResponse guide;
 
-    /**
-     * 최소 모집 인원
-     */
-    private Integer minPeople;
-
-    /**
-     * 최대 모집 인원
-     */
-    private Integer maxPeople;
-
-    /**
-     * 모집 시작일 (yyyy-MM-dd)
-     */
-    private LocalDate applyStartDate;
-
-    /**
-     * 모집 종료일 (yyyy-MM-dd)
-     */
-    private LocalDate applyEndDate;
-
-    /**
-     * 투어 시작일시 (yyyy-MM-dd'T'HH:mm:ss)
-     */
-    private LocalDateTime tourStartDate;
-
-    /**
-     * 투어 종료일시 (yyyy-MM-dd'T'HH:mm:ss)
-     */
-    private LocalDateTime tourEndDate;
-
-    /**
-     * 투어 제목 (텍스트)
-     */
+    /** 투어 제목 */
     private String tourTitle;
 
-    /**
-     * 투어 소개 내용 (텍스트)
-     */
+    /** 투어 소개 (TEXT) */
     private String tourIntroduce;
 
-    /**
-     * 투어 가격
-     */
-    private Integer tourPrice;
+    /** 투어 포함 콘텐츠 (TEXT) */
+    private String tourIncludedContent;
 
-    /**
-     * 투어 상태 코드 (TEMP, RECRUITING, RECRUITED, READY, ONGOING, FINISHED)
-     */
+    /** 투어 미포함 콘텐츠 (TEXT) */
+    private String tourExcludedContent;
+
+    /** 투어 참고사항 */
+    private String tourNotes;
+
+    /** 투어 지역 코드 */
+    private Long tourLocationCode;
+
+    /** 투어 섬네일 URL */
+    private String tourThumbnailUrl;
+
+    /** 투어 가격 (BIGINT) */
+    private Long tourPrice;
+
+    /** 최소 인원 수 (SMALLINT) */
+    private Integer minHeadCount;
+
+    /** 최대 인원 수 (SMALLINT) */
+    private Integer maxHeadCount;
+
+    /** 모임 주소 (TEXT) */
+    private String meetUpAddress;
+
+    /** 모임 위도좌표 (numeric(9,6)) */
+    private BigDecimal meetUpLat;
+
+    /** 모임 경도좌표 (numeric(9,6)) */
+    private BigDecimal meetUpLng;
+
+    /** 차량 운송 여부 (Y/N) */
+    private YnType transportServiceFlag;
+
+    /** 프라이빗 제공 여부 (Y/N) */
+    private YnType privateFlag;
+
+    /** 프라이빗 가격 (BIGINT) */
+    private Long privatePrice;
+
+    /** 성인 콘텐츠 포함 여부 (Y/N) */
+    private YnType adultContentFlag;
+
+    /** 투어 상태 코드 */
     private TourStatusCode tourStatusCode;
 
-    /**
-     * 상태명 라벨 (ex: 모집중, 출발대기)
-     */
+    /** 상태 라벨 (예: 모집중, 출발대기) */
     private String tourStatusLabel;
 
-    /**
-     * 투어 지역명 (도시 또는 장소명)
-     */
-    private String tourLocation;
+    /** 승인 관리자 식별번호 */
+    private Integer approvalAdminSeq;
 
-    /**
-     * 대표 이미지 경로 (파일 경로 또는 URL)
-     */
-    private String titleImagePath;
+    /** 반려사유 (TEXT) */
+    private String rejectReason;
 
-    /**
-     * 등록시각
-     */
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    /** 삭제 여부 (Y/N) */
+    private YnType deletedFlag;
+
+    /** 가이드 관리용 메모 */
+    private String memo;
+
+    /** 등록일시 */
     private LocalDateTime createdAt;
 
-    /**
-     * 수정시각
-     */
-    @UpdateTimestamp
-    @Column(name = "updated_at")
+    /** 수정일시 */
     private LocalDateTime updatedAt;
 
     /**
-     * TourInfo 엔티티 객체를 TourInfoResponse DTO로 변환하는 정적 팩토리 메서드입니다.
-     *
-     * <p>가이드 정보(GuideInfo)는 내부적으로 GuideInfoResponse로 매핑되며,
-     * 이를 포함하여 전체 투어 정보를 클라이언트 응답용 DTO로 변환합니다.</p>
-     *
-     * @param tourInfo 변환 대상이 되는 TourInfo 엔티티
-     * @return TourInfoResponse 변환된 투어 응답 DTO
+     * 엔티티 -> DTO 매핑
      */
     public static TourInfoResponse from(TourInfo tourInfo) {
         GuideInfo guide = tourInfo.getGuide();
@@ -141,22 +125,34 @@ public class TourInfoResponse {
                 .updatedAt(guide.getUpdatedAt())
                 .build();
 
+        TourStatusCode status = tourInfo.getTourStatusCode();
+
         return TourInfoResponse.builder()
                 .seq(tourInfo.getSeq())
                 .guide(guideDto)
-                .minPeople(tourInfo.getMinPeople())
-                .maxPeople(tourInfo.getMaxPeople())
-                .applyStartDate(tourInfo.getApplyStartDate())
-                .applyEndDate(tourInfo.getApplyEndDate())
-                .tourStartDate(tourInfo.getTourStartDate())
-                .tourEndDate(tourInfo.getTourEndDate())
                 .tourTitle(tourInfo.getTourTitle())
                 .tourIntroduce(tourInfo.getTourIntroduce())
+                .tourIncludedContent(tourInfo.getTourIncludedContent())
+                .tourExcludedContent(tourInfo.getTourExcludedContent())
+                .tourNotes(tourInfo.getTourNotes())
+                .tourLocationCode(tourInfo.getTourLocationCode())
+                .tourThumbnailUrl(tourInfo.getTourThumbnailUrl())
                 .tourPrice(tourInfo.getTourPrice())
-                .tourStatusCode(tourInfo.getTourStatusCode())
-                .tourStatusLabel(tourInfo.getTourStatusCode().getLabel())
-                .tourLocation(tourInfo.getTourLocation())
-                .titleImagePath(tourInfo.getTitleImagePath())
+                .minHeadCount(tourInfo.getMinHeadCount())
+                .maxHeadCount(tourInfo.getMaxHeadCount())
+                .meetUpAddress(tourInfo.getMeetUpAddress())
+                .meetUpLat(tourInfo.getMeetUpLat())
+                .meetUpLng(tourInfo.getMeetUpLng())
+                .transportServiceFlag(tourInfo.getTransportServiceFlag())
+                .privateFlag(tourInfo.getPrivateFlag())
+                .privatePrice(tourInfo.getPrivatePrice())
+                .adultContentFlag(tourInfo.getAdultContentFlag())
+                .tourStatusCode(status)
+                .tourStatusLabel(status != null ? status.getLabel() : null)
+                .approvalAdminSeq(tourInfo.getApprovalAdminSeq())
+                .rejectReason(tourInfo.getRejectReason())
+                .deletedFlag(tourInfo.getDeletedFlag())
+                .memo(tourInfo.getMemo())
                 .createdAt(tourInfo.getCreatedAt())
                 .updatedAt(tourInfo.getUpdatedAt())
                 .build();

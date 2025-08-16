@@ -2,15 +2,20 @@ package packup.tour.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import packup.common.domain.BaseEntity;
+import packup.common.enums.YnType;
 import packup.guide.domain.GuideInfo;
 import packup.tour.enums.TourStatusCode;
 import packup.tour.enums.TourStatusCodeConverter;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <pre>
@@ -37,57 +42,90 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class TourInfo extends BaseEntity {
 
-    /**
-     * 투어 일련번호 (PK)
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "seq")
+    @Comment("투어 정보 식별번호")
     private Long seq;
 
-    /**
-     * 가이드 사용자 일련번호 (user_info 테이블 참조, UK)
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "guide_seq", referencedColumnName = "user_seq", nullable = false)
+    @Comment("가이드 사용자 식별번호")
     private GuideInfo guide;
 
-    /**
-     * 최소 모집 인원
-     */
-    @Column(name = "min_people", nullable = false)
-    private Integer minPeople;
+    @Column(name = "tour_title", length = 255)
+    @Comment("투어 제목")
+    private String tourTitle;
 
-    /**
-     * 최대 모집 인원
-     */
-    @Column(name = "max_people", nullable = false)
-    private Integer maxPeople;
-
-    /**
-     * 모집 시작일
-     */
-    private LocalDate applyStartDate;
-
-    /**
-     * 모집 종료일
-     */
-    private LocalDate applyEndDate;
-
-    /**
-     * 투어 시작 일시
-     */
-    private LocalDateTime tourStartDate;
-
-    /**
-     * 투어 종료 일시
-     */
-    private LocalDateTime tourEndDate;
-
-    /**
-     * 투어 소개 (자유 입력 설명, TEXT 컬럼)
-     */
     @Column(name = "tour_introduce", columnDefinition = "TEXT")
+    @Comment("투어 소개")
     private String tourIntroduce;
+
+    @Column(name = "tour_included_content", columnDefinition = "TEXT")
+    @Comment("투어 포함 콘텐츠")
+    private String tourIncludedContent;
+
+    @Column(name = "tour_excluded_content", columnDefinition = "TEXT")
+    @Comment("투어 미포함 콘텐츠")
+    private String tourExcludedContent;
+
+    @Column(name = "tour_notes", length = 255)
+    @Comment("투어 참고사항")
+    private String tourNotes;
+
+    @Column(name = "tour_location_code")
+    @Comment("투어 지역 코드")
+    private Long tourLocationCode;
+
+    @Column(name = "tour_thumbnail_url", columnDefinition = "TEXT")
+    @Comment("투어 섬네일 URL")
+    private String tourThumbnailUrl;
+
+    @Column(name = "tour_price", nullable = false)
+    @Comment("투어 가격")
+    private Long tourPrice;
+
+    @Column(name = "min_head_count")
+    @Comment("최소 인원 수")
+    private Integer minHeadCount;
+
+    @Column(name = "max_head_count")
+    @Comment("최대 인원 수")
+    private Integer maxHeadCount;
+
+    @Column(name = "meet_up_address", columnDefinition = "TEXT")
+    @Comment("모임 주소")
+    private String meetUpAddress;
+
+    @Column(name = "meet_up_lat", precision = 9, scale = 6)
+    @Comment("모임 위도좌표")
+    private BigDecimal meetUpLat;
+
+    @Column(name = "meet_up_lng", precision = 9, scale = 6)
+    @Comment("모임 경도좌표")
+    private BigDecimal meetUpLng;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transport_service_flag", columnDefinition = "public.yn_enum")
+    @Comment("차량 운송 여부")
+    @Builder.Default
+    private YnType transportServiceFlag = YnType.N;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "private_flag", columnDefinition = "public.yn_enum")
+    @Comment("프라이빗 제공여부")
+    @Builder.Default
+    private YnType privateFlag = YnType.N;
+
+    @Column(name = "private_price")
+    @Comment("프라이빗 가격")
+    private Long privatePrice;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "adult_content_flag", columnDefinition = "public.yn_enum")
+    @Comment("성인 콘텐츠 포함 여부")
+    @Builder.Default
+    private YnType adultContentFlag = YnType.N;
 
     /**
      * 투어 상태 코드 (enum 기반, 문자열 저장)
@@ -99,56 +137,95 @@ public class TourInfo extends BaseEntity {
      * - FINISHED: 종료
      */
     @Convert(converter = TourStatusCodeConverter.class)
-    @Column(name = "tour_status_code", length = 50)
+    @Column(name = "tour_status_code")
+    @Comment("투어 상태 코드")
     private TourStatusCode tourStatusCode;
 
-    /**
-     * 투어 제목
-     */
-    @Column(name = "tour_title", length = 255)
-    private String tourTitle;
+    @Column(name = "approval_admin_seq")
+    @Comment("승인 관리자 식별번호")
+    private Integer approvalAdminSeq;
 
-    /**
-     * 투어 가격
-     */
-    @Column(name = "tour_price", nullable = false)
-    private Integer tourPrice;
+    @Column(name = "reject_reason", columnDefinition = "TEXT")
+    @Comment("반려사유")
+    private String rejectReason;
 
-    /**
-     * 투어 지역 (지역명 또는 장소명)
-     */
-    @Column(name = "tour_location", length = 255)
-    private String tourLocation;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "deleted_flag", columnDefinition = "public.yn_enum")
+    @Comment("삭제 여부")
+    @Builder.Default
+    private YnType deletedFlag = YnType.N;
 
-    /**
-     * 대표 이미지 경로 (파일 시스템 또는 URL)
-     */
-    @Column(name = "title_image_path", length = 255)
-    private String titleImagePath;
+    @Column(name = "memo", length = 255)
+    @Comment("가이드 관리용 메모")
+    private String memo;
 
-    /**
-     * 수정시각
-     */
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    @Comment("등록일시")
+    private LocalDateTime createdAt;
+
     @LastModifiedDate
     @Column(name = "updated_at")
+    @Comment("수정일시")
     private LocalDateTime updatedAt;
 
-    public void update(Integer minPeople, Integer maxPeople,
-                       LocalDate applyStartDate, LocalDate applyEndDate,
-                       LocalDateTime tourStartDate, LocalDateTime tourEndDate,
-                       String tourTitle, Integer tourPrice, String tourIntroduce, TourStatusCode tourStatusCode,
-                       String tourLocation, String titleImagePath) {
-        this.minPeople = minPeople;
-        this.maxPeople = maxPeople;
-        this.applyStartDate = applyStartDate;
-        this.applyEndDate = applyEndDate;
-        this.tourStartDate = tourStartDate;
-        this.tourEndDate = tourEndDate;
+    /** -------------------- 1 : N = TourInfo : TourActivity -------------------- */
+    @OneToMany(
+            mappedBy = "tour",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @OrderBy("activityOrder ASC")
+    @Comment("투어 체험 목록")
+    @Builder.Default
+    private List<TourActivity> activities = new ArrayList<>();
+
+    //** 도메인 업데이트 메서드 */
+    public void update(String tourTitle,
+                       String tourIntroduce,
+                       String tourIncludedContent,
+                       String tourExcludedContent,
+                       String tourNotes,
+                       Long tourLocationCode,
+                       String tourThumbnailUrl,
+                       Long tourPrice,
+                       Integer minHeadCount,
+                       Integer maxHeadCount,
+                       String meetUpAddress,
+                       BigDecimal meetUpLat,
+                       BigDecimal meetUpLng,
+                       YnType transportServiceFlag,
+                       YnType privateFlag,
+                       Long privatePrice,
+                       YnType adultContentFlag,
+                       TourStatusCode tourStatusCode,
+                       Integer approvalAdminSeq,
+                       String rejectReason,
+                       YnType deletedFlag,
+                       String memo) {
+
         this.tourTitle = tourTitle;
-        this.tourPrice = tourPrice;
         this.tourIntroduce = tourIntroduce;
+        this.tourIncludedContent = tourIncludedContent;
+        this.tourExcludedContent = tourExcludedContent;
+        this.tourNotes = tourNotes;
+        this.tourLocationCode = tourLocationCode;
+        this.tourThumbnailUrl = tourThumbnailUrl;
+        this.tourPrice = tourPrice;
+        this.minHeadCount = minHeadCount;
+        this.maxHeadCount = maxHeadCount;
+        this.meetUpAddress = meetUpAddress;
+        this.meetUpLat = meetUpLat;
+        this.meetUpLng = meetUpLng;
+        this.transportServiceFlag = transportServiceFlag;
+        this.privateFlag = privateFlag;
+        this.privatePrice = privatePrice;
+        this.adultContentFlag = adultContentFlag;
         this.tourStatusCode = tourStatusCode;
-        this.tourLocation = tourLocation;
-        this.titleImagePath = titleImagePath;
+        this.approvalAdminSeq = approvalAdminSeq;
+        this.rejectReason = rejectReason;
+        this.deletedFlag = deletedFlag;
+        this.memo = memo;
     }
 }

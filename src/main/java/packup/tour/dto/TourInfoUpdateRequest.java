@@ -1,99 +1,88 @@
 package packup.tour.dto;
 
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.UpdateTimestamp;
+import packup.common.enums.YnType;
 import packup.tour.enums.TourStatusCode;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 /**
  * 투어 수정 요청 DTO
  *
  * @author SBLEE
- * @since 2025.05.16
+ * @since 2025.08.16
  */
 @Getter
 @Setter
 public class TourInfoUpdateRequest {
 
-    /**
-     * 수정 대상 투어 일련번호 (PK)
-     */
+    /** 수정 대상 투어 일련번호 (PK) */
     private Long seq;
 
-    /**
-     * 최소 모집 인원
-     */
-    private Integer minPeople;
-
-    /**
-     * 최대 모집 인원
-     */
-    private Integer maxPeople;
-
-    /**
-     * 모집 시작일 (yyyy-MM-dd)
-     */
-    private LocalDate applyStartDate;
-
-    /**
-     * 모집 종료일 (yyyy-MM-dd)
-     */
-    private LocalDate applyEndDate;
-
-    /**
-     * 투어 시작일시 (yyyy-MM-dd'T'HH:mm:ss)
-     */
-    private LocalDateTime tourStartDate;
-
-    /**
-     * 투어 종료일시 (yyyy-MM-dd'T'HH:mm:ss)
-     */
-    private LocalDateTime tourEndDate;
-
-    /**
-     * 투어 소개
-     */
+    /** 투어 제목 */
     private String tourTitle;
 
-    /**
-     * 투어 가격
-     */
-    private Integer tourPrice;
-
-    /**
-     * 투어 소개
-     */
+    /** 투어 소개 */
     private String tourIntroduce;
 
-    /**
-     * 투어 상태 코드
-     * - TEMP: 임시저장
-     * - RECRUITING: 모집중
-     * - RECRUITED: 모집완료
-     * - READY: 출발대기
-     * - ONGOING: 투어중
-     * - FINISHED: 종료
-     */
+    /** 투어 포함 콘텐츠 */
+    private String tourIncludedContent;
+
+    /** 투어 미포함 콘텐츠 */
+    private String tourExcludedContent;
+
+    /** 투어 참고사항 */
+    private String tourNotes;
+
+    /** 투어 지역 코드 */
+    private Long tourLocationCode;
+
+    /** 투어 섬네일 URL */
+    private String tourThumbnailUrl;
+
+    /** 투어 가격 */
+    private Long tourPrice;
+
+    /** 최소 인원 수 */
+    private Integer minHeadCount;
+
+    /** 최대 인원 수 */
+    private Integer maxHeadCount;
+
+    /** 모임 주소 */
+    private String meetUpAddress;
+
+    /** 모임 위도좌표 */
+    private BigDecimal meetUpLat;
+
+    /** 모임 경도좌표 */
+    private BigDecimal meetUpLng;
+
+    /** 차량 운송 여부 (Y/N) */
+    private YnType transportServiceFlag;
+
+    /** 프라이빗 제공 여부 (Y/N) */
+    private YnType privateFlag;
+
+    /** 프라이빗 가격 */
+    private Long privatePrice;
+
+    /** 성인 콘텐츠 포함 여부 (Y/N) */
+    private YnType adultContentFlag;
+
+    /** 투어 상태 코드 */
     private TourStatusCode tourStatusCode;
 
-    /**
-     * 투어 지역
-     */
-    private String tourLocation;
+    /** 승인 관리자 식별번호 */
+    private Integer approvalAdminSeq;
 
-    /**
-     * 대표 이미지 경로
-     */
-    private String titleImagePath;
+    /** 반려사유 */
+    private String rejectReason;
 
-    /**
-     * 수정시각
-     */
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    /** 삭제 여부 (Y/N) */
+    private YnType deletedFlag;
+
+    /** 가이드 관리용 메모 */
+    private String memo;
 }
