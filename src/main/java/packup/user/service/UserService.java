@@ -116,8 +116,7 @@ public class UserService {
                 request.getProfileImagePath(),
                 request.getNickName(),
                 request.getBirth(),
-                request.getGender(),
-                request.getLanguage()
+                request.getGender()
         );
 
         // 회원 선호아이템 수정

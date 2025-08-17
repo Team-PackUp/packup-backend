@@ -58,7 +58,7 @@ public class UserApiController {
     @PutMapping("/update/profile")
     public ResultModel<Void> updateUserProfile(@Auth Long memberId, @RequestBody UserProfileRequest request) {
 
-        if(request.getLanguage() == null ||
+        if(
                 request.getPreference() == null ||
                 request.getNickName() == null ||
                 request.getBirth() == null ||

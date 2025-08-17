@@ -16,7 +16,6 @@ public class UserProfileRequest {
     private String nickName;
     private LocalDate birth;
     private String gender;
-    private String language;
     private List<String> preference;
 }
 

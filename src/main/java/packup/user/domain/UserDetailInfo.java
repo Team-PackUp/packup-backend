@@ -74,7 +74,7 @@ public class UserDetailInfo extends BaseEntity {
         if(this.marketingFlag != marketingFlag) this.marketingFlag = marketingFlag;
     }
 
-    public void updateProfile(String profileImagePath, String nickname, LocalDate birth, String gender, String language) {
+    public void updateProfile(String profileImagePath, String nickname, LocalDate birth, String gender) {
         if (!Objects.equals(this.profileImagePath, profileImagePath)) {
             this.profileImagePath = profileImagePath;
         }
@@ -86,9 +86,6 @@ public class UserDetailInfo extends BaseEntity {
         }
         if (!Objects.equals(this.gender, gender)) {
             this.gender = gender;
-        }
-        if (!Objects.equals(this.language, language)) {
-            this.language = language;
         }
     }
 
