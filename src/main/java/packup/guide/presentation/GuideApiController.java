@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import packup.auth.annotation.Auth;
 import packup.common.dto.ResultModel;
 import packup.guide.dto.GuideMeResponse;
+import packup.guide.dto.MyGuideStatusResponse;
 import packup.guide.service.GuideService;
 import packup.tour.domain.TourInfo;
 import packup.tour.dto.TourInfoCreateRequest;
@@ -43,5 +44,11 @@ public class GuideApiController {
     public ResultModel<Boolean> exists(@Auth Long memberId) {
         return ResultModel.success(guideService.existsMyGuide(memberId));
     }
+
+    @GetMapping("/me/status")
+    public ResultModel<MyGuideStatusResponse> myStatus(@Auth Long memberId) {
+        return ResultModel.success(guideService.getMyStatus(memberId));
+    }
+
 }
 
