@@ -32,7 +32,6 @@ public class GuideApplication {
     /** 유저 식별번호 (FK) */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_seq", nullable = false)
-    @Column(name = "user_seq", nullable = false)
     @Comment("유저 식별번호")
     private UserInfo user;
 
