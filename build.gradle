@@ -46,7 +46,10 @@ dependencies {
 
 	implementation 'com.google.firebase:firebase-admin:9.4.3'
 
-	implementation 'org.apache.mahout:mahout-core:0.9'
+	implementation('org.apache.mahout:mahout-core:0.9') {
+		exclude group: 'org.glassfish.jaxb', module: 'jaxb-core'
+	}
+
 }
 
 tasks.named('test') {
