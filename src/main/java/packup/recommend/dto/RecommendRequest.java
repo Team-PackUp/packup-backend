@@ -3,7 +3,6 @@ package packup.recommend.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import packup.tour.dto.TourInfoResponse;
 
 @Getter
 @Builder

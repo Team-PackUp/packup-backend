@@ -4,9 +4,8 @@ package packup.guide.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
 import packup.guide.domain.repository.GuideInfoRepository;
-import packup.guide.dto.GuideInfoResponse;
+import packup.guide.dto.guideInfo.GuideInfoResponse;
 import packup.guide.dto.GuideMeResponse;
 
 @Service

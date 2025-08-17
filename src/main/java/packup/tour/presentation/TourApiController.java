@@ -7,11 +7,9 @@ import packup.common.dto.PageResponse;
 import packup.common.dto.ResultModel;
 import packup.recommend.dto.RecommendResponse;
 import packup.recommend.exception.RecommendException;
-import packup.tour.dto.TourInfoResponse;
-import packup.tour.dto.TourInfoUpdateRequest;
+import packup.tour.dto.tourInfo.TourInfoResponse;
+import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 import packup.tour.service.TourService;
-
-import java.util.List;
 
 import static packup.recommend.exception.RecommendExceptionType.ABNORMAL_ACCESS;
 

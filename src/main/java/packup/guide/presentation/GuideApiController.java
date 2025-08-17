@@ -11,7 +11,7 @@ import packup.common.dto.ResultModel;
 import packup.guide.dto.GuideMeResponse;
 import packup.guide.service.GuideService;
 import packup.tour.domain.TourInfo;
-import packup.tour.dto.TourInfoCreateRequest;
+import packup.tour.dto.tourInfo.TourInfoCreateRequest;
 
 import java.util.List;
 

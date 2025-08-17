@@ -5,14 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import packup.chat.dto.ChatMessageResponse;
 import packup.common.dto.PageDTO;
 import packup.common.dto.PageResponse;
-import packup.guide.domain.repository.GuideInfoRepository;
 import packup.tour.domain.TourInfo;
 import packup.tour.domain.repositoroy.TourInfoRepository;
-import packup.tour.dto.TourInfoResponse;
-import packup.tour.dto.TourInfoUpdateRequest;
+import packup.tour.dto.tourInfo.TourInfoResponse;
+import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

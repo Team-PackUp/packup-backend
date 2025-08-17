@@ -1,4 +1,4 @@
-package packup.tour.dto;
+package packup.tour.dto.tourInfo;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -6,9 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import packup.common.enums.YnType;
 import packup.guide.domain.GuideInfo;
-import packup.guide.dto.GuideInfoResponse;
+import packup.guide.dto.guideInfo.GuideInfoResponse;
 import packup.tour.domain.TourInfo;
 import packup.tour.enums.TourStatusCode;
+import packup.user.dto.UserInfoResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -113,16 +114,17 @@ public class TourInfoResponse {
 
         GuideInfoResponse guideDto = GuideInfoResponse.builder()
                 .seq(guide.getSeq())
-                .userSeq(guide.getUser().getSeq())
-                .guideName(guide.getGuideName())
-                .telNumber(guide.getTelNumber())
-                .telNumber2(guide.getTelNumber2())
-                .languages(guide.getLanguages())
+                .user(UserInfoResponse.of(guide.getUser()))
+                .guideIdcardImageUrl(guide.getGuideIdcardImageUrl())
+                .guideLanguage(guide.getGuideLanguage())
                 .guideIntroduce(guide.getGuideIntroduce())
-                .guideRating(guide.getGuideRating())
-                .guideAvatarPath(guide.getGuideAvatarPath())
-                .createdAt(guide.getCreatedAt())
-                .updatedAt(guide.getUpdatedAt())
+                .termsAgreedFlag(guide.getTermsAgreedFlag())
+                .termsAgreedAt(guide.getTermsAgreedAt())
+                .serviceItemsChecked(guide.getServiceItemsChecked())
+                .serviceItemsCheckedAt(guide.getServiceItemsCheckedAt())
+                .suspensionFlag(guide.getSuspensionFlag())
+                .suspensionReason(guide.getSuspensionReason())
+                .suspensionAdminSeq(guide.getSuspensionAdminSeq())
                 .build();
 
         TourStatusCode status = tourInfo.getTourStatusCode();

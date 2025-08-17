@@ -19,7 +19,7 @@ import packup.recommend.domain.repository.RecommendRepository;
 import packup.recommend.dto.RecommendResponse;
 import packup.tour.domain.TourInfo;
 import packup.tour.domain.repositoroy.TourInfoRepository;
-import packup.tour.dto.TourInfoResponse;
+import packup.tour.dto.tourInfo.TourInfoResponse;
 
 import java.time.LocalDate;
 import java.util.*;
