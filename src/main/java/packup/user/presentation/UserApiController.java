@@ -13,6 +13,7 @@ import packup.user.exception.UserExceptionType;
 import packup.user.service.UserService;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static packup.chat.exception.ChatExceptionType.ABNORMAL_ACCESS;
 
@@ -72,7 +73,7 @@ public class UserApiController {
     }
 
 
-    @PutMapping("/setting-push")
+    @PutMapping("/update/setting-push")
     public ResultModel<Void> updateSettingPush(@Auth Long memberId, @RequestBody SettingPushRequest request) {
 
         if(request.getPushFlag() == null || request.getMarketingFlag() == null) {
@@ -80,6 +81,31 @@ public class UserApiController {
         }
 
         userService.updateSettingPush(memberId, request);
+        return ResultModel.success();
+    }
+
+    @PutMapping("/update/setting-nation")
+    public ResultModel<Void> updateSettingNation(@Auth Long memberId, @RequestBody Map<String, String> body) {
+        String nationCode = body.get("nationCode");
+
+        if(nationCode.isEmpty()) {
+            throw new UserException(UserExceptionType.ABNORMAL_ACCESS);
+        }
+
+        userService.updateSettingNation(memberId, nationCode);
+        return ResultModel.success();
+    }
+
+    @PutMapping("/update/setting-language")
+    public ResultModel<Void> updateSettingLanguage(@Auth Long memberId, @RequestBody Map<String, String> body) {
+
+        String languageCode = body.get("languageCode");
+
+        if(languageCode.isEmpty()) {
+            throw new UserException(UserExceptionType.ABNORMAL_ACCESS);
+        }
+
+        userService.updateSettingLanguage(memberId, languageCode);
         return ResultModel.success();
     }
 

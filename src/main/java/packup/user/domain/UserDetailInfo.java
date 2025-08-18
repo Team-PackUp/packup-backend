@@ -74,6 +74,14 @@ public class UserDetailInfo extends BaseEntity {
         if(this.marketingFlag != marketingFlag) this.marketingFlag = marketingFlag;
     }
 
+    public void updateSettingNation(String nationCode) {
+        this.nation = nationCode;
+    }
+
+    public void updateSettingLanguage(String languageCode) {
+        this.language = languageCode;
+    }
+
     public void updateProfile(String profileImagePath, String nickname, LocalDate birth, String gender) {
         if (!Objects.equals(this.profileImagePath, profileImagePath)) {
             this.profileImagePath = profileImagePath;

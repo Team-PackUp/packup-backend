@@ -86,6 +86,28 @@ public class UserService {
     }
 
     @Transactional
+    public void updateSettingNation(Long memberId, String nationCode) {
+        UserInfo user = userInfoRepository.findById(memberId)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
+
+        UserDetailInfo detail = userDetailInfoRepository.findByUser(user)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_USER_DETAIL));
+
+        detail.updateSettingNation(nationCode);
+    }
+
+    @Transactional
+    public void updateSettingLanguage(Long memberId, String languageCode) {
+        UserInfo user = userInfoRepository.findById(memberId)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
+
+        UserDetailInfo detail = userDetailInfoRepository.findByUser(user)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_USER_DETAIL));
+
+        detail.updateSettingLanguage(languageCode);
+    }
+
+    @Transactional
     public void updateSettingPush(Long memberId, SettingPushRequest request) {
         UserInfo user = userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
