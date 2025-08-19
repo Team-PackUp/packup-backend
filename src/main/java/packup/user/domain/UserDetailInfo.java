@@ -72,14 +72,17 @@ public class UserDetailInfo extends BaseEntity {
     public void updateSettingPush(YnType pushFlag, YnType marketingFlag) {
         if(this.pushFlag != pushFlag) this.pushFlag = pushFlag;
         if(this.marketingFlag != marketingFlag) this.marketingFlag = marketingFlag;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateSettingNation(String nationCode) {
         this.nation = nationCode;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateSettingLanguage(String languageCode) {
         this.language = languageCode;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateProfile(String profileImagePath, String nickname, LocalDate birth, String gender) {
@@ -95,6 +98,7 @@ public class UserDetailInfo extends BaseEntity {
         if (!Objects.equals(this.gender, gender)) {
             this.gender = gender;
         }
+        this.updatedAt = LocalDateTime.now();
     }
 
 
