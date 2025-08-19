@@ -15,6 +15,7 @@ import java.util.Map;
 @Builder
 public class UserInfoResponse {
     // 필요한거 여기서 추가..
+    private Long userId;
     private LocalDate birth;
     private String gender;
     private String nation;
@@ -39,6 +40,7 @@ public class UserInfoResponse {
         );
 
         return UserInfoResponse.builder()
+                .userId(userInfo.getSeq())
                 .email(userInfo.getEmail())
                 .gender(userInfo.getDetailInfo().getGender())
                 .birth(userInfo.getDetailInfo().getBirth())
