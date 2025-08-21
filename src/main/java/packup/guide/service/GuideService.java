@@ -9,12 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 import packup.chat.exception.ChatException;
 import packup.guide.domain.GuideApplication;
 import packup.guide.domain.GuideApplicationStatus;
+import packup.guide.domain.GuideInfo;
 import packup.guide.domain.repository.GuideApplicationRepository;
 import packup.guide.domain.repository.GuideInfoRepository;
-import packup.guide.dto.GuideApplicationCreateResponse;
-import packup.guide.dto.GuideInfoResponse;
-import packup.guide.dto.GuideMeResponse;
-import packup.guide.dto.MyGuideStatusResponse;
+import packup.guide.dto.*;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 import packup.user.exception.UserException;
@@ -125,6 +123,52 @@ public class GuideService {
         );
     }
 
+    @Transactional
+    public GuideInfo upsertIntro(Long userSeq, GuideIntroRequest req) {
+        final UserInfo user = userInfoRepository.findById(userSeq)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
+
+        final short years = (req.years() == null ? 0 : req.years().shortValue());
+        final String roleSummary = safe(req.roleSummary());
+        final String expertise   = safe(req.expertise());
+        final String achievement = safe(req.achievement());
+        final String summary     = safe(req.summary());
+
+        return guideInfoRepository.findByUser_Seq(userSeq)
+                .map(e -> {
+                    e.applyIntro(years, roleSummary, expertise, achievement, summary);
+                    return e;
+                })
+                .orElseGet(() -> guideInfoRepository.save(
+                        GuideInfo.builder()
+                                .user(user)
+                                .years(years)
+                                .roleSummary(roleSummary)
+                                .expertise(expertise)
+                                .achievement(achievement)
+                                .summary(summary)
+                                .build()
+                ));
+    }
+
+    @Transactional
+    public GuideInfo fetchMyIntro(Long userSeq) {
+        final UserInfo user = userInfoRepository.findById(userSeq)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
+
+        return guideInfoRepository.findByUser_Seq(userSeq)
+                .orElseGet(() -> guideInfoRepository.save(
+                        GuideInfo.builder()
+                                .user(user)
+                                .years((short)0)
+                                .roleSummary("")
+                                .expertise("")
+                                .achievement("")
+                                .summary("")
+                                .build()
+                ));
+    }
+
     private String toFakeUrl(MultipartFile file) {
         String filename = file.getOriginalFilename();
         String ext = (filename != null && filename.contains(".")) ?
@@ -132,5 +176,7 @@ public class GuideService {
         return "https://packup.aws.s3.temptemp.com/guide-id/" +
                 UUID.randomUUID() + (ext.isEmpty() ? "" : ("." + ext));
     }
+
+    private String safe(String s) { return s == null ? "" : s; }
 }
 

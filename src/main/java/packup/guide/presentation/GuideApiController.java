@@ -1,6 +1,7 @@
 package packup.guide.presentation;
 
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import packup.auth.annotation.Auth;
 import packup.common.dto.ResultModel;
-import packup.guide.dto.GuideApplicationCreateResponse;
-import packup.guide.dto.GuideMeResponse;
-import packup.guide.dto.MyGuideStatusResponse;
+import packup.guide.dto.*;
 import packup.guide.service.GuideService;
 import packup.tour.domain.TourInfo;
 import packup.tour.dto.TourInfoCreateRequest;
@@ -65,5 +64,27 @@ public class GuideApiController {
 
         return ResultModel.success(guideService.createApplication(memberId, selfIntro, idImage));
     }
+
+    @GetMapping("/intro/me")
+    public ResultModel<GuideIntroResponse> getMyIntro(@Auth Long memberId) {
+        return ResultModel.success(
+                GuideIntroResponse.of(guideService.fetchMyIntro(memberId))
+        );
+    }
+
+    @PutMapping("/intro/me")
+    public ResultModel<GuideIntroResponse> upsertMyIntro(
+            @Auth Long memberId,
+            @Valid @RequestBody GuideIntroRequest request
+    ) {
+        return ResultModel.success(
+                GuideIntroResponse.of(
+                        guideService.upsertIntro(memberId, request)
+                )
+        );
+    }
+
+
+
 }
 
