@@ -3,11 +3,10 @@ package packup.guide.domain;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
+import org.hibernate.type.SqlTypes;
 import packup.common.enums.YnType;
 import packup.user.domain.UserInfo;
 
@@ -56,6 +55,7 @@ public class GuideInfo {
     @Column(name = "terms_agreed_flag", columnDefinition = "public.yn_enum", nullable = false)
     @Builder.Default
     @Comment("활동약관 동의여부(Y/N)")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType termsAgreedFlag = YnType.N;
 
     /** 활동약관 동의 일시 */
@@ -79,6 +79,7 @@ public class GuideInfo {
     @Column(name = "suspension_flag", columnDefinition = "public.yn_enum")
     @Builder.Default
     @Comment("권한 정지 여부(Y/N)")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType suspensionFlag = YnType.N;
 
     /** 권한 정지 사유 */
