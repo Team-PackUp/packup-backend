@@ -119,7 +119,7 @@ public class TourInfoResponse {
 //                .telNumber2(guide.getTelNumber2())
 //                .languages(guide.getLanguages())
                 .guideIntroduce(guide.getGuideIntroduce())
-                .guideRating(guide.getGuideRating())
+//                .guideRating(guide.getGuideRating())
 //                .guideAvatarPath(guide.getGuideAvatarPath())
                 .createdAt(guide.getCreatedAt())
                 .updatedAt(guide.getUpdatedAt())

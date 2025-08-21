@@ -40,7 +40,7 @@ public class GuideInfoResponse {
 //                .telNumber2(guideInfo.getTelNumber2())
 //                .languages(guideInfo.getLanguages())
                 .guideIntroduce(guideInfo.getGuideIntroduce())
-                .guideRating(guideInfo.getGuideRating())
+//                .guideRating(guideInfo.getGuideRating())
 //                .guideAvatarPath(guideInfo.getGuideAvatarPath())
                 .createdAt(guideInfo.getCreatedAt())
                 .updatedAt(guideInfo.getUpdatedAt())
