@@ -3,6 +3,8 @@ package packup.tour.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -109,12 +111,14 @@ public class TourInfo extends BaseEntity {
     @Column(name = "transport_service_flag", columnDefinition = "public.yn_enum")
     @Comment("차량 운송 여부")
     @Builder.Default
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType transportServiceFlag = YnType.N;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "private_flag", columnDefinition = "public.yn_enum")
     @Comment("프라이빗 제공여부")
     @Builder.Default
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType privateFlag = YnType.N;
 
     @Column(name = "private_price")
@@ -125,6 +129,7 @@ public class TourInfo extends BaseEntity {
     @Column(name = "adult_content_flag", columnDefinition = "public.yn_enum")
     @Comment("성인 콘텐츠 포함 여부")
     @Builder.Default
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType adultContentFlag = YnType.N;
 
     /**
@@ -153,6 +158,7 @@ public class TourInfo extends BaseEntity {
     @Column(name = "deleted_flag", columnDefinition = "public.yn_enum")
     @Comment("삭제 여부")
     @Builder.Default
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType deletedFlag = YnType.N;
 
     @Column(name = "memo", length = 255)
