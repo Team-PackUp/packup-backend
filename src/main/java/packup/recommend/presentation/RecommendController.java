@@ -2,7 +2,6 @@ package packup.recommend.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,9 +12,7 @@ import packup.common.dto.ResultModel;
 import packup.recommend.dto.RecommendResponse;
 import packup.recommend.exception.RecommendException;
 import packup.recommend.service.RecommendService;
-import packup.tour.dto.TourInfoResponse;
-
-import java.util.List;
+import packup.tour.dto.tourInfo.TourInfoResponse;
 
 import static packup.recommend.exception.RecommendExceptionType.ABNORMAL_ACCESS;
 

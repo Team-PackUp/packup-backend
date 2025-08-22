@@ -4,9 +4,7 @@ package packup.recommend.dto;
 import lombok.Builder;
 import lombok.Getter;
 import packup.common.dto.PageDTO;
-import packup.tour.dto.TourInfoResponse;
-
-import java.util.List;
+import packup.tour.dto.tourInfo.TourInfoResponse;
 
 @Getter
 @Builder

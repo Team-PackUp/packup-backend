@@ -13,10 +13,10 @@ import packup.guide.domain.GuideInfo;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.tour.domain.TourInfo;
 import packup.tour.domain.repositoroy.TourInfoRepository;
-import packup.tour.dto.TourInfoResponse;
-import packup.tour.dto.TourInfoUpdateRequest;
-
-import java.util.List;
+import packup.tour.dto.tourInfo.TourInfoCreateRequest;
+import packup.tour.dto.tourInfo.TourInfoResponse;
+import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
+import packup.tour.exception.GuideTourAccessDeniedException;
 
 @Service
 @RequiredArgsConstructor
@@ -51,75 +51,110 @@ public class GuideTourService {
         );
     }
 
-
-    public List<TourInfoResponse> getTours2(Long guideSeq) {
-        List<TourInfo> tours = tourInfoRepository.findByGuideSeq(guideSeq);
-
-        return tours.stream()
-                .map(TourInfoResponse::from)
-                .toList();
-    }
-
     /**
      * 투어 등록
+     * @param memberId
+     * @param request
+     * @return
      */
     @Transactional
-    public TourInfoResponse createTour(Long memberId, TourInfoUpdateRequest request) {
+    public TourInfoResponse createTour(Long memberId, TourInfoCreateRequest request) {
+        // 1) 가이드 조회
         GuideInfo guide = guideInfoRepository.findByUser_Seq(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 가이드 유저를 찾을 수 없습니다."));
 
+        // 2) 엔티티 생성
         TourInfo newTour = TourInfo.builder()
                 .guide(guide)
-                .minPeople(request.getMinPeople())
-                .maxPeople(request.getMaxPeople())
-                .applyStartDate(request.getApplyStartDate())
-                .applyEndDate(request.getApplyEndDate())
-                .tourStartDate(request.getTourStartDate())
-                .tourEndDate(request.getTourEndDate())
-                .tourIntroduce(request.getTourIntroduce())
                 .tourTitle(request.getTourTitle())
+                .tourIntroduce(request.getTourIntroduce())
+                .tourIncludedContent(request.getTourIncludedContent())
+                .tourExcludedContent(request.getTourExcludedContent())
+                .tourNotes(request.getTourNotes())
+                .tourLocationCode(request.getTourLocationCode())
+                .tourThumbnailUrl(request.getTourThumbnailUrl())
                 .tourPrice(request.getTourPrice())
+                .minHeadCount(request.getMinHeadCount())
+                .maxHeadCount(request.getMaxHeadCount())
+                .meetUpAddress(request.getMeetUpAddress())
+                .meetUpLat(request.getMeetUpLat())
+                .meetUpLng(request.getMeetUpLng())
+                .transportServiceFlag(request.getTransportServiceFlag())
+                .privateFlag(request.getPrivateFlag())
+                .privatePrice(request.getPrivatePrice())
+                .adultContentFlag(request.getAdultContentFlag())
                 .tourStatusCode(request.getTourStatusCode())
-                .tourLocation(request.getTourLocation())
-                .titleImagePath(request.getTitleImagePath())
                 .build();
 
-        TourInfo savedTour =  tourInfoRepository.save(newTour);
+        // 3) 저장
+        TourInfo saved = tourInfoRepository.save(newTour);
 
-        return TourInfoResponse.from(savedTour);
+        // 4) 응답 변환
+        return TourInfoResponse.from(saved);
     }
 
     /**
      * 투어 수정
+     * @param memberId
+     * @param request
+     * @return
      */
     @Transactional
-    public TourInfoResponse updateTour(Long memberId,TourInfoUpdateRequest request) {
+    public TourInfoResponse updateTour(Long memberId, TourInfoUpdateRequest request) {
+        // 1) 가이드 조회
         GuideInfo guide = guideInfoRepository.findByUser_Seq(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 가이드 유저를 찾을 수 없습니다."));
 
-        // 1. 투어 조회
+        // 2) 대상 투어 조회
         TourInfo tour = tourInfoRepository.findById(request.getSeq())
                 .orElseThrow(() -> new EntityNotFoundException("해당 투어가 존재하지 않습니다."));
 
-        // 2. 업데이트 수행
+        // 3) 소유권(본인 작성 투어) 검증
+        if (!tour.getGuide().getSeq().equals(guide.getSeq())) {
+            throw new GuideTourAccessDeniedException(tour.getSeq());
+        }
+
+        // 4) 부분 갱신: 요청에 들어온 값만 반영
         tour.update(
-                request.getMinPeople(),
-                request.getMaxPeople(),
-                request.getApplyStartDate(),
-                request.getApplyEndDate(),
-                request.getTourStartDate(),
-                request.getTourEndDate(),
-                request.getTourTitle(),
-                request.getTourPrice(),
-                request.getTourIntroduce(),
-                request.getTourStatusCode(),
-                request.getTourLocation(),
-                request.getTitleImagePath()
+                coalesce(request.getTourTitle(),            tour.getTourTitle()),
+                coalesce(request.getTourIntroduce(),        tour.getTourIntroduce()),
+                coalesce(request.getTourIncludedContent(),  tour.getTourIncludedContent()),
+                coalesce(request.getTourExcludedContent(),  tour.getTourExcludedContent()),
+                coalesce(request.getTourNotes(),            tour.getTourNotes()),
+                coalesce(request.getTourLocationCode(),     tour.getTourLocationCode()),
+                coalesce(request.getTourThumbnailUrl(),     tour.getTourThumbnailUrl()),
+                coalesce(request.getTourPrice(),            tour.getTourPrice()),
+                coalesce(request.getMinHeadCount(),         tour.getMinHeadCount()),
+                coalesce(request.getMaxHeadCount(),         tour.getMaxHeadCount()),
+                coalesce(request.getMeetUpAddress(),        tour.getMeetUpAddress()),
+                coalesce(request.getMeetUpLat(),            tour.getMeetUpLat()),
+                coalesce(request.getMeetUpLng(),            tour.getMeetUpLng()),
+                coalesce(request.getTransportServiceFlag(), tour.getTransportServiceFlag()),
+                coalesce(request.getPrivateFlag(),          tour.getPrivateFlag()),
+                coalesce(request.getPrivatePrice(),         tour.getPrivatePrice()),
+                coalesce(request.getAdultContentFlag(),     tour.getAdultContentFlag()),
+                coalesce(request.getTourStatusCode(),       tour.getTourStatusCode()),
+                coalesce(request.getApprovalAdminSeq(),     tour.getApprovalAdminSeq()),
+                coalesce(request.getRejectReason(),         tour.getRejectReason()),
+                coalesce(request.getDeletedFlag(),          tour.getDeletedFlag()),
+                coalesce(request.getMemo(),                 tour.getMemo())
         );
 
-        // 3. 응답 DTO로 변환하여 반환
+        // 5) 응답 변환
         return TourInfoResponse.from(tour);
     }
+
+    /**
+     * null 이 아닐 때만 새 값 사용
+     * @param newVal
+     * @param oldVal
+     * @return
+     * @param <T>
+     */
+    private static <T> T coalesce(T newVal, T oldVal) {
+        return newVal != null ? newVal : oldVal;
+    }
+
 
 
     //투어 조회

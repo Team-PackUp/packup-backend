@@ -1,5 +1,7 @@
 package packup.guide.dto;
 
+import packup.guide.dto.guideInfo.GuideInfoResponse;
+
 public record GuideMeResponse(
         boolean isGuide,
         GuideInfoResponse guide // 가이드가 아니면 null

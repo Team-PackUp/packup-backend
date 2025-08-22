@@ -39,14 +39,12 @@ public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
     @Query("""
            select t.seq
            from   TourInfo t
-           where  :today between t.applyStartDate and t.applyEndDate
            """)
     List<Long> findAllBetweenApplyDate(@Param("today") LocalDate today);
 
     @Query("""
     select t
     from   TourInfo t
-    where  :today between t.applyStartDate and t.applyEndDate
     order  by t.seq desc
 """)
     Page<TourInfo> findLatest(@Param("today") LocalDate today,
