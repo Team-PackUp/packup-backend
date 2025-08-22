@@ -49,7 +49,7 @@ public class TourInfo extends BaseEntity {
     private Long seq;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "guide_seq", referencedColumnName = "user_seq", nullable = false)
+    @JoinColumn(name = "guide_seq", nullable = false)
     @Comment("가이드 사용자 식별번호")
     private GuideInfo guide;
 

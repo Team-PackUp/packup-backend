@@ -27,7 +27,7 @@ public class GuideInfo {
     private Long seq;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_seq", referencedColumnName = "user_seq", nullable = false)
+    @JoinColumn(name = "user_seq", nullable = false)
     @Comment("유저 식별번호")
     private UserInfo user;
 
