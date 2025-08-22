@@ -169,7 +169,6 @@ public class TourInfo extends BaseEntity {
     @Comment("수정일시")
     private LocalDateTime updatedAt;
 
-    /** -------------------- 1 : N = TourInfo : TourActivity -------------------- */
     @OneToMany(
             mappedBy = "tour",
             fetch = FetchType.LAZY,
@@ -181,7 +180,6 @@ public class TourInfo extends BaseEntity {
     @Builder.Default
     private List<TourActivity> activities = new ArrayList<>();
 
-    //** 도메인 업데이트 메서드 */
     public void update(String tourTitle,
                        String tourIntroduce,
                        String tourIncludedContent,

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import packup.common.enums.YnType;
 import packup.tour.domain.TourInfo;
 import packup.tour.enums.TourStatusCode;
 
@@ -23,6 +24,17 @@ import java.util.Optional;
  */
 public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
 
+    Page<TourInfo> findByGuide_User_SeqAndDeletedFlag(
+            Long memberSeq,
+            YnType deletedFlag,
+            Pageable pageable
+    );
+
+
+
+
+
+    /// /////////
     /**
      * 특정 가이드가 등록한 모든 투어를 조회.
      *

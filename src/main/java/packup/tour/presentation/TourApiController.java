@@ -2,6 +2,7 @@ package packup.tour.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import packup.auth.annotation.Auth;
 import packup.common.dto.PageDTO;
 import packup.common.dto.PageResponse;
 import packup.common.dto.ResultModel;
@@ -9,6 +10,7 @@ import packup.recommend.dto.RecommendResponse;
 import packup.recommend.exception.RecommendException;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
+import packup.tour.dto.tourListing.TourListingResponse;
 import packup.tour.service.TourService;
 
 import static packup.recommend.exception.RecommendExceptionType.ABNORMAL_ACCESS;
@@ -64,4 +66,14 @@ public class TourApiController {
         return ResultModel.success(recommendResponse);
     }
 
+
+    @GetMapping("/me/listings")
+    public ResultModel<PageResponse<TourListingResponse>> getMyListings(
+            @Auth Long memberSeq,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        PageResponse<TourListingResponse> body = tourService.getMyListings(memberSeq, page, size);
+        return ResultModel.success(body);
+    }
 }

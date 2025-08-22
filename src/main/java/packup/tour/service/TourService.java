@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import packup.common.dto.PageDTO;
 import packup.common.dto.PageResponse;
+import packup.common.enums.YnType;
 import packup.tour.domain.TourInfo;
 import packup.tour.domain.repositoroy.TourInfoRepository;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
+import packup.tour.dto.tourListing.TourListingResponse;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -113,5 +115,39 @@ public class TourService {
 
         return PageDTO.of(resultPage);
     }
+
+    /// ///
+
+    public PageResponse<TourListingResponse> getMyListings(Long memberSeq, int page, int size) {
+        int safePage = Math.max(page, 1);
+        int safeSize = Math.max(size, 1);
+
+        Pageable pageable = PageRequest.of(
+                safePage - 1,
+                safeSize,
+                Sort.by(Sort.Direction.DESC, "updatedAt")
+        );
+
+        Page<TourInfo> p = tourInfoRepository
+                .findByGuide_User_SeqAndDeletedFlag(memberSeq, YnType.N, pageable);
+
+        List<TourListingResponse> content = p.getContent()
+                .stream()
+                .map(TourListingResponse::from)
+                .toList();
+
+        return new PageResponse<>(
+                content,
+                p.getNumber() + 1,
+                p.getNumber(),
+                p.getSize(),
+                p.getTotalElements(),
+                p.getTotalPages(),
+                p.isLast(),
+                p.isFirst(),
+                p.isEmpty()
+        );
+    }
+
 
 }
