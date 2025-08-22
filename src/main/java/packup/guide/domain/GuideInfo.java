@@ -56,8 +56,6 @@ public class GuideInfo {
     @Comment("활동약관 동의 일시")
     private LocalDateTime termsAgreedAt;
 
-    @Column(name = "guide_rating", columnDefinition = "smallint", nullable = false)
-    private short guideRating = 0;
 
     @Type(JsonBinaryType.class)
     @Column(name = "service_items_checked", columnDefinition = "jsonb")

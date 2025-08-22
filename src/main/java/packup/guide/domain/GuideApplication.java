@@ -46,7 +46,7 @@ public class GuideApplication {
     private String guideIntroduce;
 
     /** 지원서 제출일시 */
-    @Column(name = "application_registered_at")
+    @Column(name = "application_registed_at")
     @Comment("지원서 제출일시")
     private LocalDateTime applicationRegisteredAt;
 
