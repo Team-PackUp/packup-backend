@@ -5,9 +5,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import packup.guide.domain.GuideApplication;
+import packup.guide.domain.GuideApplicationStatus;
+import packup.guide.domain.GuideInfo;
+import packup.guide.domain.repository.GuideApplicationRepository;
 import packup.guide.domain.repository.GuideInfoRepository;
-import packup.guide.dto.GuideInfoResponse;
-import packup.guide.dto.GuideMeResponse;
+import packup.guide.dto.*;
+import packup.guide.dto.guideInfo.GuideInfoResponse;
+import packup.user.domain.UserInfo;
+import packup.user.domain.repository.UserInfoRepository;
+import packup.user.exception.UserException;
+import packup.user.exception.UserExceptionType;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
