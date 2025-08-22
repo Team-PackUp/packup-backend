@@ -90,7 +90,7 @@ public class TourReview {
         this.deletedFlag = YnType.Y;
     }
 
-    /** (선택) 투어/세션 일관성 체크: 세션이 해당 투어에 속하는지 확인 */
+    /** 투어/세션 일관성 체크: 세션이 해당 투어에 속하는지 확인 */
     public void assertBelongsToTour() {
         if (tourSession != null && tourSession.getTour() != null && !tourSession.getTour().getSeq().equals(tour.getSeq())) {
             throw new IllegalArgumentException("세션이 지정된 투어에 속하지 않습니다.");

@@ -46,8 +46,7 @@ public class GuideApplication {
     private String guideIntroduce;
 
     /** 지원서 제출일시 */
-    // 컬럼명이 'application_registed_at' (오타 포함) 이므로 그대로 매핑
-    @Column(name = "application_registed_at")
+    @Column(name = "application_registered_at")
     @Comment("지원서 제출일시")
     private LocalDateTime applicationRegisteredAt;
 

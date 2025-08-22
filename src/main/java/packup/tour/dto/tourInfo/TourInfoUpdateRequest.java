@@ -1,4 +1,4 @@
-package packup.tour.dto;
+package packup.tour.dto.tourInfo;
 
 import lombok.Getter;
 import lombok.Setter;

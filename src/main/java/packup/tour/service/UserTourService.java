@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import packup.common.dto.PageResponse;
 import packup.tour.domain.TourInfo;
 import packup.tour.domain.repositoroy.TourInfoRepository;
-import packup.tour.dto.TourInfoResponse;
+import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.enums.TourStatusCode;
 
 @Service

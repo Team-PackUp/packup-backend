@@ -1,4 +1,4 @@
-package packup.tour.dto;
+package packup.tour.dto.tourInfo;
 
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;

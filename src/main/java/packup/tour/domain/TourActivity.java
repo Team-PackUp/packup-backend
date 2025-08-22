@@ -85,9 +85,4 @@ public class TourActivity {
         this.activityDurationMinute = activityDurationMinute;
         this.deletedFlag = deletedFlag;
     }
-
-    // TourActivity.java 안에 추가
-    public void setTour(TourInfo tour) {
-        this.tour = tour;
-    }
 }
