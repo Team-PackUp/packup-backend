@@ -1,7 +1,9 @@
 package packup.chat.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,12 +25,12 @@ import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
 import packup.chat.dto.ReadMessageRequest;
 import packup.chat.exception.ChatException;
+import packup.chat.dto.RoomChangedEvent;
 import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
 import packup.common.util.FileUtil;
 import packup.common.util.JsonUtil;
-import packup.fcmpush.dto.DeepLink;
 import packup.fcmpush.dto.FcmPushRequest;
 import packup.fcmpush.enums.DeepLinkType;
 import packup.fcmpush.presentation.DeepLinkGenerator;
@@ -37,6 +39,7 @@ import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 import packup.user.dto.UserInfoResponse;
+import packup.user.dto.UserPushTarget;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -62,7 +65,8 @@ public class ChatService {
     private final FcmPushService firebaseService;
 
     private final SimpMessagingTemplate messagingTemplate;
-    List<Long> targetUserSeq = new ArrayList<>();
+
+    private final ApplicationEventPublisher publisher;
 
     public ChatRoomResponse getChatRoom(Long memberId, Long chatRoomSeq) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
@@ -198,38 +202,34 @@ public class ChatService {
             throw new ChatException(ABNORMAL_ACCESS);
         }
 
-        UserInfo userInfo = userInfoRepository.findById(memberId)
+        UserInfo userInfo = userInfoRepository.findBySeqWithDetail(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
-        ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDTO.getChatRoomSeq())
-                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+        ChatRoom chatRoomRef = chatRoomRepository.getReferenceById(chatMessageDTO.getChatRoomSeq());
 
         ChatMessage newChatMessage = ChatMessage.of(
-                chatRoom,
+                chatRoomRef,
                 userInfo,
                 chatMessageDTO.getMessage(),
                 chatMessageDTO.getFileFlag()
         );
 
-        // 새로운 채팅 추가
         chatMessageRepository.save(newChatMessage);
 
-        // 채팅방 수정일자 반영
-        chatRoom.updateChatLastDate();
+        chatRoomRef.updateChatLastDate();
 
-        // 채팅 읽은 회원 기록
-
-        return ChatMessageResponse
-                .builder()
+        // 응답 구성 시 연관 접근 대신 이미 로드된 userInfo 사용
+        return ChatMessageResponse.builder()
                 .seq(newChatMessage.seq())
                 .userSeq(userInfo.getSeq())
                 .message(newChatMessage.getMessage())
-                .profileImagePath(newChatMessage.getUser().getDetailInfo().getProfileImagePath())
-                .chatRoomSeq(chatRoom.seq())
+                .profileImagePath(userInfo.getDetailInfo() != null ? userInfo.getDetailInfo().getProfileImagePath() : null)
+                .chatRoomSeq(chatRoomRef.seq())
                 .createdAt(newChatMessage.getCreatedAt())
                 .fileFlag(newChatMessage.getFileFlag())
                 .build();
     }
+
 
     @Transactional
     public void readChatMessage(long memberId, ReadMessageRequest readMessageRequest) {
@@ -252,9 +252,9 @@ public class ChatService {
     }
 
     public List<Long> getPartUserInRoom(Long chatRoomSeq) {
-        ChatRoom chatRoomPartUser = chatRoomRepository.findById(chatRoomSeq).orElseThrow();
+        var raw = chatRoomRepository.findParticipantSeq(chatRoomSeq);
 
-        return validateActiveUser(chatRoomPartUser.getPartUserSeq());
+        return validateActiveUser(raw);
     }
 
     public List<Long> validateActiveUser(List<Long> chatRoomSeq) {
@@ -296,60 +296,60 @@ public class ChatService {
     }
 
     // FCM 알림
-    public void chatSendFcmPush(ChatMessageResponse chatMessageResponse, List<Long> targetFcmUserSeq) {
+    public void chatSendFcmPush(ChatMessageResponse chatMessageResponse, List<Long> targetUserSeqs) throws FirebaseMessagingException {
+        if (targetUserSeqs == null || targetUserSeqs.isEmpty()) return;
 
-        ChatRoomResponse chatRoomResponse = getChatRoom(chatMessageResponse.getUserSeq(), chatMessageResponse.getChatRoomSeq());
+        String title = chatRoomRepository.findTitleById(chatMessageResponse.getChatRoomSeq());
 
-        List<UserInfo> targetFcmUserList = userInfoRepository.findAllBySeqIn(targetFcmUserSeq);
-        if (targetFcmUserList.size() > 0) {
+        String body = YnType.Y.equals(chatMessageResponse.getFileFlag())
+                ? REPLACE_IMAGE_TEXT
+                : chatMessageResponse.getMessage();
 
-            String message = chatMessageResponse.getMessage();
+        List<UserPushTarget> targets = userInfoRepository.findPushTargets(
+                targetUserSeqs,
+                YnType.Y,
+                YnType.N
+        );
 
-            if (chatMessageResponse.getFileFlag().equals(YnType.Y)) {
-                message = REPLACE_IMAGE_TEXT;
-            }
+        List<String> tokens = targets.stream()
+                .map(UserPushTarget::fcmToken)
+                .filter(t -> t != null && !t.isBlank())
+                .distinct()
+                .toList();
 
-            Map<String, Object> chatRoomMap = new HashMap<>();
-            chatRoomMap.put("chatRoomSeq", chatMessageResponse.getChatRoomSeq());
 
-            FcmPushRequest fcmPushRequest = FcmPushRequest
-                    .builder()
-                    .userSeqList(targetFcmUserSeq)
-                    .title(chatRoomResponse.getTitle())
-                    .body(message)
-                    .deepLink
-                    (   DeepLinkGenerator.generate
-                        (   DeepLinkType.CHAT,
-                            chatRoomMap
-                        )
-                    )
-                    .build();
+        if (tokens.isEmpty()) return;
 
-            firebaseService.requestFcmPush(fcmPushRequest);
-        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("chatRoomSeq", chatMessageResponse.getChatRoomSeq());
+        data.put("messageSeq",  chatMessageResponse.getSeq());
+
+        FcmPushRequest req = FcmPushRequest.builder()
+                .tokenList(tokens)
+                .title(title)
+                .body(body)
+                .deepLink(DeepLinkGenerator.generate(DeepLinkType.CHAT, data))
+                .build();
+
+        firebaseService.requestFcmPush(req);
     }
+
 
     public void sendMessage(Long chatRoomSeq, ChatMessageResponse newChatMessageDTO) {
         messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomSeq, newChatMessageDTO);
     }
 
-    public List<Long> refreshChatRoom(Long userSeq, Long chatRoomSeq, List<Long> chatRoomPartUser) {
+    public List<Long> refreshChatRoom(Long senderSeq, Long roomId, List<Long> participants) {
 
-        // 회원별로 따로 구독 response
-        for (Long username : chatRoomPartUser) {
-            ChatRoomResponse userSpecificDTO = getChatRoom(username, chatRoomSeq);
+        var targets = participants.stream()
+                .filter(u -> !u.equals(senderSeq))
+                .toList();
 
-            if (!userSeq.equals(username)) {
-                targetUserSeq.add(username);
-            }
+        publisher.publishEvent(new RoomChangedEvent(roomId, targets));
 
-            messagingTemplate.convertAndSendToUser(
-                    username.toString(), "/queue/chatroom-refresh", userSpecificDTO
-            );
-        }
-
-        return targetUserSeq;
+        return targets;
     }
+
 
     public void createChatRoom() {
         // 생성할 채팅방 대상 투어들 조회

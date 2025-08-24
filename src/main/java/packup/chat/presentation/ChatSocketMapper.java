@@ -27,10 +27,8 @@ public class ChatSocketMapper {
     private final ChatService chatService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    List<Long> targetUserSeq = new ArrayList<>();
-
     @MessageMapping("/send.message")
-    public void sendMessage(@Payload ChatMessageRequest chatMessage, Message<?> stompMessage) {
+    public void sendMessage(@Payload ChatMessageRequest chatMessage, Message<?> stompMessage) throws FirebaseMessagingException {
 
         Long userSeq = getUserSeqInSocket(stompMessage);
         Long chatRoomSeq = chatMessage.getChatRoomSeq();
@@ -53,13 +51,13 @@ public class ChatSocketMapper {
             chatService.sendMessage(chatRoomSeq, newChatMessageDTO);
 
             // 채팅방에 포함되어있는 회원 겟
-            List<Long> chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
+            var chatRoomPartUser = chatService.getPartUserInRoom(chatRoomSeq);
 
             // 채팅방 새로고침
-            List<Long> targetUserSeq = chatService.refreshChatRoom(userSeq, chatRoomSeq, chatRoomPartUser);
+            var targets = chatService.refreshChatRoom(userSeq, chatRoomSeq, chatRoomPartUser);
 
-            // FCM
-            chatService.chatSendFcmPush(newChatMessageDTO, targetUserSeq);
+//            // FCM
+            chatService.chatSendFcmPush(newChatMessageDTO, targets);
         }
     }
 

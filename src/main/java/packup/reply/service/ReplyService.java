@@ -12,9 +12,6 @@ import packup.auth.exception.AuthExceptionType;
 import packup.common.domain.repository.CommonCodeRepository;
 import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
-import packup.fcmpush.dto.FcmPushRequest;
-import packup.fcmpush.enums.DeepLinkType;
-import packup.fcmpush.presentation.DeepLinkGenerator;
 import packup.fcmpush.service.FcmPushService;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.recommend.annotation.RecommendTrace;
@@ -120,25 +117,6 @@ public class ReplyService {
         );
 
         replyRepository.save(newReply);
-        
-        // 테스트 코드 FCM 푸시
-        Map<String, Object> testMap = new HashMap<>();
-        testMap.put("chatRoomSeq", 1);
-        FcmPushRequest fcmPushRequest = FcmPushRequest
-                .builder()
-                .userSeqList(List.of(14L, 13L))
-                .title(replyRequest.getFcmPushRequest().getTitle())
-                .body(replyRequest.getFcmPushRequest().getBody())
-                .deepLink
-                        (   DeepLinkGenerator.generate
-                                (   DeepLinkType.ALERT,
-                                        testMap
-                                )
-                        )
-                .build();
-
-        firebaseService.requestFcmPush(fcmPushRequest);
-
 
         return ReplyResponse.fromEntity(newReply);
     }

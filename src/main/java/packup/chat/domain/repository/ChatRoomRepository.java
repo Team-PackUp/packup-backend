@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import packup.chat.domain.ChatRoom;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
@@ -71,7 +72,19 @@ WHERE cr.part_user_seq @> to_jsonb(array[:memberId]::int[])
             Pageable pageable
     );
 
+    @Query(value = """
+  select title
+  from chat_room cr
+  where cr.seq = :chatRoomSeq
+  """, nativeQuery = true)
+    String findTitleById(Long chatRoomSeq);
 
 
-    ChatRoom findFirstBySeq(long seq);
+
+    @Query(value = """
+  select (jsonb_array_elements_text(cr.part_user_seq))::bigint
+  from chat_room cr
+  where cr.seq = :seq
+  """, nativeQuery = true)
+    List<Long> findParticipantSeq(@Param("seq") Long seq);
 }

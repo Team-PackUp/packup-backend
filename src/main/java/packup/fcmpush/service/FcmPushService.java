@@ -15,11 +15,8 @@ import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 import packup.user.exception.UserException;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_OS_TYPE;
 import static packup.fcmpush.exception.FcmPushExceptionType.INVALID_TOKEN_OWNER;
@@ -37,35 +34,47 @@ public class FcmPushService {
 
     // 마케팅 수신 동의 여부, 알림 푸시 동의 여부, 회원 탈퇴 여부 확인 후 발송
     @Transactional
-    public void requestFcmPush(FcmPushRequest firebaseRequest) {
+    public void requestFcmPush(FcmPushRequest req) throws FirebaseMessagingException {
 
+        List<String> tokens = req.getTokenList() != null
+                ? req.getTokenList().stream()
+                .filter(t -> t != null && !t.trim().isEmpty())
+                .distinct()
+                .collect(Collectors.toList())
+                : Collections.emptyList();
+        if (tokens.isEmpty()) return;
 
-        List<UserFcmToken> userFcmTokenList = userFcmTokenRepository.findAllByUserSeqInAndActiveFlag(firebaseRequest.getUserSeqList(), YnType.Y);
+        Map<String, String> data = new HashMap<>();
+        data.put("title", req.getTitle());
+        data.put("body", req.getBody());
+        if (req.getDeepLink() != null) {
+            data.put("deepLink", JsonUtil.toJson(req.getDeepLink()));
+        }
 
-        for (UserFcmToken userList : userFcmTokenList) {
+        MulticastMessage mm = MulticastMessage.builder()
+                .putAllData(data)
+                .addAllTokens(tokens)
+                .build();
 
-            Map<String, String> data = new HashMap<>();
-            data.put("title", firebaseRequest.getTitle());
-            data.put("body", firebaseRequest.getBody());
+        BatchResponse resp = firebaseMessaging.sendEachForMulticast(mm);
 
-            Optional.ofNullable(firebaseRequest.getDeepLink())
-                    .ifPresent(deepLink -> data.put("deepLink", JsonUtil.toJson(deepLink)));
-
-
-            Message message = Message.builder()
-                    .putAllData(data)
-                    .setToken(userList.getFcmToken())
-                    .build();
-
-            try {
-                firebaseMessaging.send(message);
-            } catch (FirebaseMessagingException e) {
-                if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
-                    System.err.println("Fail token: " + userList.getFcmToken());
+        List<SendResponse> results = resp.getResponses();
+        for (int i = 0; i < results.size(); i++) {
+            SendResponse r = results.get(i);
+            if (!r.isSuccessful()) {
+                FirebaseMessagingException ex = r.getException();
+                if (ex != null) {
+                    if (ex.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
+                        String bad = tokens.get(i);
+                        System.err.println("Fail token: " + bad);
+                        // userFcmTokenRepository.deactivateByToken(bad);
+                    }
                 }
             }
         }
+
     }
+
 
     @Transactional
     public void registerOrUpdateFcmToken(Long memberId, String token, String osType) {
