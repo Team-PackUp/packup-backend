@@ -304,13 +304,13 @@ public class ChatService {
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
 
         // 2) 마지막 메시지 1회
-        Optional<LastMessageResponse> last = chatMessageRepository.findTop1ByChatRoomSeqOrderByCreatedAtDesc(roomId);
+        Optional<LastMessageProjection> last = chatMessageRepository.findTop1ByChatRoomSeqOrderByCreatedAtDesc(roomId);
 
         // 3) 사용자별 미읽음 수 1회 (전체 대상 그룹화)
         Long[] arr = userSeqs.toArray(new Long[0]);
-        List<UnreadMessageResponse> unreadRows = chatReadRepository.countUnreadByUsers(roomId, arr);
+        List<UnreadMessageProjection> unreadRows = chatReadRepository.countUnreadByUsers(roomId, arr);
         Map<Long, Integer> unreadMap = unreadRows.stream()
-                .collect(Collectors.toMap(UnreadMessageResponse::getUserSeq, UnreadMessageResponse::getUnread));
+                .collect(Collectors.toMap(UnreadMessageProjection::getUserSeq, UnreadMessageProjection::getUnread));
 
         Map<Long, ChatRoomResponse> out = new HashMap<>();
         for (Long uid : userSeqs) {
@@ -320,9 +320,9 @@ public class ChatService {
                     .seq(room.getSeq())
                     .partUserSeq(room.getPartUserSeq())
                     .unReadCount(unread)
-                    .lastMessage(last.map(LastMessageResponse::getMessage).orElse(null))
-                    .lastMessageDate(last.map(LastMessageResponse::getCreatedAt).orElse(null))
-                    .fileFlag(YnType.valueOf(last.map(LastMessageResponse::getFileFlag).orElse(null)))
+                    .lastMessage(last.map(LastMessageProjection::getMessage).orElse(null))
+                    .lastMessageDate(last.map(LastMessageProjection::getCreatedAt).orElse(null))
+                    .fileFlag(YnType.valueOf(last.map(LastMessageProjection::getFileFlag).orElse(null)))
                     .title(room.getTitle())
                     .createdAt(room.getCreatedAt())
                     .updatedAt(room.getUpdatedAt())

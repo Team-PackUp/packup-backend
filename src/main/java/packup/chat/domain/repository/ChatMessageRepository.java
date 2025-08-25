@@ -7,13 +7,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import packup.chat.domain.ChatMessage;
 import packup.chat.dto.ChatMessageResponse;
-import packup.chat.dto.LastMessageResponse;
+import packup.chat.dto.LastMessageProjection;
 
 import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
-    Optional<LastMessageResponse> findTop1ByChatRoomSeqOrderByCreatedAtDesc(Long chatRoom_seq);
+    Optional<LastMessageProjection> findTop1ByChatRoomSeqOrderByCreatedAtDesc(Long chatRoom_seq);
 
     @Query("""
 select new packup.chat.dto.ChatMessageResponse(

@@ -2,7 +2,7 @@ package packup.chat.dto;
 
 import java.time.LocalDateTime;
 
-public interface LastMessageResponse {
+public interface LastMessageProjection {
     Long getSeq();
     String getMessage();
     String getFileFlag();

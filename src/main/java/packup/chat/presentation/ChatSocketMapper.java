@@ -64,7 +64,7 @@ public class ChatSocketMapper {
             // 채팅방 새로고침
             var targets = chatService.refreshChatRoom(userSeq, chatRoomSeq, chatRoomPartUser);
 
-//            // FCM
+            // FCM
             chatService.chatSendFcmPush(newChatMessageDTO, targets);
         }
     }

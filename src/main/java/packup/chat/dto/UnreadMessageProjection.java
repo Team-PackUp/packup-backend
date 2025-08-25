@@ -1,6 +1,6 @@
 package packup.chat.dto;
 
-public interface UnreadMessageResponse {
+public interface UnreadMessageProjection {
     Long getUserSeq();
     Integer getUnread();
 }

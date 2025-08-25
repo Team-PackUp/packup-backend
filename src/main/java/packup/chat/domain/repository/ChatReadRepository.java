@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import packup.chat.domain.ChatRead;
-import packup.chat.dto.UnreadMessageResponse;
+import packup.chat.dto.UnreadMessageProjection;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public interface ChatReadRepository extends JpaRepository<ChatRead, Long> {
          and m.seq > coalesce(r.last_read_message_seq, 0)
         group by u.user_seq
     """, nativeQuery = true)
-    List<UnreadMessageResponse> countUnreadByUsers(@Param("roomId") long roomId,
+    List<UnreadMessageProjection> countUnreadByUsers(@Param("roomId") long roomId,
                                                    @Param("userSeqs") Long[] userSeqs);
 
 }
