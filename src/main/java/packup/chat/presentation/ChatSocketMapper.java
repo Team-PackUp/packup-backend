@@ -13,12 +13,16 @@ import packup.chat.dto.ChatMessageRequest;
 import packup.chat.dto.ChatMessageResponse;
 import packup.chat.dto.ChatRoomResponse;
 import packup.chat.dto.ReadMessageRequest;
+import packup.chat.exception.ChatException;
 import packup.chat.service.ChatService;
 import packup.config.security.provider.JwtTokenProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static packup.chat.exception.ChatExceptionType.ABNORMAL_ACCESS;
+import static packup.chat.exception.ChatExceptionType.NOT_FOUND_MEMBER;
 
 @Controller
 @RequiredArgsConstructor
@@ -41,6 +45,10 @@ public class ChatSocketMapper {
                 .userSeq(userSeq)
                 .fileFlag(chatMessage.getFileFlag())
                 .build();
+
+        if (chatMessageDTO.getMessage().isEmpty()) {
+            throw new ChatException(ABNORMAL_ACCESS);
+        }
 
         // 채팅 저장
         ChatMessageResponse newChatMessageDTO = chatService.saveChatMessage(userSeq, chatMessageDTO);
@@ -80,6 +88,9 @@ public class ChatSocketMapper {
         // 헤더에서 Authorization 추출
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(stompMessage);
         String token = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("Authorization");
+        if(token.isEmpty()) {
+            throw new ChatException(NOT_FOUND_MEMBER);
+        }
 
         // JWT 토큰에서 username (userSeq) 추출
         return Long.valueOf(jwtTokenProvider.getUsername(token));

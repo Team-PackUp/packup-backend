@@ -14,8 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 public class ChatRoomResponse {
     private Long seq;
+    private Long userSeq;
     private List<Long> partUserSeq;
-    private UserInfoResponse user;
+    private String profileImagePath;
     private String title;
     private String lastMessage;
     private LocalDateTime lastMessageDate;

@@ -7,13 +7,21 @@ import packup.common.enums.YnType;
 import packup.user.domain.UserInfo;
 import packup.user.dto.UserPushTarget;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
     Optional<UserInfo> findByEmail(String email);
 
-    List<UserInfo> findBySeqInAndWithdrawFlag(List<Long> seqList, YnType ynType);
+    @Query("""
+    select u.seq
+    from UserInfo u
+    where u.seq in :seq
+      and u.withdrawFlag = :withdrawFlag
+""")
+    List<Long> findActiveUserSeq(@Param("seq") Collection<Long> seq,
+                                  @Param("withdrawFlag") YnType withdrawFlag);
 
     @Query("""
       select new packup.user.dto.UserPushTarget(
@@ -36,4 +44,7 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
       where u.seq = :seq
     """)
     Optional<UserInfo> findBySeqWithDetail(@Param("seq") Long seq);
+
+    @Query("select u from UserInfo u left join fetch u.detailInfo where u.seq in :seq")
+    List<UserInfo> findAllWithDetailBySeqIn(@Param("seq") Collection<Long> seq);
 }

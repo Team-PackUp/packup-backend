@@ -3,6 +3,7 @@ package packup.chat.domain.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import packup.chat.domain.ChatRoom;
@@ -87,4 +88,8 @@ WHERE cr.part_user_seq @> to_jsonb(array[:memberId]::int[])
   where cr.seq = :seq
   """, nativeQuery = true)
     List<Long> findParticipantSeq(@Param("seq") Long seq);
+
+    @Modifying
+    @Query("update ChatRoom c set c.updatedAt = current_timestamp where c.seq = :chatRoomSeq")
+    int touch(@Param("chatRoomSeq") Long chatRoomSeq);
 }

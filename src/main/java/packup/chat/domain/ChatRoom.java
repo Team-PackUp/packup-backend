@@ -6,7 +6,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.LastModifiedDate;
 import packup.chat.presentation.ChatConverter;
 import packup.common.domain.BaseEntity;
-import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,9 +21,8 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "part_user_seq", columnDefinition = "jsonb", nullable = false)
     private List<Long> partUserSeq;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_seq", nullable = false)
-    private UserInfo user;
+    @Column(name = "user_seq", nullable = false)
+    private Long userSeq;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -33,17 +31,13 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    private ChatRoom(List<Long> partUserSeq, UserInfo user, String title) {
+    private ChatRoom(List<Long> partUserSeq, Long userSeq, String title) {
         this.partUserSeq = partUserSeq;
-        this.user = user;
+        this.userSeq = userSeq;
         this.title = title;
     }
 
-    public static ChatRoom of(List<Long> partUserSeq, UserInfo user, String title) {
-        return new ChatRoom(partUserSeq, user, title);
-    }
-
-    public void updateChatLastDate() {
-        this.updatedAt = LocalDateTime.now();
+    public static ChatRoom of(List<Long> partUserSeq, Long userSeq, String title) {
+        return new ChatRoom(partUserSeq, userSeq, title);
     }
 }

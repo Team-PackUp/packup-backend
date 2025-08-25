@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.LastModifiedDate;
 import packup.common.domain.BaseEntity;
-import packup.user.domain.UserInfo;
 
 import java.time.LocalDateTime;
 
@@ -20,11 +19,10 @@ public class ChatRead extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_seq", nullable = false)
-    private ChatRoom chatRoomSeq;
+    private ChatRoom chatRoom;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_seq", nullable = false)
-    private UserInfo user;
+    @Column(name = "user_seq", nullable = false)
+    private Long userSeq;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "last_read_message_seq", nullable = false)
@@ -34,17 +32,13 @@ public class ChatRead extends BaseEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    private ChatRead(ChatRoom chatRoom, UserInfo user, ChatMessage lastReadMessage) {
-        this.chatRoomSeq = chatRoom;
-        this.user = user;
+    private ChatRead(ChatRoom chatRoom, Long userSeq, ChatMessage lastReadMessage) {
+        this.chatRoom = chatRoom;
+        this.userSeq = userSeq;
         this.lastReadMessageSeq = lastReadMessage;
     }
 
-    public static ChatRead of(ChatRoom chatRoom, UserInfo user, ChatMessage lastReadMessage) {
-        return new ChatRead(chatRoom, user, lastReadMessage);
-    }
-
-    public void updateLastReadMessage(ChatMessage newLastReadMessage) {
-        this.lastReadMessageSeq = newLastReadMessage;
+    public static ChatRead of(ChatRoom chatRoom, Long userSeq, ChatMessage lastReadMessage) {
+        return new ChatRead(chatRoom, userSeq, lastReadMessage);
     }
 }

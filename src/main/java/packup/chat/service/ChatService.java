@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,18 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import packup.chat.domain.ChatMessage;
 import packup.chat.domain.ChatMessageFile;
-import packup.chat.domain.ChatRead;
 import packup.chat.domain.ChatRoom;
 import packup.chat.domain.repository.ChatMessageFileRepository;
 import packup.chat.domain.repository.ChatMessageRepository;
 import packup.chat.domain.repository.ChatReadRepository;
 import packup.chat.domain.repository.ChatRoomRepository;
-import packup.chat.dto.ChatMessageRequest;
-import packup.chat.dto.ChatMessageResponse;
-import packup.chat.dto.ChatRoomResponse;
-import packup.chat.dto.ReadMessageRequest;
+import packup.chat.dto.*;
 import packup.chat.exception.ChatException;
-import packup.chat.dto.RoomChangedEvent;
 import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
@@ -35,15 +29,15 @@ import packup.fcmpush.dto.FcmPushRequest;
 import packup.fcmpush.enums.DeepLinkType;
 import packup.fcmpush.presentation.DeepLinkGenerator;
 import packup.fcmpush.service.FcmPushService;
-import packup.user.domain.UserDetailInfo;
 import packup.user.domain.UserInfo;
+import packup.user.domain.repository.UserDetailInfoRepository;
 import packup.user.domain.repository.UserInfoRepository;
 import packup.user.dto.UserInfoResponse;
+import packup.user.dto.UserProfileImageResponse;
 import packup.user.dto.UserPushTarget;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,6 +51,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final UserInfoRepository userInfoRepository;
+    private final UserDetailInfoRepository userDetailInfoRepository;
     private final ChatMessageFileRepository chatMessageFileRepository;
     private final ChatReadRepository chatReadRepository;
 
@@ -68,56 +63,14 @@ public class ChatService {
 
     private final ApplicationEventPublisher publisher;
 
-    public ChatRoomResponse getChatRoom(Long memberId, Long chatRoomSeq) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
-                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
-
-        UserInfo userInfo = userInfoRepository.findById(memberId)
-                .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
-
-        // 최근 읽은 시각
-        LocalDateTime lastReadTime = chatReadRepository
-                .findChatReadByUserAndChatRoomSeq(userInfo, chatRoom)
-                .map(ChatRead::getUpdatedAt)
-                .orElse(LocalDateTime.of(1970, 1, 1, 0, 0));
-
-        // 안 읽은 메시지 수
-        int unreadCount = chatMessageRepository.countByChatRoomSeqAndUserNotAndCreatedAtAfter(
-                chatRoom,
-                userInfo,
-                lastReadTime,
-                Limit.of(UNREAD_CHAT_COUNT_LIMIT)
-        );
-
-        // 마지막 채팅 정보
-        Optional<ChatMessage> lastMessageOpt = chatMessageRepository
-                .findTopByChatRoomSeqOrderByCreatedAtDesc(chatRoom);
-
-        String lastMessage = lastMessageOpt.map(ChatMessage::getMessage).orElse(null);
-        LocalDateTime lastMessageDate = lastMessageOpt.map(ChatMessage::getCreatedAt).orElse(null);
-        YnType fileFlag = lastMessageOpt.map(ChatMessage::getFileFlag).orElse(null);
-
-        return ChatRoomResponse.builder()
-                .seq(chatRoom.getSeq())
-                .user(UserInfoResponse.of(userInfo))
-                .partUserSeq(chatRoom.getPartUserSeq())
-                .unReadCount(unreadCount)
-                .lastMessage(lastMessage)
-                .lastMessageDate(lastMessageDate)
-                .title(chatRoom.getTitle())
-                .fileFlag(fileFlag)
-                .createdAt(chatRoom.getCreatedAt())
-                .updatedAt(chatRoom.getUpdatedAt())
-                .build();
-    }
-
-
     public PageDTO<ChatRoomResponse> getChatRoomList(Long memberId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Page<Map<String, Object>> chatRoomListPage = chatRoomRepository.findChatRoomListWithUnreadCount(memberId, pageable);
+        Page<Map<String, Object>> chatRoomListPage =
+                chatRoomRepository.findChatRoomListWithUnreadCount(memberId, pageable);
 
         List<ChatRoomResponse> chatRooms = chatRoomListPage.getContent().stream()
                 .map(row -> {
+                    // 참여자 리스트(JSON 컬럼)
                     List<Long> partUserSeqList = new ArrayList<>();
                     try {
                         Object partUserRaw = row.get("part_user_seq");
@@ -128,17 +81,25 @@ public class ChatService {
                         e.printStackTrace();
                     }
 
+                    // 마지막 메시지 파일 여부
                     YnType fileFlag = Optional.ofNullable(row.get("last_message_file_flag"))
                             .map(Object::toString)
                             .map(YnType::valueOf)
                             .orElse(YnType.N);
 
-                    UserInfo userInfo = userInfoRepository.findById((Long) row.get("user_seq")).orElseThrow();
+                    // 채팅방 생성자
+                    Long ownerSeq = ((Number) row.get("user_seq")).longValue();
+
+                    // 채팅방 생성자의 프로필 이미지 조회
+                    String profileImagePath = userDetailInfoRepository.findProfileImageBySeq(ownerSeq)
+                            .map(UserProfileImageResponse::getProfileImagePath)
+                            .orElse(null);
 
                     return ChatRoomResponse.builder()
                             .seq(((Number) row.get("seq")).longValue())
+                            .userSeq(ownerSeq)
                             .partUserSeq(partUserSeqList)
-                            .user(UserInfoResponse.of(userInfo))
+                            .profileImagePath(profileImagePath)
                             .title((String) row.get("title"))
                             .unReadCount(row.get("unread_count") != null
                                     ? ((Number) row.get("unread_count")).intValue() : 0)
@@ -159,71 +120,51 @@ public class ChatService {
                 .build();
     }
 
+
     public PageDTO<ChatMessageResponse> getChatMessageList(Long memberId, Long chatRoomSeq, int page) {
 
         userInfoRepository.findById(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomSeq)
+        chatRoomRepository.findById(chatRoomSeq)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Page<ChatMessage> chatMessageListPage = chatMessageRepository.findByChatRoomSeqOrderByCreatedAtDesc(chatRoom, pageable);
-
-        List<ChatMessageResponse> chatMessages = chatMessageListPage
-                .getContent()
-                .stream()
-                .map(msg -> ChatMessageResponse.builder()
-                        .seq(msg.getSeq())
-                        .userSeq(msg.getUser().getSeq())
-                        .message(msg.getMessage())
-                        .chatRoomSeq(msg.getChatRoomSeq().getSeq())
-                        .createdAt(msg.getCreatedAt())
-                        .fileFlag(msg.getFileFlag())
-                        .profileImagePath(
-                                Optional.ofNullable(msg.getUser().getDetailInfo())
-                                        .map(UserDetailInfo::getProfileImagePath)
-                                        .orElse(null)
-                        )
-                        .build())
-                .toList();
-
+        Page<ChatMessageResponse> chatMessageListPage = chatMessageRepository.findMessages(chatRoomSeq, pageable);
 
         return PageDTO.<ChatMessageResponse>builder()
-                .objectList(chatMessages)
+                .objectList(chatMessageListPage.getContent())
                 .totalPage(chatMessageListPage.getTotalPages())
                 .build();
     }
 
+
     @Transactional
     public ChatMessageResponse saveChatMessage(Long memberId, ChatMessageRequest chatMessageDTO) {
 
-        if (chatMessageDTO.getMessage().isEmpty()) {
-            throw new ChatException(ABNORMAL_ACCESS);
-        }
-
-        UserInfo userInfo = userInfoRepository.findBySeqWithDetail(memberId)
+        UserProfileImageResponse profileImage = userDetailInfoRepository.findProfileImageBySeq(memberId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
 
         ChatRoom chatRoomRef = chatRoomRepository.getReferenceById(chatMessageDTO.getChatRoomSeq());
 
         ChatMessage newChatMessage = ChatMessage.of(
                 chatRoomRef,
-                userInfo,
+                profileImage.getSeq(),
                 chatMessageDTO.getMessage(),
                 chatMessageDTO.getFileFlag()
         );
 
         chatMessageRepository.save(newChatMessage);
 
-        chatRoomRef.updateChatLastDate();
+//        chatRoomRef.updateChatLastDate();
+        chatRoomRepository.touch(chatMessageDTO.getChatRoomSeq());
 
         // 응답 구성 시 연관 접근 대신 이미 로드된 userInfo 사용
         return ChatMessageResponse.builder()
                 .seq(newChatMessage.seq())
-                .userSeq(userInfo.getSeq())
+                .userSeq(profileImage.getSeq())
                 .message(newChatMessage.getMessage())
-                .profileImagePath(userInfo.getDetailInfo() != null ? userInfo.getDetailInfo().getProfileImagePath() : null)
+                .profileImagePath(profileImage.getProfileImagePath())
                 .chatRoomSeq(chatRoomRef.seq())
                 .createdAt(newChatMessage.getCreatedAt())
                 .fileFlag(newChatMessage.getFileFlag())
@@ -234,21 +175,10 @@ public class ChatService {
     @Transactional
     public void readChatMessage(long memberId, ReadMessageRequest readMessageRequest) {
 
-        UserInfo userInfo = userInfoRepository.findById(memberId)
-                .orElseThrow(() -> new ChatException(NOT_FOUND_MEMBER));
-
-        ChatRoom chatRoom = chatRoomRepository.findById(readMessageRequest.getChatRoomSeq())
-                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
-
-        ChatMessage chatMessage = chatMessageRepository.findById(readMessageRequest.getLastReadMessageSeq())
-                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_MESSAGE));
-
-        ChatRead chatRead = chatReadRepository.findChatReadByUserAndChatRoomSeq(userInfo, chatRoom)
-                .orElseGet(() -> ChatRead.of(chatRoom, userInfo, chatMessage));
-
-        chatRead.updateLastReadMessage(chatMessage);
-
-        chatReadRepository.save(chatRead);
+//        userInfoRepository.getReferenceById(memberId);
+//        chatRoomRepository.getReferenceById(readMessageRequest.getChatRoomSeq());
+//        chatMessageRepository.getReferenceById(readMessageRequest.getLastReadMessageSeq());
+        chatReadRepository.upsertRead(readMessageRequest.getChatRoomSeq(), memberId, readMessageRequest.getLastReadMessageSeq());
     }
 
     public List<Long> getPartUserInRoom(Long chatRoomSeq) {
@@ -258,13 +188,9 @@ public class ChatService {
     }
 
     public List<Long> validateActiveUser(List<Long> chatRoomSeq) {
-
         if (chatRoomSeq.isEmpty()) return Collections.emptyList();
 
-        return userInfoRepository.findBySeqInAndWithdrawFlag(chatRoomSeq, YnType.N)
-                .stream()
-                .map(UserInfo::getSeq)
-                .toList();
+        return userInfoRepository.findActiveUserSeq(chatRoomSeq, YnType.N);
     }
 
     public FileResponse saveFile(Long memberId, String type, MultipartFile file) throws IOException {
@@ -276,7 +202,7 @@ public class ChatService {
 
         ChatMessageFile chatMessageFile = ChatMessageFile.of(
                 imageDTO.getPath(),
-                userInfo,
+                userInfo.getSeq(),
                 imageDTO.getEncodedName(),
                 imageDTO.getRealName()
         );
@@ -340,16 +266,16 @@ public class ChatService {
     }
 
     public List<Long> refreshChatRoom(Long senderSeq, Long roomId, List<Long> participants) {
-
-        var targets = participants.stream()
+        List<Long> targets = participants.stream()
                 .filter(u -> !u.equals(senderSeq))
-                .toList();
+                .collect(Collectors.toList());
 
-        publisher.publishEvent(new RoomChangedEvent(roomId, targets));
+        // 배치로 스냅샷 생성 (쿼리 소수 회)
+        Map<Long, ChatRoomResponse> snapshots = getRoomForRefresh(roomId, participants);
 
+        publisher.publishEvent(new RoomChangedEvent(roomId, participants, snapshots));
         return targets;
     }
-
 
     public void createChatRoom() {
         // 생성할 채팅방 대상 투어들 조회
@@ -371,5 +297,39 @@ public class ChatService {
 //                        .build()
 //        );
     }
+
+    private Map<Long, ChatRoomResponse> getRoomForRefresh(Long roomId, List<Long> userSeqs) {
+        // 1) 채팅방 1회
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHAT_ROOM));
+
+        // 2) 마지막 메시지 1회
+        Optional<LastMessageResponse> last = chatMessageRepository.findTop1ByChatRoomSeqOrderByCreatedAtDesc(roomId);
+
+        // 3) 사용자별 미읽음 수 1회 (전체 대상 그룹화)
+        Long[] arr = userSeqs.toArray(new Long[0]);
+        List<UnreadMessageResponse> unreadRows = chatReadRepository.countUnreadByUsers(roomId, arr);
+        Map<Long, Integer> unreadMap = unreadRows.stream()
+                .collect(Collectors.toMap(UnreadMessageResponse::getUserSeq, UnreadMessageResponse::getUnread));
+
+        Map<Long, ChatRoomResponse> out = new HashMap<>();
+        for (Long uid : userSeqs) {
+            int unread = unreadMap.getOrDefault(uid, 0);
+
+            out.put(uid, ChatRoomResponse.builder()
+                    .seq(room.getSeq())
+                    .partUserSeq(room.getPartUserSeq())
+                    .unReadCount(unread)
+                    .lastMessage(last.map(LastMessageResponse::getMessage).orElse(null))
+                    .lastMessageDate(last.map(LastMessageResponse::getCreatedAt).orElse(null))
+                    .fileFlag(YnType.valueOf(last.map(LastMessageResponse::getFileFlag).orElse(null)))
+                    .title(room.getTitle())
+                    .createdAt(room.getCreatedAt())
+                    .updatedAt(room.getUpdatedAt())
+                    .build());
+        }
+        return out;
+    }
+
 }
 

@@ -14,9 +14,8 @@ public class ChatMessageFile extends BaseEntity {
     @Column(name = "chat_file_path", nullable = false)
     private String chatFilePath;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_seq", nullable = false)
-    private UserInfo user;
+    @Column(name = "user_seq", nullable = false)
+    private Long userSeq;
 
     @Column(name = "encoded_name", nullable = false)
     private String encodedName;
@@ -24,15 +23,15 @@ public class ChatMessageFile extends BaseEntity {
     @Column(name = "real_name", nullable = false)
     private String realName;
 
-    private ChatMessageFile(String chatFilePath, UserInfo user, String encodedName, String realName) {
+    private ChatMessageFile(String chatFilePath, Long userSeq, String encodedName, String realName) {
         this.chatFilePath = chatFilePath;
-        this.user = user;
+        this.userSeq = userSeq;
         this.encodedName = encodedName;
         this.realName = realName;
     }
 
-    public static ChatMessageFile of(String chatFilePath, UserInfo user, String encodedName, String realName) {
-        return new ChatMessageFile(chatFilePath, user, encodedName, realName);
+    public static ChatMessageFile of(String chatFilePath, Long userSeq, String encodedName, String realName) {
+        return new ChatMessageFile(chatFilePath, userSeq, encodedName, realName);
     }
 }
 
