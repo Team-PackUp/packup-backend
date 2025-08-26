@@ -20,12 +20,12 @@ public interface UserDetailInfoRepository extends JpaRepository<UserDetailInfo, 
     @Query("select new packup.user.dto.UserProfileImageResponse(u.seq, d.profileImagePath) " +
             "from UserInfo u left join u.detailInfo d " +
             "where u.seq = :seq")
-    Optional<UserProfileImageResponse> findProfileImageBySeq(@Param("seq") Long seq);
+    Optional<UserProfileImageResponse> findProfileImageBySeq(Long seq);
 
 
     @Query("select new packup.user.dto.UserProfileImageResponse(d.user.seq, d.profileImagePath) " +
-            "from UserDetailInfo d where d.user.seq in :userSeqs")
-    List<UserProfileImageResponse> findProfileImagesByUserSeqIn(@Param("userSeqs") Collection<Long> userSeqs);
+            "from UserDetailInfo d where d.user.seq in :userSeq")
+    List<UserProfileImageResponse> findProfileImagesByUserSeqIn(Collection<Long> userSeq);
 
 
 }

@@ -190,7 +190,7 @@ public class ChatService {
     public List<Long> validateActiveUser(List<Long> chatRoomSeq) {
         if (chatRoomSeq.isEmpty()) return Collections.emptyList();
 
-        return userInfoRepository.findActiveUserSeq(chatRoomSeq, YnType.N);
+        return userInfoRepository.findActiveUserSeq(chatRoomSeq, YnType.N, YnType.N);
     }
 
     public FileResponse saveFile(Long memberId, String type, MultipartFile file) throws IOException {
@@ -266,12 +266,15 @@ public class ChatService {
     }
 
     public List<Long> refreshChatRoom(Long senderSeq, Long roomId, List<Long> participants) {
+        System.out.println("채팅방 리프래시");
         List<Long> targets = participants.stream()
                 .filter(u -> !u.equals(senderSeq))
                 .collect(Collectors.toList());
 
         // 배치로 스냅샷 생성 (쿼리 소수 회)
         Map<Long, ChatRoomResponse> snapshots = getRoomForRefresh(roomId, participants);
+
+        System.out.println(participants);
 
         publisher.publishEvent(new RoomChangedEvent(roomId, participants, snapshots));
         return targets;

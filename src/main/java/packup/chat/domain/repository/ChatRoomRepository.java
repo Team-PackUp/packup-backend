@@ -69,7 +69,7 @@ WHERE cr.part_user_seq @> to_jsonb(array[:memberId]::int[])
 
             nativeQuery = true)
     Page<Map<String, Object>> findChatRoomListWithUnreadCount(
-            @Param("memberId") long memberId,
+            Long memberId,
             Pageable pageable
     );
 
@@ -87,9 +87,9 @@ WHERE cr.part_user_seq @> to_jsonb(array[:memberId]::int[])
   from chat_room cr
   where cr.seq = :seq
   """, nativeQuery = true)
-    List<Long> findParticipantSeq(@Param("seq") Long seq);
+    List<Long> findParticipantSeq(Long seq);
 
     @Modifying
     @Query("update ChatRoom c set c.updatedAt = current_timestamp where c.seq = :chatRoomSeq")
-    int touch(@Param("chatRoomSeq") Long chatRoomSeq);
+    int touch(Long chatRoomSeq);
 }

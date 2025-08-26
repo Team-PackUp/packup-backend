@@ -20,6 +20,7 @@ public class RoomChangedEventHandler {
     public void on(RoomChangedEvent e) {
 
         for (Long uid : e.targetUserIds()) {
+            System.out.println(uid);
             ChatRoomResponse dto = e.userSpecificDTO().get(uid);
             messaging.convertAndSendToUser(
                     uid.toString(),
