@@ -25,6 +25,7 @@ import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
 import packup.common.util.FileUtil;
 import packup.common.util.JsonUtil;
+import packup.common.util.ValidationUtil;
 import packup.fcmpush.dto.FcmPushRequest;
 import packup.fcmpush.enums.DeepLinkType;
 import packup.fcmpush.presentation.DeepLinkGenerator;
@@ -62,6 +63,8 @@ public class ChatService {
     private final SimpMessagingTemplate messagingTemplate;
 
     private final ApplicationEventPublisher publisher;
+
+    private final ValidationUtil validationUtil;
 
     public PageDTO<ChatRoomResponse> getChatRoomList(Long memberId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
@@ -184,13 +187,7 @@ public class ChatService {
     public List<Long> getPartUserInRoom(Long chatRoomSeq) {
         var raw = chatRoomRepository.findParticipantSeq(chatRoomSeq);
 
-        return validateActiveUser(raw);
-    }
-
-    public List<Long> validateActiveUser(List<Long> chatRoomSeq) {
-        if (chatRoomSeq.isEmpty()) return Collections.emptyList();
-
-        return userInfoRepository.findActiveUserSeq(chatRoomSeq, YnType.N, YnType.N);
+        return validationUtil.validateActiveUser(raw);
     }
 
     public FileResponse saveFile(Long memberId, String type, MultipartFile file) throws IOException {
