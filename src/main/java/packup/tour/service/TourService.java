@@ -203,7 +203,6 @@ public class TourService {
                 .tourExcludedContent(req.getTourExcludedContent())
                 .tourNotes(req.getTourNotes())
                 .tourLocationCode(finalLocationCode)
-                .tourLocationCode(req.getTourLocationCode() == null ? null : req.getTourLocationCode().longValue())
                 .tourThumbnailUrl(req.getTourThumbnailUrl())
                 .tourPrice(req.getTourPrice())
                 .minHeadCount(req.getMinHeadCount())
