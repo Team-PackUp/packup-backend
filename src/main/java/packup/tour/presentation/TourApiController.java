@@ -1,5 +1,6 @@
 package packup.tour.presentation;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import packup.auth.annotation.Auth;
@@ -10,6 +11,7 @@ import packup.recommend.dto.RecommendResponse;
 import packup.recommend.exception.RecommendException;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
+import packup.tour.dto.tourListing.TourCreateRequest;
 import packup.tour.dto.tourListing.TourListingResponse;
 import packup.tour.service.TourService;
 
@@ -75,5 +77,14 @@ public class TourApiController {
     ) {
         PageResponse<TourListingResponse> body = tourService.getMyListings(memberSeq, page, size);
         return ResultModel.success(body);
+    }
+
+    @PostMapping("/listing")
+    public ResultModel<TourInfoResponse> createTour(
+            @Auth Long memberSeq,
+            @Valid @RequestBody TourCreateRequest request
+    ) {
+        TourInfoResponse created = tourService.createTour(memberSeq, request);
+        return ResultModel.success(created);
     }
 }

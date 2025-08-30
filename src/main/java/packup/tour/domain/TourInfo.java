@@ -50,6 +50,12 @@ public class TourInfo extends BaseEntity {
     @Comment("투어 정보 식별번호")
     private Long seq;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "tour_keywords", columnDefinition = "jsonb")
+    @Comment("투어 키워드(JSON 배열)")
+    @Builder.Default
+    private List<String> tourKeywords = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "guide_seq", nullable = false)
     @Comment("가이드 사용자 식별번호")
