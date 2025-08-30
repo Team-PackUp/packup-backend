@@ -8,12 +8,24 @@ import org.springframework.transaction.annotation.Transactional;
 import packup.common.dto.PageDTO;
 import packup.common.dto.PageResponse;
 import packup.common.enums.YnType;
+import packup.guide.domain.GuideInfo;
+import packup.guide.domain.repository.GuideInfoRepository;
+import packup.tour.domain.TourActivity;
+import packup.tour.domain.TourActivityThumbnail;
 import packup.tour.domain.TourInfo;
+import packup.tour.domain.repositoroy.TourActivityRepository;
+import packup.tour.domain.repositoroy.TourActivityThumbnailRepository;
 import packup.tour.domain.repositoroy.TourInfoRepository;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
+import packup.tour.dto.tourListing.TourCreateRequest;
 import packup.tour.dto.tourListing.TourListingResponse;
+import packup.tour.enums.TourStatusCode;
+import packup.user.exception.UserException;
+import packup.user.exception.UserExceptionType;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +37,11 @@ import static packup.tour.constant.tourConstant.PAGE_SIZE;
 @RequiredArgsConstructor
 public class TourService {
     private final TourInfoRepository tourInfoRepository;
+
+    private final GuideInfoRepository guideInfoRepository;
+    private final TourActivityRepository tourActivityRepository;
+    private final TourActivityThumbnailRepository tourActivityThumbnailRepository;
+
 
     /**
      * 전체 투어 목록을 페이징하여 조회합니다.
@@ -147,6 +164,76 @@ public class TourService {
                 p.isFirst(),
                 p.isEmpty()
         );
+    }
+
+    @Transactional
+    public TourInfoResponse createTour(Long guideMemberSeq, TourCreateRequest req) {
+        // 1) 가이드 조회
+        GuideInfo guide = guideInfoRepository.findByUser_Seq(guideMemberSeq)
+                .orElseThrow(() -> new EntityNotFoundException("가이드 정보를 찾을 수 없습니다."));
+
+        // 2) 본문 → 엔티티 매핑 (필요 최소한의 변환만 inline)
+        TourInfo tour = TourInfo.builder()
+                .guide(guide)
+                .tourKeywords(req.getTourKeywords() == null
+                        ? new ArrayList<>()
+                        : new ArrayList<>(req.getTourKeywords()))
+                .tourTitle(req.getTourTitle())
+                .tourIntroduce(req.getTourIntroduce())
+                .tourIncludedContent(req.getTourIncludedContent())
+                .tourExcludedContent(req.getTourExcludedContent())
+                .tourNotes(req.getTourNotes())
+                .tourLocationCode(req.getTourLocationCode() == null ? null : req.getTourLocationCode().longValue())
+                .tourThumbnailUrl(req.getTourThumbnailUrl())
+                .tourPrice(req.getTourPrice())
+                .minHeadCount(req.getMinHeadCount())
+                .maxHeadCount(req.getMaxHeadCount())
+                .meetUpAddress(req.getMeetUpAddress())
+                .meetUpLat(req.getMeetUpLat() == null ? null :
+                        BigDecimal.valueOf(req.getMeetUpLat()).setScale(6, RoundingMode.HALF_UP))
+                .meetUpLng(req.getMeetUpLng() == null ? null :
+                        BigDecimal.valueOf(req.getMeetUpLng()).setScale(6, RoundingMode.HALF_UP))
+                .transportServiceFlag("Y".equalsIgnoreCase(req.getTransportServiceFlag()) ? YnType.Y : YnType.N)
+                .privateFlag("Y".equalsIgnoreCase(req.getPrivateFlag()) ? YnType.Y : YnType.N)
+                .privatePrice(req.getPrivatePrice())
+                .adultContentFlag("Y".equalsIgnoreCase(req.getAdultContentFlag()) ? YnType.Y : YnType.N)
+                .tourStatusCode(req.getTourStatusCode() == null
+                        ? TourStatusCode.TEMP
+                        : TourStatusCode.fromCode(req.getTourStatusCode()))
+                .deletedFlag(YnType.N)
+                .memo(req.getMemo())
+                .build();
+
+        tour = tourInfoRepository.save(tour);
+
+        if (req.getActivities() != null) {
+            for (var a : req.getActivities()) {
+                TourActivity act = TourActivity.builder()
+                        .tour(tour)
+                        .activityOrder(a.getActivityOrder())
+                        .activityTitle(a.getActivityTitle())
+                        .activityIntroduce(a.getActivityIntroduce())
+                        .activityDurationMinute(a.getActivityDurationMinute())
+                        .deletedFlag(YnType.N)
+                        .build();
+                act = tourActivityRepository.save(act);
+
+                if (a.getThumbnails() != null) {
+                    for (var th : a.getThumbnails()) {
+                        tourActivityThumbnailRepository.save(
+                                TourActivityThumbnail.builder()
+                                        .tourActivity(act)
+                                        .thumbnailOrder(th.getThumbnailOrder())
+                                        .thumbnailImageUrl(th.getThumbnailImageUrl())
+                                        .build()
+                        );
+                    }
+                }
+            }
+        }
+
+        // 5) 응답 DTO
+        return TourInfoResponse.from(tour);
     }
 
 
