@@ -217,7 +217,7 @@ public class TourService {
                 .privatePrice(req.getPrivatePrice())
                 .adultContentFlag("Y".equalsIgnoreCase(req.getAdultContentFlag()) ? YnType.Y : YnType.N)
                 .tourStatusCode(req.getTourStatusCode() == null
-                        ? TourStatusCode.TEMP
+                        ? TourStatusCode.RECRUITING
                         : TourStatusCode.fromCode(req.getTourStatusCode()))
                 .deletedFlag(YnType.N)
                 .memo(req.getMemo())
@@ -251,7 +251,6 @@ public class TourService {
             }
         }
 
-        // 5) 응답 DTO
         return TourInfoResponse.from(tour);
     }
 
