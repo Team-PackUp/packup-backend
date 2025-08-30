@@ -70,4 +70,21 @@ public enum KrSidoCode {
         KrSidoCode found = INDEX.get(norm(input));
         return Optional.ofNullable(found);
     }
+
+    public static Optional<KrSidoCode> fromText(String text) {
+        if (text == null || text.isBlank()) return Optional.empty();
+        String norm = norm(text);
+        for (KrSidoCode s : values()) {
+            if (INDEX.containsKey(norm)) {
+                KrSidoCode found = INDEX.get(norm);
+                if (found != null) return Optional.of(found);
+            }
+            for (String a : s.aliases) {
+                if (norm.contains(norm(a))) return Optional.of(s);
+            }
+            if (norm.contains(norm(s.officialName))) return Optional.of(s);
+        }
+        return Optional.empty();
+    }
+
 }
