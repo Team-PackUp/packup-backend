@@ -10,7 +10,7 @@ public record TourListingResponse(
         String categoryNameKo,   // "체험"(Experience) 로 고정해서 사용.. 임시
         String categoryNameEn,
         String coverImagePath,
-        String status,
+        String statusCode,
         LocalDate startDate
 ) {
     public static TourListingResponse from(TourInfo t) {
