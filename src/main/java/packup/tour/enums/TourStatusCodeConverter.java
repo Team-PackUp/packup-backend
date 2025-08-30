@@ -4,15 +4,21 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
-public class TourStatusCodeConverter implements AttributeConverter<TourStatusCode, String> {
+public class TourStatusCodeConverter implements AttributeConverter<TourStatusCode, Integer> {
 
     @Override
-    public String convertToDatabaseColumn(TourStatusCode attribute) {
-        return attribute.getCode();
+    public Integer convertToDatabaseColumn(TourStatusCode attribute) {
+        if (attribute == null) return null;
+        try {
+            return Integer.parseInt(attribute.getCode());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid TourStatusCode code: " + attribute.getCode(), e);
+        }
     }
 
     @Override
-    public TourStatusCode convertToEntityAttribute(String dbData) {
-        return TourStatusCode.fromCode(dbData);
+    public TourStatusCode convertToEntityAttribute(Integer dbData) {
+        if (dbData == null) return null;
+        return TourStatusCode.fromCode(String.valueOf(dbData));
     }
 }
