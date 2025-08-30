@@ -174,17 +174,23 @@ public class TourService {
         GuideInfo guide = guideInfoRepository.findByUser_Seq(guideMemberSeq)
                 .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
 
-        Long resolvedCode = null;
-        if (req.getMeetUpLat() != null && req.getMeetUpLng() != null) {
-            resolvedCode = regionResolver.resolveSidoName(req.getMeetUpLat(), req.getMeetUpLng())
-                    .flatMap(KrSidoCode::fromName)     // 이름 → enum
-                    .map(KrSidoCode::getCode)          // enum → Long code
-                    .orElse(null);
-        }
+        Long finalLocationCode = null;
 
-        Long finalLocationCode = req.getTourLocationCode() != null
-                ? req.getTourLocationCode().longValue()
-                : resolvedCode;
+        if (req.getTourLocationCode() != null) {
+            finalLocationCode = req.getTourLocationCode().longValue();
+        } else {
+            finalLocationCode = KrSidoCode.fromText(req.getMeetUpAddress())
+                    .map(KrSidoCode::getCode)
+                    .orElse(null);
+
+            if (finalLocationCode == null &&
+                    req.getMeetUpLat() != null && req.getMeetUpLng() != null) {
+                finalLocationCode = regionResolver.resolveSidoName(req.getMeetUpLat(), req.getMeetUpLng())
+                        .flatMap(KrSidoCode::fromName)
+                        .map(KrSidoCode::getCode)
+                        .orElse(null);
+            }
+        }
 
         TourInfo tour = TourInfo.builder()
                 .guide(guide)
