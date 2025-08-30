@@ -20,7 +20,9 @@ import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 import packup.tour.dto.tourListing.TourCreateRequest;
 import packup.tour.dto.tourListing.TourListingResponse;
+import packup.tour.enums.KrSidoCode;
 import packup.tour.enums.TourStatusCode;
+import packup.tour.presentation.RegionResolver;
 import packup.user.exception.UserException;
 import packup.user.exception.UserExceptionType;
 
@@ -42,6 +44,7 @@ public class TourService {
     private final TourActivityRepository tourActivityRepository;
     private final TourActivityThumbnailRepository tourActivityThumbnailRepository;
 
+    private final RegionResolver regionResolver;
 
     /**
      * 전체 투어 목록을 페이징하여 조회합니다.
@@ -168,11 +171,21 @@ public class TourService {
 
     @Transactional
     public TourInfoResponse createTour(Long guideMemberSeq, TourCreateRequest req) {
-        // 1) 가이드 조회
         GuideInfo guide = guideInfoRepository.findByUser_Seq(guideMemberSeq)
-                .orElseThrow(() -> new EntityNotFoundException("가이드 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
 
-        // 2) 본문 → 엔티티 매핑 (필요 최소한의 변환만 inline)
+        Long resolvedCode = null;
+        if (req.getMeetUpLat() != null && req.getMeetUpLng() != null) {
+            resolvedCode = regionResolver.resolveSidoName(req.getMeetUpLat(), req.getMeetUpLng())
+                    .flatMap(KrSidoCode::fromName)     // 이름 → enum
+                    .map(KrSidoCode::getCode)          // enum → Long code
+                    .orElse(null);
+        }
+
+        Long finalLocationCode = req.getTourLocationCode() != null
+                ? req.getTourLocationCode().longValue()
+                : resolvedCode;
+
         TourInfo tour = TourInfo.builder()
                 .guide(guide)
                 .tourKeywords(req.getTourKeywords() == null
@@ -183,6 +196,7 @@ public class TourService {
                 .tourIncludedContent(req.getTourIncludedContent())
                 .tourExcludedContent(req.getTourExcludedContent())
                 .tourNotes(req.getTourNotes())
+                .tourLocationCode(finalLocationCode)
                 .tourLocationCode(req.getTourLocationCode() == null ? null : req.getTourLocationCode().longValue())
                 .tourThumbnailUrl(req.getTourThumbnailUrl())
                 .tourPrice(req.getTourPrice())
