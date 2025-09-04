@@ -39,6 +39,15 @@ public class TourApiController {
         return ResultModel.success(tours);
     }
 
+    @GetMapping("/{regionCode}")
+    public ResultModel<PageResponse<TourInfoResponse>> getToursByRegion(
+            @PathVariable String regionCode,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PageResponse<TourInfoResponse> tours = tourService.getTourByRegion(regionCode, page, size);
+        return ResultModel.success(tours);
+    }
+
     /**
      * 투어 정보 수정
      */

@@ -71,6 +71,24 @@ public class TourService {
         );
     }
 
+    public PageResponse<TourInfoResponse> getTourByRegion(String regionCode, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("seq").descending());
+        Page<TourInfo> tourPage = tourInfoRepository.findFilteredToursByRegion(regionCode, pageable);
+        Page<TourInfoResponse> dtoPage = tourPage.map(TourInfoResponse::from);
+
+        return new PageResponse<>(
+                dtoPage.getContent(),
+                dtoPage.getNumber() + 1,
+                dtoPage.getNumber(),
+                dtoPage.getSize(),
+                dtoPage.getTotalElements(),
+                dtoPage.getTotalPages(),
+                dtoPage.isLast(),
+                dtoPage.isFirst(),
+                dtoPage.isEmpty()
+        );
+    }
+
     @Transactional
     public TourInfoResponse updateTour(TourInfoUpdateRequest request) {
         // 1) 대상 투어 조회

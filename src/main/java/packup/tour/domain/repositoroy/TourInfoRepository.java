@@ -63,4 +63,7 @@ public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
                               Pageable pageable);   // PageRequest.of(0, N, Sort.by(DESC, "seq"))
 
 
+    @Query("SELECT t FROM TourInfo t WHERE t.tourLocationCode = :regionCode")
+    Page<TourInfo> findFilteredToursByRegion(@Param("regionCode") String regionCode, Pageable pageable);
+
 }
