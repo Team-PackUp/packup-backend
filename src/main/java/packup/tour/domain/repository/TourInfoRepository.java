@@ -1,4 +1,4 @@
-package packup.tour.domain.repositoroy;
+package packup.tour.domain.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +11,6 @@ import packup.tour.enums.TourStatusCode;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * <pre>

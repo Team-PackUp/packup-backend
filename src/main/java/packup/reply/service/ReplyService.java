@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import packup.auth.exception.AuthException;
@@ -23,13 +22,9 @@ import packup.reply.dto.ReplyResponse;
 import packup.reply.enums.TargetType;
 import packup.reply.exception.ReplyException;
 import packup.reply.exception.ReplyExceptionType;
-import packup.tour.domain.repositoroy.TourInfoRepository;
+import packup.tour.domain.repository.TourInfoRepository;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static packup.reply.constant.ReplyConstant.PAGE_SIZE;
 import static packup.reply.exception.ReplyExceptionType.*;
