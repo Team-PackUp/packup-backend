@@ -265,7 +265,7 @@ public class TourService {
 
 
     public List<TourSessionResponse> getSessions(Long tourSeq) {
-        return tourSessionRepository.findAllByTour_SeqOrderBySessionStartTimeAsc(tourSeq)
+        return tourSessionRepository.findAllByTour_SeqAndDeletedFlagOrderBySessionStartTimeAsc(tourSeq, YnType.N)
                 .stream().map(TourSessionResponse::from).toList();
     }
 
@@ -289,7 +289,7 @@ public class TourService {
 
         LocalDateTime start = req.getSessionStartTime();
         LocalDateTime end   = req.getSessionEndTime();
-        boolean overlapped = !tourSessionRepository.findOverlapping(pathTourSeq, start, end).isEmpty();
+        boolean overlapped = !tourSessionRepository.findOverlapping(pathTourSeq, start, end, YnType.N).isEmpty();
         if (overlapped) {
             throw new TourSessionException(SESSION_OVERLAPPED);
         }

@@ -1,27 +1,30 @@
 package packup.tour.domain;
 
-
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import packup.common.enums.YnType;
 import packup.tour.enums.TourSessionStatusCode;
 
 import java.time.LocalDateTime;
+
 @Entity
-@SQLDelete(sql = "UPDATE tour_session SET deleted_flag = 'Y', updated_at = now() WHERE seq = ?")
-@Where(clause = "deleted_flag = 'N'") // ← 소프트삭제 조회 필터 권장
 @Table(name = "tour_session")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+@SQLDelete(sql = "UPDATE tour_session SET deleted_flag = 'Y'::yn_enum, updated_at = now() WHERE seq = ?")
 public class TourSession {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seq")
     private Long seq;
 
@@ -29,7 +32,7 @@ public class TourSession {
     @JoinColumn(name = "tour_seq", nullable = false)
     private TourInfo tour;
 
-    @Column(name = "session_start_time", nullable = false) // DDL 반영 권장
+    @Column(name = "session_start_time", nullable = false)
     private LocalDateTime sessionStartTime;
 
     @Column(name = "session_end_time", nullable = false)
@@ -41,8 +44,10 @@ public class TourSession {
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
+    /** Postgres enum(yn_enum) 매핑: NAMED_ENUM + STRING */
     @Enumerated(EnumType.STRING)
-    @Column(name = "deleted_flag", columnDefinition = "public.yn_enum", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "deleted_flag", columnDefinition = "yn_enum", nullable = false)
     @Builder.Default
     private YnType deletedFlag = YnType.N;
 
@@ -92,5 +97,10 @@ public class TourSession {
                 .sessionEndTime(end)
                 .sessionStatusCode(status.getCode())
                 .build();
+    }
+
+    @PrePersist
+    void prePersist() {
+        if (deletedFlag == null) deletedFlag = YnType.N;
     }
 }
