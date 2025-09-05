@@ -38,8 +38,11 @@ public class TourSessionCreateRequest {
 
     /** 도메인 규칙: 종료가 시작 이후여야 함 */
     public boolean isValidTimeRange() {
-        return sessionStartTime == null || sessionEndTime == null || sessionEndTime.isAfter(sessionStartTime);
+        return sessionStartTime != null
+                && sessionEndTime   != null
+                && sessionEndTime.isAfter(sessionStartTime);
     }
+
 
     /**
      * 사전 조회한 TourInfo 엔티티로 신규 TourSession 엔티티 생성
@@ -56,4 +59,5 @@ public class TourSessionCreateRequest {
 
         return builder.build();
     }
+
 }
