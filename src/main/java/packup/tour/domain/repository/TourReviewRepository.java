@@ -1,4 +1,4 @@
-package packup.tour.domain.repositoroy;
+package packup.tour.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import packup.tour.domain.TourReview;

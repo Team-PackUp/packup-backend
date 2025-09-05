@@ -13,7 +13,11 @@ import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 import packup.tour.dto.tourListing.TourCreateRequest;
 import packup.tour.dto.tourListing.TourListingResponse;
+import packup.tour.dto.tourSession.TourSessionCreateRequest;
+import packup.tour.dto.tourSession.TourSessionResponse;
 import packup.tour.service.TourService;
+
+import java.util.List;
 
 import static packup.recommend.exception.RecommendExceptionType.ABNORMAL_ACCESS;
 
@@ -96,4 +100,20 @@ public class TourApiController {
         TourInfoResponse created = tourService.createTour(memberSeq, request);
         return ResultModel.success(created);
     }
+
+    @GetMapping("/{tourSeq}/sessions")
+    public ResultModel<List<TourSessionResponse>> getSessions(@PathVariable Long tourSeq) {
+        return ResultModel.success(tourService.getSessions(tourSeq));
+    }
+
+    @PostMapping("/guide/{tourSeq}/sessions")
+    public ResultModel<TourSessionResponse> createSession(
+            @Auth Long memberSeq,
+            @PathVariable Long tourSeq,
+            @Valid @RequestBody TourSessionCreateRequest request
+    ) {
+        TourSessionResponse created = tourService.createSession(memberSeq, tourSeq, request);
+        return ResultModel.success(created);
+    }
+
 }

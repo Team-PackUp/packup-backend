@@ -13,15 +13,22 @@ import packup.guide.domain.repository.GuideInfoRepository;
 import packup.tour.domain.TourActivity;
 import packup.tour.domain.TourActivityThumbnail;
 import packup.tour.domain.TourInfo;
-import packup.tour.domain.repositoroy.TourActivityRepository;
-import packup.tour.domain.repositoroy.TourActivityThumbnailRepository;
-import packup.tour.domain.repositoroy.TourInfoRepository;
+import packup.tour.domain.TourSession;
+import packup.tour.domain.repository.TourActivityRepository;
+import packup.tour.domain.repository.TourActivityThumbnailRepository;
+import packup.tour.domain.repository.TourInfoRepository;
+import packup.tour.domain.repository.TourSessionRepository;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 import packup.tour.dto.tourListing.TourCreateRequest;
 import packup.tour.dto.tourListing.TourListingResponse;
+import packup.tour.dto.tourSession.TourSessionCreateRequest;
+import packup.tour.dto.tourSession.TourSessionResponse;
 import packup.tour.enums.KrSidoCode;
+import packup.tour.enums.TourSessionStatusCode;
 import packup.tour.enums.TourStatusCode;
+import packup.tour.exception.TourSessionException;
+import packup.tour.exception.TourSessionExceptionType;
 import packup.tour.presentation.RegionResolver;
 import packup.user.exception.UserException;
 import packup.user.exception.UserExceptionType;
@@ -29,17 +36,19 @@ import packup.user.exception.UserExceptionType;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static packup.tour.constant.tourConstant.PAGE_SIZE;
+import static packup.tour.exception.TourSessionExceptionType.*;
 
 @Service
 @RequiredArgsConstructor
 public class TourService {
     private final TourInfoRepository tourInfoRepository;
-
+    private final TourSessionRepository tourSessionRepository;
     private final GuideInfoRepository guideInfoRepository;
     private final TourActivityRepository tourActivityRepository;
     private final TourActivityThumbnailRepository tourActivityThumbnailRepository;
@@ -273,6 +282,52 @@ public class TourService {
     }
 
 
+    public List<TourSessionResponse> getSessions(Long tourSeq) {
+        return tourSessionRepository.findAllByTour_SeqAndDeletedFlagOrderBySessionStartTimeAsc(tourSeq, YnType.N)
+                .stream().map(TourSessionResponse::from).toList();
+    }
 
+    @Transactional
+    public TourSessionResponse createSession(Long memberSeq, Long pathTourSeq, TourSessionCreateRequest req) {
 
+        // 검증
+        if (!req.isValidTimeRange()) {
+            throw new TourSessionException(INVALID_TIME_RANGE);
+        }
+        if (req.getTourSeq() != null && !req.getTourSeq().equals(pathTourSeq)) {
+            throw new TourSessionException(MISMATCH_TOUR_SEQ);
+        }
+
+        // 투어 존재 확인
+        TourInfo tour = tourInfoRepository.findById(pathTourSeq)
+                .orElseThrow(() -> new TourSessionException(NOT_FOUND_TOUR));
+
+        // 권한 체크
+        // if (!tour.isOwnedBy(memberSeq)) throw new TourSessionException(FORBIDDEN_TOUR_ACCESS);
+
+        LocalDateTime start = req.getSessionStartTime();
+        LocalDateTime end   = req.getSessionEndTime();
+        boolean overlapped = !tourSessionRepository.findOverlapping(pathTourSeq, start, end, YnType.N).isEmpty();
+        if (overlapped) {
+            throw new TourSessionException(SESSION_OVERLAPPED);
+        }
+
+        Integer statusCode = (req.getSessionStatusCode() != null)
+                ? req.getSessionStatusCode()
+                : TourSessionStatusCode.OPEN.getCode();
+
+        try {
+            TourSession saved = tourSessionRepository.save(
+                    TourSession.builder()
+                            .tour(tour)
+                            .sessionStartTime(start)
+                            .sessionEndTime(end)
+                            .sessionStatusCode(statusCode)
+                            .build()
+            );
+            return TourSessionResponse.from(saved);
+        } catch (Exception e) {
+            throw new TourSessionException(FAIL_TO_SAVE_SESSION);
+        }
+    }
 }

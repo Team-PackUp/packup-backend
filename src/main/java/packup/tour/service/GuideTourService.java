@@ -12,7 +12,7 @@ import packup.common.dto.PageResponse;
 import packup.guide.domain.GuideInfo;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.tour.domain.TourInfo;
-import packup.tour.domain.repositoroy.TourInfoRepository;
+import packup.tour.domain.repository.TourInfoRepository;
 import packup.tour.dto.tourInfo.TourInfoCreateRequest;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
