@@ -1,5 +1,7 @@
 package packup.guide.domain.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import packup.guide.domain.GuideInfo;
 import packup.tour.domain.TourInfo;

@@ -10,8 +10,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import packup.auth.annotation.Auth;
+import packup.common.dto.PageDTO;
 import packup.common.dto.ResultModel;
 import packup.guide.dto.*;
+import packup.guide.dto.guideInfo.GuideInfoResponse;
 import packup.guide.service.GuideService;
 import packup.tour.domain.TourInfo;
 import packup.tour.dto.tourInfo.TourInfoCreateRequest;
@@ -35,6 +37,11 @@ public class GuideApiController {
     @PostMapping
     public ResponseEntity<?> registerTour(@RequestBody TourInfoCreateRequest request) {
         return null;
+    }
+
+    @GetMapping("/list")
+    public ResultModel<PageDTO<GuideInfoResponse>> list(int page, int size) {
+        return ResultModel.success(guideService.list(page, size));
     }
 
     @GetMapping("/me")

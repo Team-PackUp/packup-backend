@@ -2,10 +2,14 @@ package packup.guide.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import packup.alert.dto.AlertResponse;
+import packup.common.dto.PageDTO;
 import packup.guide.domain.GuideApplication;
 import packup.guide.domain.GuideApplicationStatus;
 import packup.guide.domain.GuideInfo;
@@ -19,8 +23,10 @@ import packup.user.exception.UserException;
 import packup.user.exception.UserExceptionType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +41,25 @@ public class GuideService {
         return guideInfoRepository.findByUser_Seq(userId)
                 .map(guide -> GuideMeResponse.of(GuideInfoResponse.from(guide)))
                 .orElseGet(GuideMeResponse::none);
+    }
+
+    @Transactional(readOnly = true)
+    public PageDTO<GuideInfoResponse> list(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<GuideInfo> guideInfoResponseList = guideInfoRepository.findAll(pageable);
+
+        return PageDTO.<GuideInfoResponse>builder()
+                .objectList(
+                        guideInfoRepository.findAll(pageable)
+                        .stream().map(GuideInfoResponse::from).toList()
+                )
+                .totalPage(guideInfoResponseList.getTotalPages())
+                .totalElements(guideInfoResponseList.getTotalElements())
+                .curPage(guideInfoResponseList.getNumber())
+                .build();
+
     }
 
     @Transactional(readOnly = true)
