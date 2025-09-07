@@ -10,6 +10,8 @@ import packup.common.dto.PageResponse;
 import packup.common.enums.YnType;
 import packup.guide.domain.GuideInfo;
 import packup.guide.domain.repository.GuideInfoRepository;
+import packup.guide.exception.GuideException;
+import packup.guide.exception.GuideExceptionType;
 import packup.tour.domain.TourActivity;
 import packup.tour.domain.TourActivityThumbnail;
 import packup.tour.domain.TourInfo;
@@ -40,6 +42,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static packup.tour.constant.tourConstant.PAGE_SIZE;
 import static packup.tour.exception.TourSessionExceptionType.*;
@@ -97,6 +100,18 @@ public class TourService {
                 dtoPage.isEmpty()
         );
     }
+
+    @Transactional(readOnly = true)
+    public List<TourInfoResponse> getTourByGuide(Long guideSeq) {
+        GuideInfo guide = guideInfoRepository.findById(guideSeq)
+                .orElseThrow(() -> new GuideException(GuideExceptionType.NOT_FOUND_GUIDE));
+
+        List<TourInfo> tours = tourInfoRepository.findAllByGuide(guide);
+        return tours.stream()
+                .map(TourInfoResponse::from)
+                .toList();
+    }
+
 
     @Transactional
     public TourInfoResponse updateTour(TourInfoUpdateRequest request) {

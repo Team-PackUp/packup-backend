@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import packup.auth.annotation.Auth;
 import packup.common.dto.PageDTO;
 import packup.common.dto.ResultModel;
+import packup.guide.domain.GuideInfo;
 import packup.guide.dto.*;
 import packup.guide.dto.guideInfo.GuideInfoResponse;
 import packup.guide.service.GuideService;
@@ -42,6 +43,11 @@ public class GuideApiController {
     @GetMapping("/list")
     public ResultModel<PageDTO<GuideInfoResponse>> list(int page, int size) {
         return ResultModel.success(guideService.list(page, size));
+    }
+
+    @GetMapping("/detail/{guideSeq}")
+    public ResultModel<GuideInfoResponse> getGuideDetail(@PathVariable Long guideSeq) {
+        return ResultModel.success(guideService.getGuideDetail(guideSeq));
     }
 
     @GetMapping("/me")
