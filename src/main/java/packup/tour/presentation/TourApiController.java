@@ -12,6 +12,7 @@ import packup.recommend.exception.RecommendException;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 import packup.tour.dto.tourListing.TourCreateRequest;
+import packup.tour.dto.tourListing.TourListingDetailResponse;
 import packup.tour.dto.tourListing.TourListingResponse;
 import packup.tour.dto.tourSession.TourSessionCreateRequest;
 import packup.tour.dto.tourSession.TourSessionResponse;
@@ -117,18 +118,18 @@ public class TourApiController {
     }
 
     @GetMapping("/listing/{seq}")
-    public ResultModel<TourListingResponse> getListingDetail(@PathVariable Long seq) {
-        TourListingResponse body = tourService.getListingDetail(seq);
+    public ResultModel<TourListingDetailResponse> getListingDetail(@PathVariable Long seq) {
+        TourListingDetailResponse body = tourService.getListingDetail(seq);
         return ResultModel.success(body);
     }
 
     @PutMapping("/listing/{seq}")
-    public ResultModel<TourListingResponse> updateListing(
+    public ResultModel<TourListingDetailResponse> updateListing(
             @Auth Long memberSeq,
             @PathVariable Long seq,
             @Valid @RequestBody TourCreateRequest request
     ) {
-        TourListingResponse updated = tourService.updateListing(memberSeq, seq, request);
+        TourListingDetailResponse updated = tourService.updateListing(memberSeq, seq, request);
         return ResultModel.success(updated);
     }
 

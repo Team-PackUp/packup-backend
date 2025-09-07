@@ -21,12 +21,15 @@ import packup.tour.domain.repository.TourSessionRepository;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 import packup.tour.dto.tourListing.TourCreateRequest;
+import packup.tour.dto.tourListing.TourListingDetailResponse;
 import packup.tour.dto.tourListing.TourListingResponse;
 import packup.tour.dto.tourSession.TourSessionCreateRequest;
 import packup.tour.dto.tourSession.TourSessionResponse;
 import packup.tour.enums.KrSidoCode;
 import packup.tour.enums.TourSessionStatusCode;
 import packup.tour.enums.TourStatusCode;
+import packup.tour.exception.TourInfoException;
+import packup.tour.exception.TourInfoExceptionType;
 import packup.tour.exception.TourSessionException;
 import packup.tour.exception.TourSessionExceptionType;
 import packup.tour.presentation.RegionResolver;
@@ -330,4 +333,207 @@ public class TourService {
             throw new TourSessionException(FAIL_TO_SAVE_SESSION);
         }
     }
+
+
+    @Transactional(readOnly = true)
+    public TourListingDetailResponse getListingDetail(Long seq) {
+        var tour = tourInfoRepository.findById(seq)
+                .orElseThrow(() -> new TourInfoException(TourInfoExceptionType.NOT_FOUND_TOUR));
+
+        tour.getActivities().size();
+
+        var activityRes = new java.util.ArrayList<TourListingDetailResponse.Activity>();
+        for (var a : tour.getActivities()) {
+            var thumbs = tourActivityThumbnailRepository
+                    .findAllByTourActivitySeqOrderByThumbnailOrderAsc(a.getSeq());
+            var thumbUrls = new java.util.ArrayList<String>();
+            for (var t : thumbs) {
+                thumbUrls.add(t.getThumbnailImageUrl());
+            }
+            activityRes.add(new TourListingDetailResponse.Activity(
+                    a.getActivityOrder(),
+                    a.getActivityTitle(),
+                    a.getActivityIntroduce(),
+                    a.getActivityDurationMinute(),
+                    thumbUrls
+            ));
+        }
+
+        // photos: 별도 테이블이 없으면 썸네일 1장만 우선 세팅
+        var photos = new java.util.ArrayList<String>();
+        if (tour.getTourThumbnailUrl() != null) {
+            photos.add(tour.getTourThumbnailUrl());
+        }
+
+        return new TourListingDetailResponse(
+                tour.getSeq(),
+                tour.getTourKeywords(),
+                tour.getTourTitle(),
+                tour.getTourIntroduce(),
+                tour.getTourIncludedContent(),
+                tour.getTourExcludedContent(),
+                tour.getTourNotes(),
+                tour.getTourLocationCode(),
+                tour.getTourThumbnailUrl(),
+                tour.getTourPrice(),
+                tour.getMinHeadCount(),
+                tour.getMaxHeadCount(),
+                tour.getMeetUpAddress(),
+                tour.getMeetUpLat() == null ? null : tour.getMeetUpLat().doubleValue(),
+                tour.getMeetUpLng() == null ? null : tour.getMeetUpLng().doubleValue(),
+                tour.getTransportServiceFlag().name(),
+                tour.getPrivateFlag().name(),
+                tour.getPrivatePrice(),
+                tour.getAdultContentFlag().name(),
+                tour.getMemo(),
+                activityRes,
+                photos
+        );
+    }
+
+    @Transactional
+    public TourListingDetailResponse updateListing(Long memberSeq, Long seq, TourCreateRequest req) {
+        var guide = guideInfoRepository.findByUser_Seq(memberSeq)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_FOUND_MEMBER));
+        var tour = tourInfoRepository.findById(seq)
+                .orElseThrow(() -> new TourInfoException(TourInfoExceptionType.NOT_FOUND_TOUR));
+
+//        if (!tour.getGuide().getSeq().equals(guide.getSeq())) {
+//            throw new SecurityException("본인이 등록한 리스팅만 수정할 수 있습니다.");
+//        }
+
+        Long locationCode = req.getTourLocationCode() == null ? null : req.getTourLocationCode().longValue();
+        java.math.BigDecimal lat = req.getMeetUpLat() == null ? null
+                : java.math.BigDecimal.valueOf(req.getMeetUpLat()).setScale(6, java.math.RoundingMode.HALF_UP);
+        java.math.BigDecimal lng = req.getMeetUpLng() == null ? null
+                : java.math.BigDecimal.valueOf(req.getMeetUpLng()).setScale(6, java.math.RoundingMode.HALF_UP);
+
+        var transportYn = (req.getTransportServiceFlag() != null && "Y".equalsIgnoreCase(req.getTransportServiceFlag()))
+                ? YnType.Y : YnType.N;
+        var privateYn = (req.getPrivateFlag() != null && "Y".equalsIgnoreCase(req.getPrivateFlag()))
+                ? YnType.Y : YnType.N;
+        var adultYn = (req.getAdultContentFlag() != null && "Y".equalsIgnoreCase(req.getAdultContentFlag()))
+                ? YnType.Y : YnType.N;
+
+        String thumbnailUrl = req.getTourThumbnailUrl();
+        if (thumbnailUrl == null && req.getPhotos() != null && !req.getPhotos().isEmpty()) {
+            thumbnailUrl = req.getPhotos().get(0);
+        }
+
+        tour.update(
+                req.getTourTitle(),
+                req.getTourIntroduce(),
+                req.getTourIncludedContent(),
+                req.getTourExcludedContent(),
+                req.getTourNotes(),
+                locationCode,
+                thumbnailUrl,
+                req.getTourPrice(),
+                req.getMinHeadCount(),
+                req.getMaxHeadCount(),
+                req.getMeetUpAddress(),
+                lat,
+                lng,
+                transportYn,
+                privateYn,
+                req.getPrivatePrice(),
+                adultYn,
+                tour.getTourStatusCode(),
+                tour.getApprovalAdminSeq(),
+                tour.getRejectReason(),
+                tour.getDeletedFlag(),
+                req.getMemo()
+        );
+
+        tour.getTourKeywords().clear();
+        if (req.getTourKeywords() != null && !req.getTourKeywords().isEmpty()) {
+            tour.getTourKeywords().addAll(req.getTourKeywords());
+        }
+
+        for (var a : tour.getActivities()) {
+            tourActivityThumbnailRepository.deleteByTourActivitySeq(a.getSeq());
+        }
+        tour.getActivities().clear();
+        tourInfoRepository.flush();
+
+        if (req.getActivities() != null && !req.getActivities().isEmpty()) {
+            var newActs = new java.util.ArrayList<TourActivity>();
+            for (var aReq : req.getActivities()) {
+                var act = TourActivity.builder()
+                        .tour(tour)
+                        .activityOrder(aReq.getActivityOrder())
+                        .activityTitle(aReq.getActivityTitle())
+                        .activityIntroduce(aReq.getActivityIntroduce())
+                        .activityDurationMinute(aReq.getActivityDurationMinute())
+                        .deletedFlag(YnType.N)
+                        .build();
+                newActs.add(act);
+            }
+            tour.getActivities().addAll(newActs);
+            tourActivityRepository.saveAll(newActs);
+
+            int idx = 0;
+            for (var aReq : req.getActivities()) {
+                var parent = newActs.get(idx++);
+                if (aReq.getThumbnails() == null || aReq.getThumbnails().isEmpty()) continue;
+                var thumbs = new java.util.ArrayList<TourActivityThumbnail>();
+                for (var th : aReq.getThumbnails()) {
+                    thumbs.add(TourActivityThumbnail.builder()
+                            .tourActivity(parent)
+                            .thumbnailOrder(th.getThumbnailOrder())
+                            .thumbnailImageUrl(th.getThumbnailImageUrl())
+                            .build());
+                }
+                tourActivityThumbnailRepository.saveAll(thumbs);
+            }
+        }
+
+        tour = tourInfoRepository.save(tour);
+        tour.getActivities().size();
+
+        var activityRes = new java.util.ArrayList<TourListingDetailResponse.Activity>();
+        for (var a : tour.getActivities()) {
+            var thumbs = tourActivityThumbnailRepository
+                    .findAllByTourActivitySeqOrderByThumbnailOrderAsc(a.getSeq());
+            var thumbUrls = new java.util.ArrayList<String>();
+            for (var t : thumbs) thumbUrls.add(t.getThumbnailImageUrl());
+            activityRes.add(new TourListingDetailResponse.Activity(
+                    a.getActivityOrder(),
+                    a.getActivityTitle(),
+                    a.getActivityIntroduce(),
+                    a.getActivityDurationMinute(),
+                    thumbUrls
+            ));
+        }
+
+        var photos = new java.util.ArrayList<String>();
+        if (tour.getTourThumbnailUrl() != null) photos.add(tour.getTourThumbnailUrl());
+
+        return new TourListingDetailResponse(
+                tour.getSeq(),
+                tour.getTourKeywords(),
+                tour.getTourTitle(),
+                tour.getTourIntroduce(),
+                tour.getTourIncludedContent(),
+                tour.getTourExcludedContent(),
+                tour.getTourNotes(),
+                tour.getTourLocationCode(),
+                tour.getTourThumbnailUrl(),
+                tour.getTourPrice(),
+                tour.getMinHeadCount(),
+                tour.getMaxHeadCount(),
+                tour.getMeetUpAddress(),
+                tour.getMeetUpLat() == null ? null : tour.getMeetUpLat().doubleValue(),
+                tour.getMeetUpLng() == null ? null : tour.getMeetUpLng().doubleValue(),
+                tour.getTransportServiceFlag().name(),
+                tour.getPrivateFlag().name(),
+                tour.getPrivatePrice(),
+                tour.getAdultContentFlag().name(),
+                tour.getMemo(),
+                activityRes,
+                photos
+        );
+    }
+
+
 }
