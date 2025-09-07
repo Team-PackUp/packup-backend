@@ -58,6 +58,7 @@ public class GuideService {
                 .totalPage(guideInfoResponseList.getTotalPages())
                 .totalElements(guideInfoResponseList.getTotalElements())
                 .curPage(guideInfoResponseList.getNumber())
+                .nextPageFlag(guideInfoResponseList.hasNext())
                 .build();
 
     }
