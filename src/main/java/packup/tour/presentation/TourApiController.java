@@ -116,4 +116,21 @@ public class TourApiController {
         return ResultModel.success(created);
     }
 
+    @GetMapping("/listing/{seq}")
+    public ResultModel<TourListingResponse> getListingDetail(@PathVariable Long seq) {
+        TourListingResponse body = tourService.getListingDetail(seq);
+        return ResultModel.success(body);
+    }
+
+    @PutMapping("/listing/{seq}")
+    public ResultModel<TourListingResponse> updateListing(
+            @Auth Long memberSeq,
+            @PathVariable Long seq,
+            @Valid @RequestBody TourCreateRequest request
+    ) {
+        TourListingResponse updated = tourService.updateListing(memberSeq, seq, request);
+        return ResultModel.success(updated);
+    }
+
+
 }
