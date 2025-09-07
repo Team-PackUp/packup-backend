@@ -36,6 +36,8 @@ public class GuideInfoResponse {
     private String suspensionReason;
     private Long suspensionAdminSeq;
 
+    private String expertise;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -68,6 +70,7 @@ public class GuideInfoResponse {
                 .suspensionFlag(guideInfo.getSuspensionFlag())
                 .suspensionReason(guideInfo.getSuspensionReason())
                 .suspensionAdminSeq(guideInfo.getSuspensionAdminSeq())
+                .expertise(guideInfo.getExpertise())
                 .createdAt(guideInfo.getCreatedAt())
                 .updatedAt(guideInfo.getUpdatedAt())
                 .build();
