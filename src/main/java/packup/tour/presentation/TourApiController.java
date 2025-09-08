@@ -59,6 +59,12 @@ public class TourApiController {
         return ResultModel.success(tours);
     }
 
+    @GetMapping("/detail/{tourSeq}")
+    public ResultModel<TourInfoResponse> getTourDetail(@PathVariable Long tourSeq) {
+        TourInfoResponse tours = tourService.getTourDetail(tourSeq);
+        return ResultModel.success(tours);
+    }
+
     /**
      * 투어 정보 수정
      */

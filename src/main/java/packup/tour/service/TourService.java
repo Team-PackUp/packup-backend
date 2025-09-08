@@ -104,7 +104,6 @@ public class TourService {
         );
     }
 
-    @Transactional(readOnly = true)
     public List<TourInfoResponse> getTourByGuide(Long guideSeq) {
         GuideInfo guide = guideInfoRepository.findById(guideSeq)
                 .orElseThrow(() -> new GuideException(GuideExceptionType.NOT_FOUND_GUIDE));
@@ -113,6 +112,13 @@ public class TourService {
         return tours.stream()
                 .map(TourInfoResponse::from)
                 .toList();
+    }
+
+    public TourInfoResponse getTourDetail(Long tourSeq) {
+        TourInfo tour = tourInfoRepository.findById(tourSeq)
+                .orElseThrow(() -> new TourInfoException(TourInfoExceptionType.NOT_FOUND_TOUR));
+
+        return TourInfoResponse.from(tour);
     }
 
 
