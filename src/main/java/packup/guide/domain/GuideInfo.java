@@ -40,8 +40,7 @@ public class GuideInfo {
     @Comment("가이드 언어(JSONB)")
     private JsonNode guideLanguage;
 
-    @Lob
-    @Column(name = "guide_introduce")
+    @Column(name = "guide_introduce", columnDefinition = "TEXT")
     @Comment("가이드 소개")
     private String guideIntroduce;
 

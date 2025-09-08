@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import packup.common.enums.YnType;
+import packup.guide.domain.GuideInfo;
 import packup.tour.domain.TourInfo;
 import packup.tour.enums.TourStatusCode;
 
@@ -64,5 +65,7 @@ public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
 
     @Query("SELECT t FROM TourInfo t WHERE t.tourLocationCode = :regionCode")
     Page<TourInfo> findFilteredToursByRegion(@Param("regionCode") String regionCode, Pageable pageable);
+
+    List<TourInfo> findAllByGuide(GuideInfo guideInfo);
 
 }

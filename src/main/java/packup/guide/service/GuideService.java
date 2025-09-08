@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import packup.alert.dto.AlertResponse;
 import packup.common.dto.PageDTO;
 import packup.guide.domain.GuideApplication;
 import packup.guide.domain.GuideApplicationStatus;
@@ -17,6 +16,8 @@ import packup.guide.domain.repository.GuideApplicationRepository;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.guide.dto.*;
 import packup.guide.dto.guideInfo.GuideInfoResponse;
+import packup.guide.exception.GuideException;
+import packup.guide.exception.GuideExceptionType;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 import packup.user.exception.UserException;
@@ -61,6 +62,20 @@ public class GuideService {
                 .nextPageFlag(guideInfoResponseList.hasNext())
                 .build();
 
+    }
+
+    public GuideInfoResponse getGuideDetail(Long guideSeq) {
+
+        GuideInfo guideInfo = guideInfoRepository.findById(guideSeq)
+                .orElseThrow(() -> new GuideException(GuideExceptionType.NOT_FOUND_GUIDE));
+
+        if(guideInfo == null) {
+            throw new GuideException(GuideExceptionType.NOT_FOUND_GUIDE);
+        }
+
+        GuideInfoResponse.from(guideInfo);
+
+        return GuideInfoResponse.from(guideInfo);
     }
 
     @Transactional(readOnly = true)
