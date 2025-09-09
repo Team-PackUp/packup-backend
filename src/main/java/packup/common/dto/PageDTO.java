@@ -16,6 +16,7 @@ public class PageDTO<T> {
     private long   totalElements;  // page.getTotalElements()
     private int    curPage;        // page.getNumber()  (0‑based)
     private boolean    nextPageFlag;        // page.getNumber()  (0‑based)
+    private Long    totalElement;        // page.getNumber()  (0‑based)
 
     public static <T> PageDTO<T> of(Page<T> page) {
         return PageDTO.<T>builder()
@@ -23,6 +24,7 @@ public class PageDTO<T> {
                 .totalPage(page.getTotalPages())
                 .totalElements(page.getTotalElements())
                 .curPage(page.getNumber())
+                .totalElement(page.getTotalElements())
                 .build();
     }
 }

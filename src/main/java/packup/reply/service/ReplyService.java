@@ -64,6 +64,7 @@ public class ReplyService {
                                 .toList()
                 )
                 .totalPage(replyList.getTotalPages())
+                .totalElement(replyList.getTotalElements())
                 .build();
     }
 
