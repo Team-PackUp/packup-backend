@@ -190,6 +190,7 @@ public class ChatService {
         return validationUtil.validateActiveUser(raw);
     }
 
+    @Transactional
     public FileResponse saveFile(Long memberId, String type, MultipartFile file) throws IOException {
 
         UserInfo userInfo = userInfoRepository.findById(memberId)

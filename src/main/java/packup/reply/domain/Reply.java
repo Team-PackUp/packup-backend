@@ -37,6 +37,10 @@ public class Reply extends BaseEntity {
     @Column(name = "point", nullable = false)
     private int point;
 
+    @Column(name = "file_seq", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String fileSeq;
+
     @Column(name = "delete_flag", columnDefinition = "yn_enum", nullable = false)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private YnType deleteFlag;

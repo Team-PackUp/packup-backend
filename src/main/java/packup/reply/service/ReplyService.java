@@ -6,16 +6,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import packup.auth.exception.AuthException;
 import packup.auth.exception.AuthExceptionType;
+import packup.chat.domain.ChatMessageFile;
+import packup.chat.exception.ChatException;
 import packup.common.domain.repository.CommonCodeRepository;
+import packup.common.dto.FileResponse;
 import packup.common.dto.PageDTO;
 import packup.common.enums.YnType;
+import packup.common.util.FileUtil;
 import packup.fcmpush.service.FcmPushService;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.recommend.annotation.RecommendTrace;
 import packup.recommend.enums.ActionType;
 import packup.reply.domain.Reply;
+import packup.reply.domain.ReplyFile;
+import packup.reply.domain.repository.ReplyFileRepository;
 import packup.reply.domain.repository.ReplyRepository;
 import packup.reply.dto.ReplyRequest;
 import packup.reply.dto.ReplyResponse;
@@ -26,6 +33,10 @@ import packup.tour.domain.repository.TourInfoRepository;
 import packup.user.domain.UserInfo;
 import packup.user.domain.repository.UserInfoRepository;
 
+import java.io.IOException;
+import java.util.List;
+
+import static packup.reply.exception.ReplyExceptionType.NOT_FOUND_MEMBER;
 import static packup.reply.constant.ReplyConstant.PAGE_SIZE;
 import static packup.reply.exception.ReplyExceptionType.*;
 
@@ -39,6 +50,9 @@ public class ReplyService {
     private final TourInfoRepository tourInfoRepository;
     private final GuideInfoRepository guideInfoRepository;
     private final FcmPushService firebaseService;
+    private final FileUtil fileUtil;
+    private final ReplyFileRepository replyFileRepository;
+
 
     public PageDTO<ReplyResponse> getReplyList(ReplyRequest replyRequest, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
@@ -115,6 +129,45 @@ public class ReplyService {
         replyRepository.save(newReply);
 
         return ReplyResponse.fromEntity(newReply);
+    }
+
+    @Transactional
+    public List<FileResponse> saveReplyImage(Long memberId, List<MultipartFile> file) {
+
+        UserInfo userInfo = userInfoRepository.findById(memberId)
+                .orElseThrow(() -> new ReplyException(NOT_FOUND_MEMBER));
+
+        return file.stream()
+                .filter(f -> f != null && !f.isEmpty())
+                .map(f -> {
+                    try {
+                        FileResponse imageDTO = fileUtil.saveImage("reply", f);
+
+                        ReplyFile replyFile = ReplyFile.of(
+                                imageDTO.getPath(),
+                                userInfo.getSeq(),
+                                imageDTO.getEncodedName(),
+                                imageDTO.getRealName()
+                        );
+
+                        replyFileRepository.save(replyFile);
+
+                        return FileResponse
+                                .builder()
+                                .seq(replyFile.seq())
+                                .path(replyFile.getReplyFilePath())
+                                .userSeq(userInfo.getSeq())
+                                .realName(replyFile.getRealName())
+                                .encodedName(replyFile.getEncodedName())
+                                .type("reply")
+                                .createdAt(replyFile.getCreatedAt())
+                                .build();
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
     }
 
     @Transactional
