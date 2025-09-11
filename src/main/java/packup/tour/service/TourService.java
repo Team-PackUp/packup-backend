@@ -314,20 +314,15 @@ public class TourService {
     @Transactional
     public TourSessionResponse createSession(Long memberSeq, Long pathTourSeq, TourSessionCreateRequest req) {
 
-        // 검증
-        if (!req.isValidTimeRange()) {
-            throw new TourSessionException(INVALID_TIME_RANGE);
-        }
         if (req.getTourSeq() != null && !req.getTourSeq().equals(pathTourSeq)) {
             throw new TourSessionException(MISMATCH_TOUR_SEQ);
         }
+        if (!req.isValidTimeRange()) {
+            throw new TourSessionException(INVALID_TIME_RANGE);
+        }
 
-        // 투어 존재 확인
         TourInfo tour = tourInfoRepository.findById(pathTourSeq)
                 .orElseThrow(() -> new TourSessionException(NOT_FOUND_TOUR));
-
-        // 권한 체크
-        // if (!tour.isOwnedBy(memberSeq)) throw new TourSessionException(FORBIDDEN_TOUR_ACCESS);
 
         LocalDateTime start = req.getSessionStartTime();
         LocalDateTime end   = req.getSessionEndTime();
@@ -336,19 +331,9 @@ public class TourService {
             throw new TourSessionException(SESSION_OVERLAPPED);
         }
 
-        Integer statusCode = (req.getSessionStatusCode() != null)
-                ? req.getSessionStatusCode()
-                : TourSessionStatusCode.OPEN.getCode();
-
         try {
-            TourSession saved = tourSessionRepository.save(
-                    TourSession.builder()
-                            .tour(tour)
-                            .sessionStartTime(start)
-                            .sessionEndTime(end)
-                            .sessionStatusCode(statusCode)
-                            .build()
-            );
+            TourSession session = req.toEntity(tour);
+            TourSession saved = tourSessionRepository.save(session);
             return TourSessionResponse.from(saved);
         } catch (Exception e) {
             throw new TourSessionException(FAIL_TO_SAVE_SESSION);
