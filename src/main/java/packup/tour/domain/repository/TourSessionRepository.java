@@ -5,18 +5,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import packup.common.enums.YnType;
 import packup.tour.domain.TourSession;
+import packup.tour.dto.tourSession.TourSessionOpenResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TourSessionRepository extends JpaRepository<TourSession, Long> {
 
-    // 투어별 세션 조회
     List<TourSession> findAllByTour_SeqAndDeletedFlagOrderBySessionStartTimeAsc(
             Long tourSeq, YnType deletedFlag
     );
 
-    // 시간 겹침( [start, end) ) 조회 — 소프트삭제 제외(N) 조건 포함
     @Query("""
         select s
           from TourSession s
@@ -30,4 +29,41 @@ public interface TourSessionRepository extends JpaRepository<TourSession, Long> 
             @Param("end")   LocalDateTime end,
             @Param("active") YnType active
     );
+    @Query("""
+    select new packup.tour.dto.tourSession.TourSessionOpenResponse(
+        ts.seq,
+        t.seq,
+        ts.sessionStartTime,
+        ts.sessionEndTime,
+        ts.sessionStatusCode,
+        ts.cancelledAt,
+        ts.maxParticipants,
+        coalesce((
+            select sum(
+                cast(
+                    (coalesce(b.bookingAdultCount,0) + coalesce(b.bookingKidsCount,0))
+                as long)
+            )
+            from TourBooking b
+            where b.tourSession = ts
+              and b.canceledAt is null
+        ), 0L)
+    )
+    from TourSession ts
+      join ts.tour t
+    where t.seq = :tourSeq
+      and ts.deletedFlag = :active
+      and t.deletedFlag = :active
+      and ts.sessionStatusCode = :openCode
+      and ts.sessionStartTime >= coalesce(:from, ts.sessionStartTime)
+    order by ts.sessionStartTime asc
+    """)
+    List<TourSessionOpenResponse> findOpenSessionsWithBookedCount(
+            @Param("tourSeq") Long tourSeq,
+            @Param("from") LocalDateTime from,
+            @Param("openCode") Integer openCode,
+            @Param("active") YnType active
+    );
+
+
 }

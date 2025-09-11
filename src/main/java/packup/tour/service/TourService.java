@@ -26,6 +26,7 @@ import packup.tour.dto.tourListing.TourCreateRequest;
 import packup.tour.dto.tourListing.TourListingDetailResponse;
 import packup.tour.dto.tourListing.TourListingResponse;
 import packup.tour.dto.tourSession.TourSessionCreateRequest;
+import packup.tour.dto.tourSession.TourSessionOpenResponse;
 import packup.tour.dto.tourSession.TourSessionResponse;
 import packup.tour.enums.KrSidoCode;
 import packup.tour.enums.TourSessionStatusCode;
@@ -541,5 +542,9 @@ public class TourService {
         );
     }
 
+    public List<TourSessionOpenResponse> getOpenSessions(Long tourSeq, LocalDateTime from) {
+        final Integer openCode = TourSessionStatusCode.OPEN.getCode();
+        return tourSessionRepository.findOpenSessionsWithBookedCount(tourSeq, from, openCode, YnType.N);
+    }
 
 }

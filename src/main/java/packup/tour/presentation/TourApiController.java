@@ -2,6 +2,7 @@ package packup.tour.presentation;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import packup.auth.annotation.Auth;
 import packup.common.dto.PageDTO;
@@ -15,9 +16,11 @@ import packup.tour.dto.tourListing.TourCreateRequest;
 import packup.tour.dto.tourListing.TourListingDetailResponse;
 import packup.tour.dto.tourListing.TourListingResponse;
 import packup.tour.dto.tourSession.TourSessionCreateRequest;
+import packup.tour.dto.tourSession.TourSessionOpenResponse;
 import packup.tour.dto.tourSession.TourSessionResponse;
 import packup.tour.service.TourService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static packup.recommend.exception.RecommendExceptionType.ABNORMAL_ACCESS;
@@ -145,5 +148,14 @@ public class TourApiController {
         return ResultModel.success(updated);
     }
 
+    @GetMapping("/{tourSeq}/sessions/open")
+    public ResultModel<List<TourSessionOpenResponse>> getOpenSessions(
+            @PathVariable Long tourSeq,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from
+    ) {
+        List<TourSessionOpenResponse> body = tourService.getOpenSessions(tourSeq, from);
+        return ResultModel.success(body);
+    }
 
 }
