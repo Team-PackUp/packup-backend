@@ -10,6 +10,8 @@ import static org.springframework.http.HttpStatus.*;
 public enum TourSessionExceptionType implements BaseExceptionType {
 
     INVALID_TIME_RANGE(BAD_REQUEST, "세션 종료시간은 시작시간 이후여야 합니다."),
+    INVALID_CAPACITY(BAD_REQUEST, "최대 인원은 1명 이상이어야 합니다."),
+    CAPACITY_LESS_THAN_BOOKED(BAD_REQUEST, "현재 예약된 인원보다 작은 값으로 최대 인원을 줄일 수 없습니다."),
     MISMATCH_TOUR_SEQ(BAD_REQUEST, "요청의 tourSeq가 경로와 일치하지 않습니다."),
     NOT_FOUND_TOUR(NOT_FOUND, "해당 투어를 찾을 수 없습니다."),
     FORBIDDEN_TOUR_ACCESS(FORBIDDEN, "해당 투어에 대한 권한이 없습니다."),

@@ -10,6 +10,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import packup.common.enums.YnType;
 import packup.tour.enums.TourSessionStatusCode;
+import packup.tour.exception.TourSessionException;
+import packup.tour.exception.TourSessionExceptionType;
 
 import java.time.LocalDateTime;
 
@@ -44,7 +46,9 @@ public class TourSession {
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
-    /** Postgres enum(yn_enum) 매핑: NAMED_ENUM + STRING */
+    @Column(name = "max_participants", nullable = false)
+    private Integer maxParticipants;
+
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "deleted_flag", columnDefinition = "yn_enum", nullable = false)
@@ -59,7 +63,6 @@ public class TourSession {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    /* ===== Enum <-> code 브릿지 ===== */
     @Transient
     public TourSessionStatusCode getStatus() {
         return TourSessionStatusCode.fromCode(this.sessionStatusCode);
@@ -69,12 +72,13 @@ public class TourSession {
         this.sessionStatusCode = status.getCode();
     }
 
-    /* ===== 도메인 메서드 ===== */
-    public void update(LocalDateTime start, LocalDateTime end, TourSessionStatusCode status) {
+    public void update(LocalDateTime start, LocalDateTime end, TourSessionStatusCode status, Integer maxParticipants) {
         validateTimeRange(start, end);
+        validateCapacity(maxParticipants);
         this.sessionStartTime = start;
         this.sessionEndTime = end;
         setStatus(status);
+        this.maxParticipants = maxParticipants;
     }
 
     public void cancel(LocalDateTime cancelledAt) {
@@ -85,22 +89,38 @@ public class TourSession {
     public void softDelete() { this.deletedFlag = YnType.Y; }
 
     private static void validateTimeRange(LocalDateTime start, LocalDateTime end) {
-        if (start == null || end == null) throw new IllegalArgumentException("세션 시간은 필수입니다.");
-        if (!end.isAfter(start)) throw new IllegalArgumentException("종료는 시작 이후여야 합니다.");
+        if (start == null || end == null || !end.isAfter(start)) {
+            throw new TourSessionException(TourSessionExceptionType.INVALID_TIME_RANGE);
+        }
     }
 
-    public static TourSession of(TourInfo tour, LocalDateTime start, LocalDateTime end, TourSessionStatusCode status) {
+    private static void validateCapacity(Integer capacity) {
+        if (capacity == null || capacity < 1) {
+            throw new TourSessionException(TourSessionExceptionType.INVALID_CAPACITY);
+        }
+    }
+
+    public static TourSession of(
+            TourInfo tour,
+            LocalDateTime start,
+            LocalDateTime end,
+            TourSessionStatusCode status,
+            Integer maxParticipants
+    ) {
         validateTimeRange(start, end);
+        validateCapacity(maxParticipants);
         return TourSession.builder()
                 .tour(tour)
                 .sessionStartTime(start)
                 .sessionEndTime(end)
                 .sessionStatusCode(status.getCode())
+                .maxParticipants(maxParticipants)
                 .build();
     }
 
     @PrePersist
     void prePersist() {
         if (deletedFlag == null) deletedFlag = YnType.N;
+        if (maxParticipants == null) maxParticipants = 10;
     }
 }
