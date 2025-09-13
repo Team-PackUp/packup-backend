@@ -3,6 +3,8 @@ package packup.tour.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -63,6 +65,7 @@ public class TourBooking {
     @Enumerated(EnumType.STRING)
     @Column(name = "booking_private_flag", columnDefinition = "public.yn_enum")
     @Comment("프라이빗 예약 여부")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Builder.Default
     private YnType bookingPrivateFlag = YnType.N;
 
@@ -70,6 +73,7 @@ public class TourBooking {
     @Enumerated(EnumType.STRING)
     @Column(name = "cancel_terms_checked_flag", columnDefinition = "public.yn_enum")
     @Comment("취소 약관 확인 여부")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Builder.Default
     private YnType cancelTermsCheckedFlag = YnType.N;
 
@@ -97,6 +101,7 @@ public class TourBooking {
     @Enumerated(EnumType.STRING)
     @Column(name = "no_show_flag", columnDefinition = "public.yn_enum")
     @Comment("노쇼 여부")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Builder.Default
     private YnType noShowFlag = YnType.N;
 
