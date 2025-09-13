@@ -1,6 +1,8 @@
 package packup.tour.domain.repository;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import packup.common.enums.YnType;
@@ -9,12 +11,18 @@ import packup.tour.dto.tourSession.TourSessionOpenResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TourSessionRepository extends JpaRepository<TourSession, Long> {
 
     List<TourSession> findAllByTour_SeqAndDeletedFlagOrderBySessionStartTimeAsc(
             Long tourSeq, YnType deletedFlag
     );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select ts from TourSession ts where ts.seq = :seq")
+    Optional<TourSession> findByIdForUpdate(@Param("seq") Long seq);
+
 
     @Query("""
         select s

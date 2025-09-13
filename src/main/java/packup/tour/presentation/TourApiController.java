@@ -10,6 +10,8 @@ import packup.common.dto.PageResponse;
 import packup.common.dto.ResultModel;
 import packup.recommend.dto.RecommendResponse;
 import packup.recommend.exception.RecommendException;
+import packup.tour.dto.tourBooking.TourBookingCreateRequest;
+import packup.tour.dto.tourBooking.TourBookingResponse;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 import packup.tour.dto.tourListing.TourCreateRequest;
@@ -18,6 +20,7 @@ import packup.tour.dto.tourListing.TourListingResponse;
 import packup.tour.dto.tourSession.TourSessionCreateRequest;
 import packup.tour.dto.tourSession.TourSessionOpenResponse;
 import packup.tour.dto.tourSession.TourSessionResponse;
+import packup.tour.service.TourBookingService;
 import packup.tour.service.TourService;
 
 import java.time.LocalDateTime;
@@ -31,6 +34,7 @@ import static packup.recommend.exception.RecommendExceptionType.ABNORMAL_ACCESS;
 public class TourApiController {
 
     private final TourService tourService;
+    private final TourBookingService tourBookingService;
 
     /**
      * 전체 투어 목록을 페이징 방식으로 조회합니다.
@@ -155,6 +159,15 @@ public class TourApiController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from
     ) {
         List<TourSessionOpenResponse> body = tourService.getOpenSessions(tourSeq, from);
+        return ResultModel.success(body);
+    }
+
+    @PostMapping("/booking")
+    public ResultModel<TourBookingResponse> createBooking(
+            @Auth Long memberSeq,
+            @Valid @RequestBody TourBookingCreateRequest request
+    ) {
+        TourBookingResponse body = tourBookingService.createBooking(memberSeq, request);
         return ResultModel.success(body);
     }
 
