@@ -66,6 +66,15 @@ public class TourApiController {
         return ResultModel.success(tours);
     }
 
+    @GetMapping("/user/booking")
+    public ResultModel<PageResponse<TourInfoResponse>> getBookingTours(
+            @Auth Long memberId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PageResponse<TourInfoResponse> tours = tourService.getBookingTour(memberId, page, size);
+        return ResultModel.success(tours);
+    }
+
     @GetMapping("/detail/{tourSeq}")
     public ResultModel<TourInfoResponse> getTourDetail(@PathVariable Long tourSeq) {
         TourInfoResponse tours = tourService.getTourDetail(tourSeq);

@@ -73,5 +73,10 @@ public interface TourSessionRepository extends JpaRepository<TourSession, Long> 
             @Param("active") YnType active
     );
 
-
+    @Query("""
+    select ts.tour.seq
+    from TourSession ts
+    where ts.seq in :tourSessionSeq
+    """)
+    List<Long> findTourSeqByTourBookingSeq(@Param("tourSessionSeq") List<Long> tourSessionSeq);
 }

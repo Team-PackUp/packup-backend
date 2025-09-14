@@ -68,4 +68,11 @@ public interface TourInfoRepository extends JpaRepository<TourInfo, Long> {
 
     List<TourInfo> findAllByGuide(GuideInfo guideInfo);
 
+    @Query("""
+    select t
+    from TourInfo t
+    where t.seq in :tourSeq
+    and t.deletedFlag = 'N'
+    """)
+    Page<TourInfo> findAllByTourSeq(@Param("tourSeq") List<Long> tourSeq, Pageable pageable);
 }

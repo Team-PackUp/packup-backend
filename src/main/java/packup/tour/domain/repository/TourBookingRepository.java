@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import packup.tour.domain.TourBooking;
 
+import java.util.List;
+
 @Repository
 public interface TourBookingRepository extends JpaRepository<TourBooking, Long> {
 
@@ -20,4 +22,12 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Long> 
     boolean existsByTourSession_SeqAndUser_SeqAndPaymentSeq(Long sessionSeq, Long userSeq, Long paymentSeq);
 
     boolean existsByCancelReason(String cancelReason);
+
+    @Query("""
+    select b.tourSession.seq
+    from TourBooking b
+    where b.user.seq in :userSeq
+    """)
+    List<Long> findTourSessionSeqByUserSeq(@Param("userSeq") Long userSeq);
+
 }

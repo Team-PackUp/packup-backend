@@ -12,14 +12,8 @@ import packup.guide.domain.GuideInfo;
 import packup.guide.domain.repository.GuideInfoRepository;
 import packup.guide.exception.GuideException;
 import packup.guide.exception.GuideExceptionType;
-import packup.tour.domain.TourActivity;
-import packup.tour.domain.TourActivityThumbnail;
-import packup.tour.domain.TourInfo;
-import packup.tour.domain.TourSession;
-import packup.tour.domain.repository.TourActivityRepository;
-import packup.tour.domain.repository.TourActivityThumbnailRepository;
-import packup.tour.domain.repository.TourInfoRepository;
-import packup.tour.domain.repository.TourSessionRepository;
+import packup.tour.domain.*;
+import packup.tour.domain.repository.*;
 import packup.tour.dto.tourInfo.TourInfoResponse;
 import packup.tour.dto.tourInfo.TourInfoUpdateRequest;
 import packup.tour.dto.tourListing.TourCreateRequest;
@@ -56,6 +50,7 @@ import static packup.tour.exception.TourSessionExceptionType.*;
 public class TourService {
     private final TourInfoRepository tourInfoRepository;
     private final TourSessionRepository tourSessionRepository;
+    private final TourBookingRepository tourBookingRepository;
     private final GuideInfoRepository guideInfoRepository;
     private final TourActivityRepository tourActivityRepository;
     private final TourActivityThumbnailRepository tourActivityThumbnailRepository;
@@ -85,6 +80,27 @@ public class TourService {
                 dtoPage.isFirst(),
                 dtoPage.isEmpty()
         );
+    }
+
+    public PageResponse<TourInfoResponse> getBookingTour(Long memberId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("seq").descending());
+        List<Long> sessionSeq = tourBookingRepository.findTourSessionSeqByUserSeq(memberId);
+
+        List<Long> tourSeq = tourSessionRepository.findTourSeqByTourBookingSeq(sessionSeq);
+
+        Page<TourInfo> tours = tourInfoRepository.findAllByTourSeq(tourSeq, pageable);
+        Page<TourInfoResponse> dtoPage = tours.map(TourInfoResponse::from);
+
+        return new PageResponse<>(
+                dtoPage.getContent(),
+                dtoPage.getNumber() + 1,
+                dtoPage.getNumber(),
+                dtoPage.getSize(),
+                dtoPage.getTotalElements(),
+                dtoPage.getTotalPages(),
+                dtoPage.isLast(),
+                dtoPage.isFirst(),
+                dtoPage.isEmpty());
     }
 
     public PageResponse<TourInfoResponse> getTourByRegion(String regionCode, int page, int size) {
